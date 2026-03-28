@@ -10,3 +10,66 @@
    #:assert-signals
    #:run-tests
    #:*test-registry*))
+
+(defpackage :innate.tests.conditions
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest
+    #:assert-equal
+    #:assert-true
+    #:assert-nil
+    #:assert-signals
+    #:run-tests)
+  (:import-from :innate.conditions
+    #:innate-condition
+    #:innate-parse-error
+    #:innate-resistance
+    #:parse-error-line
+    #:parse-error-col
+    #:resistance-condition-message
+    #:resistance-condition-source)
+  (:export))
+
+(defpackage :innate.tests.types
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest
+    #:assert-equal
+    #:assert-true
+    #:assert-nil
+    #:assert-signals
+    #:run-tests)
+  (:import-from :innate.types
+    #:make-node
+    #:node-kind
+    #:node-value
+    #:node-children
+    #:node-props
+    #:+node-program+
+    #:+node-bracket+
+    #:+node-agent+
+    #:+node-bundle+
+    #:+node-reference+
+    #:+node-search+
+    #:+node-fulfillment+
+    #:+node-emission+
+    #:+node-decree+
+    #:+node-wikilink+
+    #:+node-combinator+
+    #:+node-lens+
+    #:+node-kv-pair+
+    #:+node-modifier+
+    #:+node-prose+
+    #:+node-heading+
+    #:+node-string-lit+
+    #:+node-number-lit+
+    #:+node-bare-word+
+    #:+node-emoji-slot+
+    #:make-innate-result
+    #:innate-result-value
+    #:innate-result-context
+    #:make-resistance
+    #:resistance-p
+    #:resistance-message
+    #:resistance-source)
+  (:export))

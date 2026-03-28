@@ -30,5 +30,7 @@
   :pathname "tests/"
   :components
   ((:file "packages")
-   (:file "test-framework" :depends-on ("packages"))
-   (:file "smoke-test"     :depends-on ("packages" "test-framework"))))
+   (:file "test-framework"  :depends-on ("packages"))
+   (:file "smoke-test"      :depends-on ("packages" "test-framework"))
+   (:file "test-conditions" :depends-on ("packages" "test-framework"))
+   (:file "test-types"      :depends-on ("packages" "test-framework"))))

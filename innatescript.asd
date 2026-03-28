@@ -22,3 +22,12 @@
                                            "parser/tokenizer" "parser/parser"
                                            "eval/resolver" "eval/evaluator"
                                            "eval/stub-resolver" "repl"))))
+
+(defsystem "innatescript/tests"
+  :description "Test suite for the Innate interpreter"
+  :depends-on ("innatescript")
+  :pathname "tests/"
+  :components
+  ((:file "packages")
+   (:file "test-framework" :depends-on ("packages"))
+   (:file "smoke-test"     :depends-on ("packages" "test-framework"))))

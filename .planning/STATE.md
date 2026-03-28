@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-project-scaffolding/01-02-PLAN.md
-last_updated: "2026-03-28T05:31:23.074Z"
+stopped_at: Completed 02-conditions-and-ast-nodes/02-01-PLAN.md
+last_updated: "2026-03-28T19:13:45.756Z"
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 5
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
-**Current focus:** Phase 01 — project-scaffolding
+**Current focus:** Phase 02 — conditions-and-ast-nodes
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (conditions-and-ast-nodes) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: Not started
 *Updated after each plan completion*
 | Phase 01-project-scaffolding P01 | 2 | 3 tasks | 11 files |
 | Phase 01-project-scaffolding P02 | 2 | 2 tasks | 5 files |
+| Phase 02-conditions-and-ast-nodes P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Recent decisions affecting current work:
 - [Phase 01-project-scaffolding]: deftest uses *test-failures* dynamic var scoped per test body — isolates assertion failure counts without global accumulator
 - [Phase 01-project-scaffolding]: run-tests returns boolean T/NIL mapped to sb-ext:exit code 0/1 in run-tests.sh — keeps Lisp function testable without shell context
 - [Phase 01-project-scaffolding]: innatescript/tests secondary ASDF system uses explicit :depends-on per component, consistent with primary system convention
+- [Phase 02-conditions-and-ast-nodes]: innate.conditions :import-from :innate.types left without explicit symbol list — conditions.lisp declares precise imports at implementation time
+- [Phase 02-conditions-and-ast-nodes]: Test packages are complete import mirrors of their implementation packages — innate.tests.types imports all 32 innate.types symbols
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T05:27:46.942Z
-Stopped at: Completed 01-project-scaffolding/01-02-PLAN.md
+Last session: 2026-03-28T19:13:45.753Z
+Stopped at: Completed 02-conditions-and-ast-nodes/02-01-PLAN.md
 Resume file: None

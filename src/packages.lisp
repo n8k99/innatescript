@@ -78,20 +78,61 @@
 
 (defpackage :innate.eval.resolver
   (:use :cl)
-  (:import-from :innate.types)
+  (:import-from :innate.types
+    #:make-innate-result
+    #:innate-result-value
+    #:innate-result-context
+    #:make-resistance
+    #:resistance-p)
   (:import-from :innate.conditions)
-  (:export))
+  (:export
+   #:resolver
+   #:resolve-reference
+   #:resolve-search
+   #:deliver-commission
+   #:resolve-wikilink
+   #:resolve-context
+   #:load-bundle
+   #:eval-env
+   #:make-eval-env
+   #:eval-env-resolver
+   #:eval-env-decrees
+   #:eval-env-bindings
+   #:eval-env-scope))
 
 (defpackage :innate.eval
   (:use :cl)
-  (:import-from :innate.eval.resolver)
+  (:import-from :innate.eval.resolver
+    #:resolver
+    #:eval-env
+    #:make-eval-env
+    #:eval-env-resolver
+    #:eval-env-decrees
+    #:eval-env-bindings
+    #:eval-env-scope
+    #:resolve-reference
+    #:resolve-search
+    #:deliver-commission
+    #:resolve-wikilink
+    #:resolve-context
+    #:load-bundle)
   (:import-from :innate.types)
   (:import-from :innate.conditions)
   (:export))
 
 (defpackage :innate.eval.stub-resolver
   (:use :cl)
-  (:import-from :innate.eval.resolver)
+  (:import-from :innate.eval.resolver
+    #:resolver
+    #:resolve-reference
+    #:resolve-search
+    #:deliver-commission
+    #:resolve-wikilink
+    #:resolve-context
+    #:load-bundle)
+  (:import-from :innate.types
+    #:make-innate-result
+    #:make-resistance)
   (:export))
 
 (defpackage :innate.repl

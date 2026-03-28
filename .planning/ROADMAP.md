@@ -12,7 +12,7 @@ Innate is a Common Lisp interpreter for a "language of intention" — markdown-l
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Project Scaffolding** - ASDF system, package namespaces, test harness, cold-load verification
+- [x] **Phase 1: Project Scaffolding** - ASDF system, package namespaces, test harness, cold-load verification (completed 2026-03-28)
 - [ ] **Phase 2: Conditions and AST Nodes** - All condition types and all AST defstruct definitions
 - [ ] **Phase 3: Tokenizer** - Full Innate symbol vocabulary including wikilink disambiguation
 - [ ] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar
@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — ASDF system definition, packages.lisp, and all nine module stub files
-- [ ] 01-02-PLAN.md — Test framework (deftest macros), test packages, smoke test, and run-tests.sh
+- [x] 01-02-PLAN.md — Test framework (deftest macros), test packages, smoke test, and run-tests.sh
 
 ### Phase 2: Conditions and AST Nodes
 **Goal**: Every condition type and every AST node type exists as a named, inspectable Lisp object before any tokenizer or parser code is written
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding | 1/2 | In Progress|  |
+| 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 0/TBD | Not started | - |
 | 3. Tokenizer | 0/TBD | Not started | - |
 | 4. Parser | 0/TBD | Not started | - |

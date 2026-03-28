@@ -95,14 +95,14 @@
 - [ ] **RUN-02**: File execution: parse and evaluate a `.dpn` file
 - [ ] **RUN-03**: Shell script `run-tests.sh` that loads system, runs all tests, exits with pass/fail code
 - [ ] **RUN-04**: Shell script `run-repl.sh` that loads system and starts REPL (or runs a file if argument given)
-- [ ] **RUN-05**: ASDF cold-load test: wipe fasl cache, full `asdf:load-system`, verify clean load
+- [x] **RUN-05**: ASDF cold-load test: wipe fasl cache, full `asdf:load-system`, verify clean load
 
 ### Project Structure
 
 - [x] **PRJ-01**: ASDF system definition with explicit `:depends-on` per component (not `:serial t`)
 - [x] **PRJ-02**: Single `packages.lisp` with all `defpackage` forms using `:import-from` (not `:use`)
 - [x] **PRJ-03**: Zero external dependencies
-- [ ] **PRJ-04**: Hand-rolled test framework (deftest, assert-equal, assert-true, run-tests)
+- [x] **PRJ-04**: Hand-rolled test framework (deftest, assert-equal, assert-true, run-tests)
 - [ ] **PRJ-05**: Integration test that parses and evaluates `burg_pipeline.dpn`
 
 ## v2 Requirements
@@ -147,8 +147,8 @@
 | PRJ-01 | Phase 1 | Complete |
 | PRJ-02 | Phase 1 | Complete |
 | PRJ-03 | Phase 1 | Complete |
-| PRJ-04 | Phase 1 | Pending |
-| RUN-05 | Phase 1 | Pending |
+| PRJ-04 | Phase 1 | Complete |
+| RUN-05 | Phase 1 | Complete |
 | ERR-01 | Phase 2 | Pending |
 | ERR-02 | Phase 2 | Pending |
 | ERR-03 | Phase 2 | Pending |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-project-scaffolding/01-01-PLAN.md
-last_updated: "2026-03-28T05:24:25.089Z"
+stopped_at: Completed 01-project-scaffolding/01-02-PLAN.md
+last_updated: "2026-03-28T05:27:46.946Z"
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 2 of 2
 
 *Updated after each plan completion*
 | Phase 01-project-scaffolding P01 | 2 | 3 tasks | 11 files |
+| Phase 01-project-scaffolding P02 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 01-project-scaffolding]: All nine package namespaces defined in single packages.lisp loaded first by ASDF — load-order spine established
 - [Phase 01-project-scaffolding]: Zero external system-level :depends-on in innatescript.asd — AF64 zero-deps convention upheld
 - [Phase 01-project-scaffolding]: Cross-package references use :import-from exclusively — prevents CL builtin symbol conflicts
+- [Phase 01-project-scaffolding]: deftest uses *test-failures* dynamic var scoped per test body — isolates assertion failure counts without global accumulator
+- [Phase 01-project-scaffolding]: run-tests returns boolean T/NIL mapped to sb-ext:exit code 0/1 in run-tests.sh — keeps Lisp function testable without shell context
+- [Phase 01-project-scaffolding]: innatescript/tests secondary ASDF system uses explicit :depends-on per component, consistent with primary system convention
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T05:24:25.085Z
-Stopped at: Completed 01-project-scaffolding/01-01-PLAN.md
+Last session: 2026-03-28T05:27:46.942Z
+Stopped at: Completed 01-project-scaffolding/01-02-PLAN.md
 Resume file: None

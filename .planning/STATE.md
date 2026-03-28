@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-conditions-and-ast-nodes/02-01-PLAN.md
-last_updated: "2026-03-28T19:13:45.756Z"
+stopped_at: Completed 02-conditions-and-ast-nodes/02-02-PLAN.md
+last_updated: "2026-03-28T19:17:47.339Z"
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 02 (conditions-and-ast-nodes) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -49,6 +49,8 @@ Plan: 2 of 3
 | Phase 01-project-scaffolding P01 | 2 | 3 tasks | 11 files |
 | Phase 01-project-scaffolding P02 | 2 | 2 tasks | 5 files |
 | Phase 02-conditions-and-ast-nodes P01 | 2 | 2 tasks | 3 files |
+| Phase 02-conditions-and-ast-nodes P02 | 2 | 2 tasks | 2 files |
+| Phase 02-conditions-and-ast-nodes P03 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -69,6 +71,11 @@ Recent decisions affecting current work:
 - [Phase 01-project-scaffolding]: innatescript/tests secondary ASDF system uses explicit :depends-on per component, consistent with primary system convention
 - [Phase 02-conditions-and-ast-nodes]: innate.conditions :import-from :innate.types left without explicit symbol list — conditions.lisp declares precise imports at implementation time
 - [Phase 02-conditions-and-ast-nodes]: Test packages are complete import mirrors of their implementation packages — innate.tests.types imports all 32 innate.types symbols
+- [Phase 02-conditions-and-ast-nodes]: innate-resistance inherits from (innate-condition condition) NOT error — signal not error enables handler-case fulfillment without debugger
+- [Phase 02-conditions-and-ast-nodes]: resistance-condition- slot reader prefix avoids collision with defstruct resistance accessors in types.lisp
+- [Phase 02-conditions-and-ast-nodes]: Universal node defstruct (not defclass hierarchy) — etypecase dispatch on node-kind keyword keeps AST extensible without class redefinition overhead
+- [Phase 02-conditions-and-ast-nodes]: defconstant for node kind constants is safe with keyword values — keywords are self-evaluating in SBCL, no redefinition error on image reload
+- [Phase 02-conditions-and-ast-nodes]: resistance struct is a data return value; innate-resistance is a signalable condition — naming difference prevents accessor collision between resistance-message and resistance-condition-message
 
 ### Pending Todos
 
@@ -82,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T19:13:45.753Z
-Stopped at: Completed 02-conditions-and-ast-nodes/02-01-PLAN.md
+Last session: 2026-03-28T19:17:35.697Z
+Stopped at: Completed 02-conditions-and-ast-nodes/02-02-PLAN.md
 Resume file: None

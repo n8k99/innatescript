@@ -52,8 +52,8 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Package export contracts (innate.types, innate.conditions), test sub-packages, ASDF test system registration
-- [ ] 02-02-PLAN.md — Condition hierarchy implementation (innate-condition, innate-parse-error, innate-resistance) and condition tests
-- [ ] 02-03-PLAN.md — AST node defstructs, node kind constants, result/resistance structs, and types round-trip tests
+- [x] 02-02-PLAN.md — Condition hierarchy implementation (innate-condition, innate-parse-error, innate-resistance) and condition tests
+- [x] 02-03-PLAN.md — AST node defstructs, node kind constants, result/resistance structs, and types round-trip tests
 
 ### Phase 3: Tokenizer
 **Goal**: Any valid Innate source text can be converted to a typed, positioned token stream with no ambiguity on wikilinks vs. nested brackets

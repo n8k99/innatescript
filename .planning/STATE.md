@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-parser/04-01-PLAN.md
-last_updated: "2026-03-28T22:46:45.308Z"
+stopped_at: Completed 04-parser/04-02-PLAN.md
+last_updated: "2026-03-28T22:52:52.424Z"
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 04 (parser) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: 2 of 3
 | Phase 03-tokenizer P02 | 3 | 2 tasks | 2 files |
 | Phase 03-tokenizer P03 | 9min | 2 tasks | 2 files |
 | Phase 04-parser P01 | 6min | 2 tasks | 5 files |
+| Phase 04-parser P02 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 03-tokenizer]: dot '.' added to bare-word chars — filename tokens like burg_pipeline.dpn parse correctly (spec gap, not in grammar)
 - [Phase 04-parser]: Brackets are always anonymous (nil value) — bare-words never consumed as bracket names; all tokens become children. Behavior tests (PAR-01, PAR-21) are canonical.
 - [Phase 04-parser]: cursor-peek-next used for kv-pair disambiguation: bare-word followed by :colon in bracket body triggers parse-kv-pair, not atom parsing
+- [Phase 04-parser]: Qualifiers stored in both children (string-lit node) and props (:qualifiers list) — evaluator has both tree-walk and fast-access paths
+- [Phase 04-parser]: = added to tokenizer bare-word char set for lens comparison operators (==, >=, <=) — CONTEXT.md specifies no hardcoded operator set
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T22:46:45.305Z
-Stopped at: Completed 04-parser/04-01-PLAN.md
+Last session: 2026-03-28T22:52:52.420Z
+Stopped at: Completed 04-parser/04-02-PLAN.md
 Resume file: None

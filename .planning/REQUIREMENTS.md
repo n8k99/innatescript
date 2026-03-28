@@ -31,22 +31,22 @@
 - [x] **PAR-01**: Parse `[context[verb[args]]]` nested bracket expressions
 - [x] **PAR-02**: Parse anonymous bracket depth — `[[["Hello"]]]` as a complete statement with three nesting levels
 - [x] **PAR-03**: Parse multiple top-level statements per file (multiple `[[[]]]` enclosures)
-- [ ] **PAR-04**: Parse `(agent_name)` agent address expressions
-- [ ] **PAR-05**: Parse `(agent){instruction}` agent-with-bundle commission
-- [ ] **PAR-06**: Parse `{name}` bundle references
-- [ ] **PAR-07**: Parse `{key:value}` lens expressions (filter/grouping)
-- [ ] **PAR-08**: Parse `@name` direct references
-- [ ] **PAR-09**: Parse `@name:qualifier` references with colon-separated natural-language qualifiers
-- [ ] **PAR-10**: Parse `@type:"[[Burg]]"+all{state:==}` compound reference with type filter, combinator, and lens
-- [ ] **PAR-11**: Parse `![search_expr]` search directives
+- [x] **PAR-04**: Parse `(agent_name)` agent address expressions
+- [x] **PAR-05**: Parse `(agent){instruction}` agent-with-bundle commission
+- [x] **PAR-06**: Parse `{name}` bundle references
+- [x] **PAR-07**: Parse `{key:value}` lens expressions (filter/grouping)
+- [x] **PAR-08**: Parse `@name` direct references
+- [x] **PAR-09**: Parse `@name:qualifier` references with colon-separated natural-language qualifiers
+- [x] **PAR-10**: Parse `@type:"[[Burg]]"+all{state:==}` compound reference with type filter, combinator, and lens
+- [x] **PAR-11**: Parse `![search_expr]` search directives
 - [ ] **PAR-12**: Parse `expr || (agent){instruction}` fulfillment expressions
 - [ ] **PAR-13**: Parse `-> value [, value]*` emission statements
-- [ ] **PAR-14**: Parse `decree name [body]` declarations
+- [x] **PAR-14**: Parse `decree name [body]` declarations
 - [x] **PAR-15**: Parse `key: value` key-value pairs inside brackets
-- [ ] **PAR-16**: Parse `+word` combinators attached to expressions
-- [ ] **PAR-17**: Parse `/modifier` presentation directives
-- [ ] **PAR-18**: Parse `[[Title]]` wikilinks as AST nodes
-- [ ] **PAR-19**: Parse `# text` headings as AST nodes
+- [x] **PAR-16**: Parse `+word` combinators attached to expressions
+- [x] **PAR-17**: Parse `/modifier` presentation directives
+- [x] **PAR-18**: Parse `[[Title]]` wikilinks as AST nodes
+- [x] **PAR-19**: Parse `# text` headings as AST nodes
 - [x] **PAR-20**: Parse prose lines as first-class AST nodes (not discarded)
 - [x] **PAR-21**: Parse block bodies with purposive sequencing (multiple operations in a named bracket)
 - [x] **PAR-22**: Produce typed AST using `defstruct` nodes with kind, value, children, props
@@ -174,22 +174,22 @@
 | PAR-01 | Phase 4 | Complete |
 | PAR-02 | Phase 4 | Complete |
 | PAR-03 | Phase 4 | Complete |
-| PAR-04 | Phase 4 | Pending |
-| PAR-05 | Phase 4 | Pending |
-| PAR-06 | Phase 4 | Pending |
-| PAR-07 | Phase 4 | Pending |
-| PAR-08 | Phase 4 | Pending |
-| PAR-09 | Phase 4 | Pending |
-| PAR-10 | Phase 4 | Pending |
-| PAR-11 | Phase 4 | Pending |
+| PAR-04 | Phase 4 | Complete |
+| PAR-05 | Phase 4 | Complete |
+| PAR-06 | Phase 4 | Complete |
+| PAR-07 | Phase 4 | Complete |
+| PAR-08 | Phase 4 | Complete |
+| PAR-09 | Phase 4 | Complete |
+| PAR-10 | Phase 4 | Complete |
+| PAR-11 | Phase 4 | Complete |
 | PAR-12 | Phase 4 | Pending |
 | PAR-13 | Phase 4 | Pending |
-| PAR-14 | Phase 4 | Pending |
+| PAR-14 | Phase 4 | Complete |
 | PAR-15 | Phase 4 | Complete |
-| PAR-16 | Phase 4 | Pending |
-| PAR-17 | Phase 4 | Pending |
-| PAR-18 | Phase 4 | Pending |
-| PAR-19 | Phase 4 | Pending |
+| PAR-16 | Phase 4 | Complete |
+| PAR-17 | Phase 4 | Complete |
+| PAR-18 | Phase 4 | Complete |
+| PAR-19 | Phase 4 | Complete |
 | PAR-20 | Phase 4 | Complete |
 | PAR-21 | Phase 4 | Complete |
 | RES-01 | Phase 5 | Pending |

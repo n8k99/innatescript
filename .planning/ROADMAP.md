@@ -85,7 +85,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — Parser infrastructure (packages, ASDF, cursor struct) and bracket/statement core
-- [ ] 04-02-PLAN.md — Expression types: references, agents, bundles, lenses, search, decree, modifiers
+- [x] 04-02-PLAN.md — Expression types: references, agents, bundles, lenses, search, decree, modifiers
 - [ ] 04-03-PLAN.md — Emission and fulfillment operators, burg_pipeline.dpn integration test
 
 ### Phase 5: Resolver Protocol and Environment
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 2/3 | In Progress|  |
-| 4. Parser | 1/3 | In Progress|  |
+| 4. Parser | 2/3 | In Progress|  |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |

@@ -299,3 +299,59 @@
     (assert-equal :rbracket (third types) "third is :rbracket")
     (assert-equal 2 (token-line (third toks)) "rbracket on line 2")
     (assert-equal 1 (token-col (third toks)) "rbracket at col 1")))
+
+;;; ─── Task 2 (Plan 03): Integration tests ────────────────────────────────
+
+(defun %read-file-to-string (path)
+  "Read entire file at PATH into a string."
+  (with-open-file (stream path :direction :input)
+    (let ((contents (make-string (file-length stream))))
+      (read-sequence contents stream)
+      contents)))
+
+(deftest test-burg-pipeline-tokenizes
+  "burg_pipeline.dpn tokenizes without error and produces tokens."
+  (let* ((source (%read-file-to-string "burg_pipeline.dpn"))
+         (tokens (tokenize source)))
+    (assert-true (> (length tokens) 0) "token list is non-empty")
+    ;; Verify key token types appear in the output
+    (assert-true (find :lbracket tokens :key #'token-type) "contains :lbracket")
+    (assert-true (find :string tokens :key #'token-type) "contains :string")
+    (assert-true (find :colon tokens :key #'token-type) "contains :colon")
+    (assert-true (find :hash tokens :key #'token-type) "contains :hash")
+    (assert-true (find :at tokens :key #'token-type) "contains :at")
+    (assert-true (find :bang-bracket tokens :key #'token-type) "contains :bang-bracket")
+    (assert-true (find :slash tokens :key #'token-type) "contains :slash")
+    (assert-true (find :bare-word tokens :key #'token-type) "contains :bare-word")))
+
+(deftest test-multiline-position-tracking
+  "Tokens on different lines have correct line/col values."
+  (let* ((source (format nil "[~%]~%@foo"))
+         (tokens (tokenize source)))
+    ;; Line 1: [ at col 1
+    (let ((first-tok (first tokens)))
+      (assert-equal :lbracket (token-type first-tok) "first token type")
+      (assert-equal 1 (token-line first-tok) "first token line")
+      (assert-equal 1 (token-col first-tok) "first token col"))
+    ;; Find ] token — should be on line 2
+    (let ((rbracket (find :rbracket tokens :key #'token-type)))
+      (assert-equal 2 (token-line rbracket) "] on line 2")
+      (assert-equal 1 (token-col rbracket) "] at col 1"))
+    ;; Find :at token — should be on line 3
+    (let ((at-tok (find :at tokens :key #'token-type)))
+      (assert-equal 3 (token-line at-tok) "@ on line 3")
+      (assert-equal 1 (token-col at-tok) "@ at col 1"))))
+
+(deftest test-wikilink-inside-string-is-literal
+  "[[Burg]] inside a string is preserved as literal text, not a :wikilink token."
+  (let* ((tokens (tokenize "\"[[Burg]]\""))
+         (tok (first tokens)))
+    (assert-equal :string (token-type tok) "type is :string not :wikilink")
+    (assert-equal "[[Burg]]" (token-value tok) "string value preserves [[]]")))
+
+(deftest test-combined-expression
+  "@type:\"[[Burg]]\"+all tokenizes into correct token sequence."
+  (let* ((tokens (tokenize "@type:\"[[Burg]]\"+all"))
+         (types (mapcar #'token-type tokens)))
+    (assert-equal '(:at :bare-word :colon :string :plus :bare-word) types
+                  "combined expression token sequence")))

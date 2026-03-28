@@ -22,8 +22,9 @@
         (line           1)
         (col            1)
         (len            (length source))
-        (line-start-p   t)     ; T at start and after each newline
-        (last-was-newline nil)) ; for consecutive newline collapse
+        (line-start-p   t)        ; T at start and after each newline
+        (last-was-newline nil)    ; for consecutive newline collapse
+        (nesting-depth  0))       ; bracket/paren/brace nesting depth
     (labels
         ;; ── Character access ──────────────────────────────────────────────
         ((current ()
@@ -106,11 +107,13 @@
 
          (%read-bare-word ()
            "Called when current char is alpha or underscore.
-            Returns the accumulated word string without emitting — caller decides token type."
+            Returns the accumulated word string without emitting — caller decides token type.
+            Includes '.' in bare-word chars to handle filenames like burg_pipeline.dpn."
            (let ((buf '()))
              (loop while (and (current)
                               (or (alphanumericp (current))
-                                  (char= (current) #\_)))
+                                  (char= (current) #\_)
+                                  (char= (current) #\.)))  ; file extension support
                    do (push (current) buf)
                       (advance))
              (coerce (nreverse buf) 'string)))
@@ -205,11 +208,11 @@
                         (setf last-was-newline t))
                       (setf line-start-p t)))
 
-                   ;; ── Prose detection — only when at line start ──────────
-                   ;; When line-start-p is T and we reach here, leading
-                   ;; whitespace has already been consumed above. Now
-                   ;; inspect first non-whitespace char.
-                   (line-start-p
+                   ;; ── Prose detection — only at line start AND not inside brackets ──
+                   ;; When line-start-p is T and nesting-depth is 0, we are at
+                   ;; the top-level start of a new line in the source document.
+                   ;; Inside brackets (nesting-depth > 0) all chars tokenize normally.
+                   ((and line-start-p (zerop nesting-depth))
                     ;; Prose detection at line start.
                     ;; Executable sigils and all punctuation fall through to
                     ;; normal dispatch. Only alpha chars (not "decree") trigger prose.
@@ -331,6 +334,7 @@
                                  (note-token-emitted))
                                 ((eq kind :nested)
                                  ;; Two lbracket tokens; pos still at start of inner content
+                                 (incf nesting-depth 2)
                                  (push (make-token :type :lbracket :value nil :line sl :col sc) tokens)
                                  (push (make-token :type :lbracket :value nil :line sl :col (1+ sc)) tokens)
                                  (note-token-emitted))
@@ -340,36 +344,42 @@
                                         :text "Unterminated [[")))))
                           ;; Single bracket
                           (progn
+                            (incf nesting-depth)
                             (push (make-token :type :lbracket :value nil :line sl :col sc) tokens)
                             (note-token-emitted)))))
 
                    ((char= c #\])
                     (let ((sl line) (sc col))
                       (advance)
+                      (when (> nesting-depth 0) (decf nesting-depth))
                       (push (make-token :type :rbracket :value nil :line sl :col sc) tokens)
                       (note-token-emitted)))
 
                    ((char= c #\()
                     (let ((sl line) (sc col))
                       (advance)
+                      (incf nesting-depth)
                       (push (make-token :type :lparen :value nil :line sl :col sc) tokens)
                       (note-token-emitted)))
 
                    ((char= c #\))
                     (let ((sl line) (sc col))
                       (advance)
+                      (when (> nesting-depth 0) (decf nesting-depth))
                       (push (make-token :type :rparen :value nil :line sl :col sc) tokens)
                       (note-token-emitted)))
 
                    ((char= c #\{)
                     (let ((sl line) (sc col))
                       (advance)
+                      (incf nesting-depth)
                       (push (make-token :type :lbrace :value nil :line sl :col sc) tokens)
                       (note-token-emitted)))
 
                    ((char= c #\})
                     (let ((sl line) (sc col))
                       (advance)
+                      (when (> nesting-depth 0) (decf nesting-depth))
                       (push (make-token :type :rbrace :value nil :line sl :col sc) tokens)
                       (note-token-emitted)))
 
@@ -416,6 +426,7 @@
                           (progn
                             (advance) ; consume !
                             (advance) ; consume [
+                            (incf nesting-depth)
                             (push (make-token :type :bang-bracket :value nil :line sl :col sc) tokens)
                             (note-token-emitted))
                           (error 'innate-parse-error
@@ -442,9 +453,15 @@
                             (advance) ; consume >
                             (push (make-token :type :arrow :value nil :line sl :col sc) tokens)
                             (note-token-emitted))
-                          (error 'innate-parse-error
-                                 :line sl :col sc
-                                 :text "- must be followed by > (arrow)"))))
+                          ;; Spec gap: - without > inside expressions treated as prose
+                          ;; (burg_pipeline.dpn compat — list items as - "text")
+                          (let ((rest (%read-to-eol)))
+                            (push (make-token :type  :prose
+                                              :value (concatenate 'string "-" rest)
+                                              :line  sl
+                                              :col   sc)
+                                  tokens)
+                            (note-token-emitted)))))
 
                    ;; String literal
                    ((char= c #\")

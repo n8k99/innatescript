@@ -174,3 +174,128 @@
   (assert-signals innate-parse-error
                   (parse (tokenize "[hello"))
                   "unterminated bracket signals parse error"))
+
+;;; -----------------------------------------------------------------------
+;;; Plan 02 Task 1: Reference, agent, bundle, lens, search, modifier tests
+;;; -----------------------------------------------------------------------
+
+(deftest test-simple-reference
+  "PAR-08: @name parses as :reference node with value name"
+  (let* ((result (parse (tokenize "@name")))
+         (ref (first (node-children result))))
+    (assert-equal :reference (node-kind ref) "node kind is :reference")
+    (assert-equal "name" (node-value ref) "reference value is name")
+    (assert-nil (node-children ref) "no children for bare reference")))
+
+(deftest test-reference-with-qualifier
+  "PAR-09: @name:qualifier parses as :reference with qualifier in children and props"
+  (let* ((result (parse (tokenize "@name:qualifier")))
+         (ref (first (node-children result))))
+    (assert-equal :reference (node-kind ref) "node kind is :reference")
+    (assert-equal "name" (node-value ref) "reference value is name")
+    (let ((children (node-children ref)))
+      (assert-true (consp children) "reference has children")
+      (assert-equal :string-lit (node-kind (first children)) "qualifier child is string-lit")
+      (assert-equal "qualifier" (node-value (first children)) "qualifier value is qualifier"))
+    (let ((props (node-props ref)))
+      (assert-true props "props are non-nil")
+      (assert-equal (list "qualifier") (getf props :qualifiers) "props :qualifiers is (qualifier)"))))
+
+(deftest test-reference-with-multi-word-qualifier
+  "PAR-09: @Alaran:generative hard prompt parses as :reference with multi-word qualifier"
+  (let* ((result (parse (tokenize "@Alaran:generative hard prompt")))
+         (ref (first (node-children result))))
+    (assert-equal :reference (node-kind ref) "node kind is :reference")
+    (assert-equal "Alaran" (node-value ref) "reference value is Alaran")
+    (let ((children (node-children ref)))
+      (assert-true (consp children) "reference has children")
+      (assert-equal :string-lit (node-kind (first children)) "qualifier child is string-lit")
+      (assert-equal "generative hard prompt" (node-value (first children)) "multi-word qualifier"))))
+
+(deftest test-reference-with-string-qualifier
+  "PAR-09: @type:\"[[Burg]]\" parses with string value as qualifier"
+  (let* ((result (parse (tokenize "@type:\"[[Burg]]\"")))
+         (ref (first (node-children result))))
+    (assert-equal :reference (node-kind ref) "node kind is :reference")
+    (assert-equal "type" (node-value ref) "reference value is type")
+    (let ((children (node-children ref)))
+      (assert-true (consp children) "reference has qualifier child")
+      (assert-equal :string-lit (node-kind (first children)) "qualifier is string-lit")
+      (assert-equal "[[Burg]]" (node-value (first children)) "qualifier value is [[Burg]]"))
+    (let ((props (node-props ref)))
+      (assert-equal (list "[[Burg]]") (getf props :qualifiers) "props :qualifiers contains [[Burg]]"))))
+
+(deftest test-compound-reference
+  "PAR-10: @type:\"[[Burg]]\"+all{state:==} parses as compound :reference"
+  (let* ((result (parse (tokenize "@type:\"[[Burg]]\"+all{state:==}")))
+         (ref (first (node-children result))))
+    (assert-equal :reference (node-kind ref) "node kind is :reference")
+    (assert-equal "type" (node-value ref) "reference value is type")
+    (let ((children (node-children ref)))
+      (assert-equal 3 (length children) "compound reference has 3 children")
+      ;; child 0: string-lit qualifier
+      (let ((qual (first children)))
+        (assert-equal :string-lit (node-kind qual) "first child is string-lit qualifier")
+        (assert-equal "[[Burg]]" (node-value qual) "qualifier value is [[Burg]]"))
+      ;; child 1: combinator
+      (let ((comb (second children)))
+        (assert-equal :combinator (node-kind comb) "second child is :combinator")
+        (assert-equal "all" (node-value comb) "combinator value is all"))
+      ;; child 2: lens
+      (let ((lens (third children)))
+        (assert-equal :lens (node-kind lens) "third child is :lens")
+        (let ((kv (first (node-children lens))))
+          (assert-equal :kv-pair (node-kind kv) "lens child is kv-pair")
+          (assert-equal "state" (node-value kv) "kv-pair key is state")
+          (let ((kv-val (first (node-children kv))))
+            (assert-equal :bare-word (node-kind kv-val) "kv value is bare-word")
+            (assert-equal "==" (node-value kv-val) "kv value is ==")))))
+    (let ((props (node-props ref)))
+      (assert-equal (list "[[Burg]]") (getf props :qualifiers) "props :qualifiers")
+      (assert-equal "all" (getf props :combinator) "props :combinator is all"))))
+
+(deftest test-agent-parse
+  "PAR-04: (agent_name) parses as :agent node with value agent_name"
+  (let* ((result (parse (tokenize "(agent_name)")))
+         (agent (first (node-children result))))
+    (assert-equal :agent (node-kind agent) "node kind is :agent")
+    (assert-equal "agent_name" (node-value agent) "agent value is agent_name")))
+
+(deftest test-bundle-parse
+  "PAR-06: {name} parses as :bundle node with value name"
+  (let* ((result (parse (tokenize "{name}")))
+         (bundle (first (node-children result))))
+    (assert-equal :bundle (node-kind bundle) "node kind is :bundle")
+    (assert-equal "name" (node-value bundle) "bundle value is name")))
+
+(deftest test-lens-parse
+  "PAR-07: {key:value} parses as :lens node with :kv-pair child"
+  (let* ((result (parse (tokenize "{key:value}")))
+         (lens (first (node-children result))))
+    (assert-equal :lens (node-kind lens) "node kind is :lens")
+    (let ((kv (first (node-children lens))))
+      (assert-equal :kv-pair (node-kind kv) "lens child is kv-pair")
+      (assert-equal "key" (node-value kv) "kv-pair key is key")
+      (let ((val (first (node-children kv))))
+        (assert-equal :bare-word (node-kind val) "kv value is bare-word")
+        (assert-equal "value" (node-value val) "kv value is value")))))
+
+(deftest test-search-directive
+  "PAR-11: ![search_expr] parses as :search node with expression children"
+  (let* ((result (parse (tokenize "![search_expr]")))
+         (search (first (node-children result))))
+    (assert-equal :search (node-kind search) "node kind is :search")
+    (let ((children (node-children search)))
+      (assert-true (consp children) "search has children")
+      (assert-equal :bare-word (node-kind (first children)) "search child is bare-word")
+      (assert-equal "search_expr" (node-value (first children)) "search child value"))))
+
+(deftest test-modifier-parse
+  "PAR-17: /modifier parses as :modifier node with value modifier"
+  (let* ((result (parse (tokenize "[x /wrapLeft]")))
+         (bracket (first (node-children result)))
+         (children (node-children bracket)))
+    ;; children: bare-word "x", modifier "wrapLeft"
+    (let ((mod-node (second children)))
+      (assert-equal :modifier (node-kind mod-node) "node kind is :modifier")
+      (assert-equal "wrapLeft" (node-value mod-node) "modifier value is wrapLeft"))))

@@ -107,9 +107,7 @@
          (cursor-consume cursor)
          nil)
         (:decree
-         ;; Stub for Plan 02 — consume and return nil
-         (cursor-consume cursor)
-         nil)
+         (parse-decree cursor))
         (t
          (parse-expression cursor))))))
 
@@ -119,30 +117,20 @@
 
 (defun parse-expression (cursor)
   "Parse one expression from the cursor.
-   Handles atoms, brackets, headings, and stubs for Plans 02/03."
+   Handles atoms, brackets, headings, references, agents, bundles/lenses, search, modifiers."
   (let ((tok (cursor-peek cursor)))
     (when tok
       (case (token-type tok)
         (:at
-         ;; Stub: Plan 02 — parse-reference
-         (error 'innate-parse-error
-                :line (token-line tok) :col (token-col tok)
-                :text "Not yet implemented: reference (@)"))
+         (parse-reference cursor))
         (:lparen
-         ;; Stub: Plan 02 — parse-agent
-         (error 'innate-parse-error
-                :line (token-line tok) :col (token-col tok)
-                :text "Not yet implemented: agent (())"))
+         (parse-agent cursor))
         (:lbrace
-         ;; Stub: Plan 02 — parse-bundle-or-lens
-         (error 'innate-parse-error
-                :line (token-line tok) :col (token-col tok)
-                :text "Not yet implemented: bundle/lens ({})"))
+         (parse-bundle-or-lens cursor))
         (:bang-bracket
-         ;; Stub: Plan 02 — parse-search
-         (error 'innate-parse-error
-                :line (token-line tok) :col (token-col tok)
-                :text "Not yet implemented: search (![]"))
+         (parse-search cursor))
+        (:slash
+         (parse-modifier cursor))
         (:lbracket
          (parse-bracket cursor))
         (:hash
@@ -260,6 +248,7 @@
 
 (defun parse-heading (cursor)
   "Parse a heading: HASH followed by bare-words (accumulated as heading text).
+   Optionally followed by a bracket body which becomes the heading's children.
    Returns a :heading node with value = joined heading text."
   (cursor-expect cursor :hash)
   (let ((words '()))
@@ -270,5 +259,230 @@
            (push (token-value (cursor-consume cursor)) words))
           (t
            (return)))))
-    (make-node :kind +node-heading+
-               :value (format nil "~{~a~^ ~}" (nreverse words)))))
+    (let ((heading-text (format nil "~{~a~^ ~}" (nreverse words)))
+          (bracket-children nil))
+      ;; Check for optional bracket body after heading text
+      (let ((tok (cursor-peek cursor)))
+        (when (and tok (eq (token-type tok) :lbracket))
+          (let ((bracket (parse-bracket cursor)))
+            (setf bracket-children (node-children bracket)))))
+      (make-node :kind +node-heading+
+                 :value heading-text
+                 :children bracket-children))))
+
+;;; -----------------------------------------------------------------------
+;;; Reference parsing — @name[:qualifier][+combinator][{lens}]
+;;; -----------------------------------------------------------------------
+
+(defun parse-reference (cursor)
+  "Parse a reference expression: @name with optional qualifier, combinator, and lens postfix.
+   Returns a :reference node."
+  (cursor-expect cursor :at)
+  (let* ((name-tok (cursor-expect cursor :bare-word))
+         (name (token-value name-tok))
+         (children '())
+         (props '()))
+
+    ;; Optional qualifier — if next token is :colon
+    (let ((tok (cursor-peek cursor)))
+      (when (and tok (eq (token-type tok) :colon))
+        (cursor-consume cursor)  ; consume colon
+        (let ((qtok (cursor-peek cursor)))
+          (cond
+            ;; String qualifier: @type:"[[Burg]]"
+            ((and qtok (eq (token-type qtok) :string))
+             (let* ((str-tok (cursor-consume cursor))
+                    (qual-val (token-value str-tok)))
+               (push (make-node :kind +node-string-lit+ :value qual-val) children)
+               (setf props (list* :qualifiers (list qual-val) props))))
+            ;; Bare-word qualifier: accumulate until terminator
+            ((and qtok (eq (token-type qtok) :bare-word))
+             (let ((words '()))
+               (loop
+                 (let ((t2 (cursor-peek cursor)))
+                   (if (and t2 (eq (token-type t2) :bare-word))
+                       (push (token-value (cursor-consume cursor)) words)
+                       (return))))
+               (let ((qual-val (format nil "~{~a~^ ~}" (nreverse words))))
+                 (push (make-node :kind +node-string-lit+ :value qual-val) children)
+                 (setf props (list* :qualifiers (list qual-val) props)))))))))
+
+    ;; Optional combinator — if next token is :plus
+    (let ((tok (cursor-peek cursor)))
+      (when (and tok (eq (token-type tok) :plus))
+        (cursor-consume cursor)  ; consume plus
+        (let* ((comb-tok (cursor-expect cursor :bare-word))
+               (comb-name (token-value comb-tok)))
+          (push (make-node :kind +node-combinator+ :value comb-name) children)
+          (setf props (list* :combinator comb-name props)))))
+
+    ;; Optional lens — if next token is :lbrace
+    (let ((tok (cursor-peek cursor)))
+      (when (and tok (eq (token-type tok) :lbrace))
+        (push (parse-lens cursor) children)))
+
+    (make-node :kind +node-reference+
+               :value name
+               :children (if children (nreverse children) nil)
+               :props (if props props nil))))
+
+;;; -----------------------------------------------------------------------
+;;; Agent parsing — (agent_name)
+;;; -----------------------------------------------------------------------
+
+(defun parse-agent (cursor)
+  "Parse an agent address: (agent_name).
+   Returns an :agent node with value = agent name."
+  (cursor-expect cursor :lparen)
+  (let* ((name-tok (cursor-expect cursor :bare-word))
+         (name (token-value name-tok)))
+    (cursor-expect cursor :rparen)
+    (make-node :kind +node-agent+ :value name)))
+
+;;; -----------------------------------------------------------------------
+;;; Bundle/Lens parsing — {name} or {key:value}
+;;; -----------------------------------------------------------------------
+
+(defun parse-bundle-or-lens (cursor)
+  "Parse a brace expression: {name} or {key:value}.
+   If the content is bare-word followed by colon, parse as :lens with kv-pairs.
+   If the content is bare-word followed by rbrace, parse as :bundle.
+   Returns :bundle or :lens node."
+  (cursor-expect cursor :lbrace)
+  (let ((tok (cursor-peek cursor))
+        (next (cursor-peek-next cursor)))
+    (cond
+      ;; {key:value} — lens: bare-word followed by colon
+      ((and tok
+            (eq (token-type tok) :bare-word)
+            next
+            (eq (token-type next) :colon))
+       ;; Parse kv-pairs until rbrace
+       (let ((kv-pairs '()))
+         (loop
+           (let ((t2 (cursor-peek cursor)))
+             (cond
+               ((null t2)
+                (error 'innate-parse-error
+                       :line 0 :col 0
+                       :text "Unterminated lens expression"))
+               ((eq (token-type t2) :rbrace)
+                (cursor-consume cursor)
+                (return))
+               ((eq (token-type t2) :newline)
+                (cursor-consume cursor))
+               ((and (eq (token-type t2) :bare-word)
+                     (let ((t3 (cursor-peek-next cursor)))
+                       (and t3 (eq (token-type t3) :colon))))
+                (push (parse-kv-pair cursor) kv-pairs))
+               (t
+                (error 'innate-parse-error
+                       :line (token-line t2) :col (token-col t2)
+                       :text (format nil "Unexpected token in lens: ~a" (token-type t2)))))))
+         (make-node :kind +node-lens+ :children (nreverse kv-pairs))))
+
+      ;; {name} — bundle: bare-word followed by rbrace (or any bare-word-only content)
+      ((and tok (eq (token-type tok) :bare-word))
+       (let* ((name-tok (cursor-consume cursor))
+              (name (token-value name-tok)))
+         (cursor-expect cursor :rbrace)
+         (make-node :kind +node-bundle+ :value name)))
+
+      ;; Empty braces or other content — treat as empty lens
+      (t
+       ;; Consume until rbrace
+       (loop
+         (let ((t2 (cursor-peek cursor)))
+           (cond
+             ((null t2)
+              (error 'innate-parse-error
+                     :line 0 :col 0
+                     :text "Unterminated brace expression"))
+             ((eq (token-type t2) :rbrace)
+              (cursor-consume cursor)
+              (return)))))
+       (make-node :kind +node-lens+ :children nil)))))
+
+(defun parse-lens (cursor)
+  "Parse a lens expression: {key:value ...}.
+   Expects opening brace to be the next token.
+   Returns a :lens node with kv-pair children."
+  (cursor-expect cursor :lbrace)
+  (let ((kv-pairs '()))
+    (loop
+      (let ((tok (cursor-peek cursor)))
+        (cond
+          ((null tok)
+           (error 'innate-parse-error
+                  :line 0 :col 0
+                  :text "Unterminated lens expression"))
+          ((eq (token-type tok) :rbrace)
+           (cursor-consume cursor)
+           (return))
+          ((eq (token-type tok) :newline)
+           (cursor-consume cursor))
+          ((and (eq (token-type tok) :bare-word)
+                (let ((nn (cursor-peek-next cursor)))
+                  (and nn (eq (token-type nn) :colon))))
+           (push (parse-kv-pair cursor) kv-pairs))
+          (t
+           (error 'innate-parse-error
+                  :line (token-line tok) :col (token-col tok)
+                  :text (format nil "Unexpected token in lens: ~a" (token-type tok)))))))
+    (make-node :kind +node-lens+ :children (nreverse kv-pairs))))
+
+;;; -----------------------------------------------------------------------
+;;; Search directive — ![expr]
+;;; -----------------------------------------------------------------------
+
+(defun parse-search (cursor)
+  "Parse a search directive: ![expressions].
+   Returns a :search node with expression children."
+  (cursor-expect cursor :bang-bracket)
+  (let ((exprs '()))
+    (loop
+      (let ((tok (cursor-peek cursor)))
+        (cond
+          ((null tok)
+           (error 'innate-parse-error
+                  :line 0 :col 0
+                  :text "Unterminated search directive"))
+          ((eq (token-type tok) :rbracket)
+           (cursor-consume cursor)
+           (return))
+          ((eq (token-type tok) :newline)
+           (cursor-consume cursor))
+          (t
+           (let ((expr (parse-expression cursor)))
+             (when expr (push expr exprs)))))))
+    (make-node :kind +node-search+ :children (nreverse exprs))))
+
+;;; -----------------------------------------------------------------------
+;;; Modifier parsing — /modifier
+;;; -----------------------------------------------------------------------
+
+(defun parse-modifier (cursor)
+  "Parse a presentation modifier: /modifier-name.
+   Returns a :modifier node with value = modifier name."
+  (cursor-expect cursor :slash)
+  (let* ((name-tok (cursor-expect cursor :bare-word))
+         (name (token-value name-tok)))
+    (make-node :kind +node-modifier+ :value name)))
+
+;;; -----------------------------------------------------------------------
+;;; Decree parsing — decree name [body]
+;;; -----------------------------------------------------------------------
+
+(defun parse-decree (cursor)
+  "Parse a decree declaration: decree name or decree name [body].
+   Returns a :decree node with value = name and optional children from body."
+  (cursor-expect cursor :decree)
+  (let* ((name-tok (cursor-expect cursor :bare-word))
+         (name (token-value name-tok)))
+    (let ((tok (cursor-peek cursor)))
+      (if (and tok (eq (token-type tok) :lbracket))
+          (let ((body-bracket (parse-bracket cursor)))
+            (make-node :kind +node-decree+
+                       :value name
+                       :children (node-children body-bracket)))
+          (make-node :kind +node-decree+ :value name)))))

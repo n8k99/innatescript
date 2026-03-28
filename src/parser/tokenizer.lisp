@@ -106,14 +106,16 @@
              (note-token-emitted)))
 
          (%read-bare-word ()
-           "Called when current char is alpha or underscore.
+           "Called when current char is alpha, underscore, or = (operator words like ==).
             Returns the accumulated word string without emitting — caller decides token type.
-            Includes '.' in bare-word chars to handle filenames like burg_pipeline.dpn."
+            Includes '.' in bare-word chars to handle filenames like burg_pipeline.dpn.
+            Includes '=' in bare-word chars to handle lens comparison operators like ==, >=, <=."
            (let ((buf '()))
              (loop while (and (current)
                               (or (alphanumericp (current))
                                   (char= (current) #\_)
-                                  (char= (current) #\.)))  ; file extension support
+                                  (char= (current) #\.)   ; file extension support
+                                  (char= (current) #\=))) ; lens operator support (==, >=, <=)
                    do (push (current) buf)
                       (advance))
              (coerce (nreverse buf) 'string)))
@@ -480,6 +482,13 @@
                     (let ((sl line) (sc col))
                       (let ((word (%read-bare-word)))
                         (%emit-bare-word-or-decree word sl sc))))
+
+                   ;; Operator bare-words starting with = (e.g. ==, >=, <=)
+                   ((char= c #\=)
+                    (let ((sl line) (sc col))
+                      (let ((word (%read-bare-word)))
+                        (push (make-token :type :bare-word :value word :line sl :col sc) tokens)
+                        (note-token-emitted))))
 
                    ;; Unexpected character
                    (t

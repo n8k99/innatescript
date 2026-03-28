@@ -68,7 +68,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Package exports, token defstruct, ASDF wiring, and test scaffold
-- [ ] 03-02-PLAN.md — Core tokenizer loop: single-char dispatch, two-char operators, string/number/bare-word literals, emoji slot, decree keyword
+- [x] 03-02-PLAN.md — Core tokenizer loop: single-char dispatch, two-char operators, string/number/bare-word literals, emoji slot, decree keyword
 - [ ] 03-03-PLAN.md — Wikilink disambiguation, prose line detection, newline handling, integration test with burg_pipeline.dpn
 
 ### Phase 4: Parser
@@ -149,7 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
-| 3. Tokenizer | 1/3 | In Progress|  |
+| 3. Tokenizer | 2/3 | In Progress|  |
 | 4. Parser | 0/TBD | Not started | - |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |

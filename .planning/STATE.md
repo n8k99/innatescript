@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-tokenizer/03-01-PLAN.md
-last_updated: "2026-03-28T21:14:15.925Z"
+stopped_at: Completed 03-tokenizer/03-02-PLAN.md
+last_updated: "2026-03-28T21:20:12.319Z"
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-27)
 ## Current Position
 
 Phase: 03 (tokenizer) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 2 of 3
 | Phase 02-conditions-and-ast-nodes P02 | 2 | 2 tasks | 2 files |
 | Phase 02-conditions-and-ast-nodes P03 | 2 | 2 tasks | 2 files |
 | Phase 03-tokenizer P01 | 2 | 2 tasks | 5 files |
+| Phase 03-tokenizer P02 | 3 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 02-conditions-and-ast-nodes]: resistance struct is a data return value; innate-resistance is a signalable condition — naming difference prevents accessor collision between resistance-message and resistance-condition-message
 - [Phase 03-tokenizer]: token is a defstruct (not defclass) — flat positional data distinct from AST nodes, no CLOS dispatch needed on tokens
 - [Phase 03-tokenizer]: tokenize stub uses (declare (ignore source)) — avoids SBCL unused-variable NOTE on compilation
+- [Phase 03-tokenizer]: cond used instead of case for main dispatch — mixes char= tests with digit-char-p/alpha-char-p predicates in one form
+- [Phase 03-tokenizer]: labels-local helpers inside tokenize (%read-X pattern) share pos/line/col/tokens lexically, no parameter threading
+- [Phase 03-tokenizer]: newline and [[ handling stubbed in Plan 02 — consumed silently, :newline emission and wikilink disambiguation deferred to Plan 03
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:14:15.921Z
-Stopped at: Completed 03-tokenizer/03-01-PLAN.md
+Last session: 2026-03-28T21:20:12.313Z
+Stopped at: Completed 03-tokenizer/03-02-PLAN.md
 Resume file: None

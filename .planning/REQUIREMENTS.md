@@ -7,21 +7,21 @@
 
 ### Tokenizer
 
-- [ ] **TOK-01**: Tokenize all bracket types: `[`, `]`, `(`, `)`, `{`, `}`
-- [ ] **TOK-02**: Tokenize `@name` as a reference token with the name extracted
-- [ ] **TOK-03**: Tokenize `![]` as a search directive opener
-- [ ] **TOK-04**: Tokenize `||` as the fulfillment operator
-- [ ] **TOK-05**: Tokenize `->` as emission
-- [ ] **TOK-06**: Tokenize `+word` as a combinator with the word extracted
-- [ ] **TOK-07**: Tokenize `:` as colon (qualifier/kv separator)
-- [ ] **TOK-08**: Tokenize `,` as comma (argument separator)
-- [ ] **TOK-09**: Tokenize `#` at line start as heading with text extracted
-- [ ] **TOK-10**: Tokenize `/word` as a presentation modifier
-- [ ] **TOK-11**: Tokenize double-quoted string literals with escape support
-- [ ] **TOK-12**: Tokenize integer number literals
-- [ ] **TOK-13**: Tokenize bare words (identifiers)
-- [ ] **TOK-14**: Tokenize `<emoji>` as emoji slot
-- [ ] **TOK-15**: Tokenize `decree` as keyword
+- [x] **TOK-01**: Tokenize all bracket types: `[`, `]`, `(`, `)`, `{`, `}`
+- [x] **TOK-02**: Tokenize `@name` as a reference token with the name extracted
+- [x] **TOK-03**: Tokenize `![]` as a search directive opener
+- [x] **TOK-04**: Tokenize `||` as the fulfillment operator
+- [x] **TOK-05**: Tokenize `->` as emission
+- [x] **TOK-06**: Tokenize `+word` as a combinator with the word extracted
+- [x] **TOK-07**: Tokenize `:` as colon (qualifier/kv separator)
+- [x] **TOK-08**: Tokenize `,` as comma (argument separator)
+- [x] **TOK-09**: Tokenize `#` at line start as heading with text extracted
+- [x] **TOK-10**: Tokenize `/word` as a presentation modifier
+- [x] **TOK-11**: Tokenize double-quoted string literals with escape support
+- [x] **TOK-12**: Tokenize integer number literals
+- [x] **TOK-13**: Tokenize bare words (identifiers)
+- [x] **TOK-14**: Tokenize `<emoji>` as emoji slot
+- [x] **TOK-15**: Tokenize `decree` as keyword
 - [ ] **TOK-16**: Disambiguate `[[...]]` (wikilink) from nested brackets: scan forward from `[[` — if `]` is reached before any `[`, it's a wikilink; if `[` is hit first, it's nested brackets. `[[Burg]]` = wikilink, `[[sylvia[command]]]` = three bracket levels
 - [ ] **TOK-17**: Detect prose lines (lines not starting with executable syntax) and emit as prose tokens
 - [x] **TOK-18**: Track line and column numbers on every token for error reporting
@@ -153,21 +153,21 @@
 | ERR-02 | Phase 2 | Complete |
 | ERR-03 | Phase 2 | Complete |
 | PAR-22 | Phase 2 | Complete |
-| TOK-01 | Phase 3 | Pending |
-| TOK-02 | Phase 3 | Pending |
-| TOK-03 | Phase 3 | Pending |
-| TOK-04 | Phase 3 | Pending |
-| TOK-05 | Phase 3 | Pending |
-| TOK-06 | Phase 3 | Pending |
-| TOK-07 | Phase 3 | Pending |
-| TOK-08 | Phase 3 | Pending |
-| TOK-09 | Phase 3 | Pending |
-| TOK-10 | Phase 3 | Pending |
-| TOK-11 | Phase 3 | Pending |
-| TOK-12 | Phase 3 | Pending |
-| TOK-13 | Phase 3 | Pending |
-| TOK-14 | Phase 3 | Pending |
-| TOK-15 | Phase 3 | Pending |
+| TOK-01 | Phase 3 | Complete |
+| TOK-02 | Phase 3 | Complete |
+| TOK-03 | Phase 3 | Complete |
+| TOK-04 | Phase 3 | Complete |
+| TOK-05 | Phase 3 | Complete |
+| TOK-06 | Phase 3 | Complete |
+| TOK-07 | Phase 3 | Complete |
+| TOK-08 | Phase 3 | Complete |
+| TOK-09 | Phase 3 | Complete |
+| TOK-10 | Phase 3 | Complete |
+| TOK-11 | Phase 3 | Complete |
+| TOK-12 | Phase 3 | Complete |
+| TOK-13 | Phase 3 | Complete |
+| TOK-14 | Phase 3 | Complete |
+| TOK-15 | Phase 3 | Complete |
 | TOK-16 | Phase 3 | Pending |
 | TOK-17 | Phase 3 | Pending |
 | TOK-18 | Phase 3 | Complete |

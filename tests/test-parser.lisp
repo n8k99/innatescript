@@ -299,3 +299,51 @@
     (let ((mod-node (second children)))
       (assert-equal :modifier (node-kind mod-node) "node kind is :modifier")
       (assert-equal "wrapLeft" (node-value mod-node) "modifier value is wrapLeft"))))
+
+;;; -----------------------------------------------------------------------
+;;; Plan 02 Task 2: Decree parsing and heading refinement tests
+;;; -----------------------------------------------------------------------
+
+(deftest test-decree-with-body
+  "PAR-14: decree routing_rules [key: value] parses as :decree with body children"
+  (let* ((result (parse (tokenize "decree routing_rules [key: value]")))
+         (decree (first (node-children result))))
+    (assert-equal :decree (node-kind decree) "node kind is :decree")
+    (assert-equal "routing_rules" (node-value decree) "decree value is routing_rules")
+    (let ((children (node-children decree)))
+      (assert-true (consp children) "decree has children")
+      (let ((kv (first children)))
+        (assert-equal :kv-pair (node-kind kv) "decree child is kv-pair")
+        (assert-equal "key" (node-value kv) "kv-pair key is key")))))
+
+(deftest test-decree-no-body
+  "PAR-14: decree name alone parses as :decree with nil children"
+  (let* ((result (parse (tokenize "decree my_decree")))
+         (decree (first (node-children result))))
+    (assert-equal :decree (node-kind decree) "node kind is :decree")
+    (assert-equal "my_decree" (node-value decree) "decree value is my_decree")
+    (assert-nil (node-children decree) "decree with no body has nil children")))
+
+(deftest test-heading-with-bracket
+  "PAR-19: #header[name] parses as :heading with bracket child"
+  (let* ((result (parse (tokenize "#title [content]")))
+         (heading (first (node-children result))))
+    (assert-equal :heading (node-kind heading) "node kind is :heading")
+    (assert-equal "title" (node-value heading) "heading value is title")
+    (let ((children (node-children heading)))
+      (assert-true (consp children) "heading has bracket children")
+      (let ((child (first children)))
+        (assert-equal :bare-word (node-kind child) "heading bracket child is bare-word")
+        (assert-equal "content" (node-value child) "bracket child value is content")))))
+
+(deftest test-wikilink-in-program
+  "PAR-18: [[Title]] inside a bracket parses as :wikilink — confirmed from Plan 01"
+  ;; Wikilinks tokenize as :wikilink when [[name]] appears inside a bracket context
+  ;; (nesting-depth > 0). Use [x [[Title]] y] pattern from test-wikilink-atom.
+  (let* ((result (parse (tokenize "[x [[Title]] y]")))
+         (bracket (first (node-children result)))
+         (children (node-children bracket))
+         ;; children: bare-word "x", wikilink "Title", bare-word "y"
+         (wl (second children)))
+    (assert-equal :wikilink (node-kind wl) "second child is wikilink")
+    (assert-equal "Title" (node-value wl) "wikilink value is Title")))

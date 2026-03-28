@@ -33,7 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. All package namespaces are defined in a single `packages.lisp` loaded first; no symbol conflicts arise when loading any component in any order
   3. `deftest`, `assert-equal`, `assert-true`, and `run-tests` macros are available and a trivial test passes
   4. Zero external Lisp library dependencies are listed in the `.asd` file
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [x] 01-01-PLAN.md — ASDF system definition, packages.lisp, and all nine module stub files
+- [ ] 01-02-PLAN.md — Test framework (deftest macros), test packages, smoke test, and run-tests.sh
 
 ### Phase 2: Conditions and AST Nodes
 **Goal**: Every condition type and every AST node type exists as a named, inspectable Lisp object before any tokenizer or parser code is written
@@ -133,7 +137,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding | 0/TBD | Not started | - |
+| 1. Project Scaffolding | 1/2 | In Progress|  |
 | 2. Conditions and AST Nodes | 0/TBD | Not started | - |
 | 3. Tokenizer | 0/TBD | Not started | - |
 | 4. Parser | 0/TBD | Not started | - |

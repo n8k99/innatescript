@@ -99,9 +99,9 @@
 
 ### Project Structure
 
-- [ ] **PRJ-01**: ASDF system definition with explicit `:depends-on` per component (not `:serial t`)
-- [ ] **PRJ-02**: Single `packages.lisp` with all `defpackage` forms using `:import-from` (not `:use`)
-- [ ] **PRJ-03**: Zero external dependencies
+- [x] **PRJ-01**: ASDF system definition with explicit `:depends-on` per component (not `:serial t`)
+- [x] **PRJ-02**: Single `packages.lisp` with all `defpackage` forms using `:import-from` (not `:use`)
+- [x] **PRJ-03**: Zero external dependencies
 - [ ] **PRJ-04**: Hand-rolled test framework (deftest, assert-equal, assert-true, run-tests)
 - [ ] **PRJ-05**: Integration test that parses and evaluates `burg_pipeline.dpn`
 
@@ -144,9 +144,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRJ-01 | Phase 1 | Pending |
-| PRJ-02 | Phase 1 | Pending |
-| PRJ-03 | Phase 1 | Pending |
+| PRJ-01 | Phase 1 | Complete |
+| PRJ-02 | Phase 1 | Complete |
+| PRJ-03 | Phase 1 | Complete |
 | PRJ-04 | Phase 1 | Pending |
 | RUN-05 | Phase 1 | Pending |
 | ERR-01 | Phase 2 | Pending |

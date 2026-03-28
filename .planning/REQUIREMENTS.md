@@ -65,19 +65,19 @@
 - [ ] **EVL-10**: Evaluate `{bundle_name}` by calling `load-bundle` on the resolver
 - [ ] **EVL-11**: Pass through prose and headings as rendered text
 - [ ] **EVL-12**: Pass through presentation directives (`#header`, `/modifier`) as part of rendered output
-- [ ] **EVL-13**: Carry evaluation context (query/scope/render/commission) as an argument through all dispatch
+- [x] **EVL-13**: Carry evaluation context (query/scope/render/commission) as an argument through all dispatch
 - [ ] **EVL-14**: Use `etypecase` for internal AST dispatch, not CLOS methods
 - [ ] **EVL-15**: Propagate resistance upward through bracket nesting for unresolvable references with no fulfillment
 
 ### Resolver Protocol
 
-- [ ] **RES-01**: Define `resolve-reference` generic function (name, qualifiers -> result or resistance)
-- [ ] **RES-02**: Define `resolve-search` generic function (search-type, terms -> result or resistance)
-- [ ] **RES-03**: Define `deliver-commission` generic function (agent-name, instruction -> result)
-- [ ] **RES-04**: Define `resolve-wikilink` generic function (title -> result or resistance)
-- [ ] **RES-05**: Define `resolve-context` generic function (context, verb, args -> result or resistance)
-- [ ] **RES-06**: Define `load-bundle` generic function (name -> AST or nil)
-- [ ] **RES-07**: Default methods on base `resolver` class return resistance
+- [x] **RES-01**: Define `resolve-reference` generic function (name, qualifiers -> result or resistance)
+- [x] **RES-02**: Define `resolve-search` generic function (search-type, terms -> result or resistance)
+- [x] **RES-03**: Define `deliver-commission` generic function (agent-name, instruction -> result)
+- [x] **RES-04**: Define `resolve-wikilink` generic function (title -> result or resistance)
+- [x] **RES-05**: Define `resolve-context` generic function (context, verb, args -> result or resistance)
+- [x] **RES-06**: Define `load-bundle` generic function (name -> AST or nil)
+- [x] **RES-07**: Default methods on base `resolver` class return resistance
 - [ ] **RES-08**: Stub resolver with in-memory entity store for testing
 - [ ] **RES-09**: Stub resolver records commissions for test assertions
 - [ ] **RES-10**: Stub resolver resolves `@` references with qualifier chains against plist entities
@@ -192,14 +192,14 @@
 | PAR-19 | Phase 4 | Complete |
 | PAR-20 | Phase 4 | Complete |
 | PAR-21 | Phase 4 | Complete |
-| RES-01 | Phase 5 | Pending |
-| RES-02 | Phase 5 | Pending |
-| RES-03 | Phase 5 | Pending |
-| RES-04 | Phase 5 | Pending |
-| RES-05 | Phase 5 | Pending |
-| RES-06 | Phase 5 | Pending |
-| RES-07 | Phase 5 | Pending |
-| EVL-13 | Phase 5 | Pending |
+| RES-01 | Phase 5 | Complete |
+| RES-02 | Phase 5 | Complete |
+| RES-03 | Phase 5 | Complete |
+| RES-04 | Phase 5 | Complete |
+| RES-05 | Phase 5 | Complete |
+| RES-06 | Phase 5 | Complete |
+| RES-07 | Phase 5 | Complete |
+| EVL-13 | Phase 5 | Complete |
 | RES-08 | Phase 6 | Pending |
 | RES-09 | Phase 6 | Pending |
 | RES-10 | Phase 6 | Pending |

@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Conditions and AST Nodes** - All condition types and all AST defstruct definitions (completed 2026-03-28)
 - [ ] **Phase 3: Tokenizer** - Full Innate symbol vocabulary including wikilink disambiguation
 - [x] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar (completed 2026-03-28)
-- [ ] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct
+- [x] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct (completed 2026-03-28)
 - [ ] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol
 - [ ] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough
 - [ ] **Phase 8: Commission and Fulfillment Evaluation** - Agent, search, emission, wikilink, bundle, || operator
@@ -100,7 +100,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Resolver class, 6 defgenerics with default methods, eval-env struct, protocol tests
+- [x] 05-01-PLAN.md — Resolver class, 6 defgenerics with default methods, eval-env struct, protocol tests
 
 ### Phase 6: Stub Resolver
 **Goal**: A fully conforming in-memory resolver exists that passes the resolver conformance test suite, enabling evaluator tests to run without any external infrastructure
@@ -159,7 +159,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 2/3 | In Progress|  |
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
-| 5. Resolver Protocol and Environment | 0/1 | Not started | - |
+| 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 0/TBD | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |

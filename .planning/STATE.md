@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 04-parser/04-03-PLAN.md
-last_updated: "2026-03-28T23:05:55.572Z"
+stopped_at: Completed 05-resolver-protocol-and-environment/05-01-PLAN.md
+last_updated: "2026-03-28T23:32:30.496Z"
 progress:
   total_phases: 9
-  completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  completed_phases: 5
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
-**Current focus:** Phase 04 — parser
+**Current focus:** Phase 05 — resolver-protocol-and-environment
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (resolver-protocol-and-environment) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Plan: Not started
 | Phase 04-parser P01 | 6min | 2 tasks | 5 files |
 | Phase 04-parser P02 | 4min | 2 tasks | 3 files |
 | Phase 04 P03 | 5min | 2 tasks | 2 files |
+| Phase 05 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,10 @@ Recent decisions affecting current work:
 - [Phase 04-parser]: = added to tokenizer bare-word char set for lens comparison operators (==, >=, <=) — CONTEXT.md specifies no hardcoded operator set
 - [Phase 04-parser]: Precedence via function call chain: parse-fulfillment-expr calls parse-emission-expr calls parse-expression — no operator precedence table needed
 - [Phase 04-parser]: Complex paren groups in search produce :bundle node — image(...) call-like syntax parsed structurally, semantics deferred to evaluator
+- [Phase 05]: resolver is empty CLOS class — no slots, exists only as dispatch target; concrete resolvers add their own state
+- [Phase 05]: deliver-commission default returns innate-result (never resistance) — commissions are fire-and-forget at the protocol level
+- [Phase 05]: load-bundle default returns nil (not resistance) — bundle-not-found is a soft miss, not an error; evaluator proceeds without bundle
+- [Phase 05]: eval-env decrees and bindings default to fresh hash-tables — prevents null-pointer in evaluator decree collection pass
 
 ### Pending Todos
 
@@ -109,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T23:00:56.401Z
-Stopped at: Completed 04-parser/04-03-PLAN.md
+Last session: 2026-03-28T23:32:30.493Z
+Stopped at: Completed 05-resolver-protocol-and-environment/05-01-PLAN.md
 Resume file: None

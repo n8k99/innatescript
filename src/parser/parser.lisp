@@ -388,17 +388,54 @@
                :props (if props props nil))))
 
 ;;; -----------------------------------------------------------------------
-;;; Agent parsing — (agent_name)
+;;; Agent parsing — (agent_name) or (expr ...) group
 ;;; -----------------------------------------------------------------------
 
 (defun parse-agent (cursor)
-  "Parse an agent address: (agent_name).
-   Returns an :agent node with value = agent name."
+  "Parse an agent address or paren group.
+   (bare-word) → :agent node with value = agent name
+   (anything else ...) → :bundle node with expression children (function-call-like syntax in search)
+   Returns an :agent node or :bundle node."
   (cursor-expect cursor :lparen)
-  (let* ((name-tok (cursor-expect cursor :bare-word))
-         (name (token-value name-tok)))
-    (cursor-expect cursor :rparen)
-    (make-node :kind +node-agent+ :value name)))
+  (let ((tok (cursor-peek cursor))
+        (next (cursor-peek-next cursor)))
+    (if (and tok
+             (eq (token-type tok) :bare-word)
+             next
+             (eq (token-type next) :rparen))
+        ;; Simple (agent_name) form
+        (let* ((name-tok (cursor-consume cursor))
+               (name (token-value name-tok)))
+          (cursor-expect cursor :rparen)
+          (make-node :kind +node-agent+ :value name))
+        ;; Complex paren group: (expr ...) — parse until rparen
+        ;; Handles function-call-like syntax: image("emblem"+burg_name + png)
+        ;; PLUS tokens between expressions become :combinator nodes
+        (let ((exprs '()))
+          (loop
+            (let ((t2 (cursor-peek cursor)))
+              (cond
+                ((null t2)
+                 (error 'innate-parse-error
+                        :line 0 :col 0
+                        :text "Unterminated paren expression"))
+                ((eq (token-type t2) :rparen)
+                 (cursor-consume cursor)
+                 (return))
+                ((eq (token-type t2) :newline)
+                 (cursor-consume cursor))
+                ;; PLUS between expressions in paren group: emit as combinator
+                ((eq (token-type t2) :plus)
+                 (let ((plus-tok (cursor-consume cursor)))
+                   (push (make-node :kind +node-combinator+
+                                    :value "+"
+                                    :props (list :line (token-line plus-tok)
+                                                 :col (token-col plus-tok)))
+                         exprs)))
+                (t
+                 (let ((expr (parse-expression cursor)))
+                   (when expr (push expr exprs)))))))
+          (make-node :kind +node-bundle+ :children (nreverse exprs))))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Bundle/Lens parsing — {name} or {key:value}

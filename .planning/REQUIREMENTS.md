@@ -39,8 +39,8 @@
 - [x] **PAR-09**: Parse `@name:qualifier` references with colon-separated natural-language qualifiers
 - [x] **PAR-10**: Parse `@type:"[[Burg]]"+all{state:==}` compound reference with type filter, combinator, and lens
 - [x] **PAR-11**: Parse `![search_expr]` search directives
-- [ ] **PAR-12**: Parse `expr || (agent){instruction}` fulfillment expressions
-- [ ] **PAR-13**: Parse `-> value [, value]*` emission statements
+- [x] **PAR-12**: Parse `expr || (agent){instruction}` fulfillment expressions
+- [x] **PAR-13**: Parse `-> value [, value]*` emission statements
 - [x] **PAR-14**: Parse `decree name [body]` declarations
 - [x] **PAR-15**: Parse `key: value` key-value pairs inside brackets
 - [x] **PAR-16**: Parse `+word` combinators attached to expressions
@@ -182,8 +182,8 @@
 | PAR-09 | Phase 4 | Complete |
 | PAR-10 | Phase 4 | Complete |
 | PAR-11 | Phase 4 | Complete |
-| PAR-12 | Phase 4 | Pending |
-| PAR-13 | Phase 4 | Pending |
+| PAR-12 | Phase 4 | Complete |
+| PAR-13 | Phase 4 | Complete |
 | PAR-14 | Phase 4 | Complete |
 | PAR-15 | Phase 4 | Complete |
 | PAR-16 | Phase 4 | Complete |

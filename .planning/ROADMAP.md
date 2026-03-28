@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Project Scaffolding** - ASDF system, package namespaces, test harness, cold-load verification (completed 2026-03-28)
 - [x] **Phase 2: Conditions and AST Nodes** - All condition types and all AST defstruct definitions (completed 2026-03-28)
 - [ ] **Phase 3: Tokenizer** - Full Innate symbol vocabulary including wikilink disambiguation
-- [ ] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar
+- [x] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar (completed 2026-03-28)
 - [ ] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct
 - [ ] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol
 - [ ] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough
@@ -86,7 +86,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Parser infrastructure (packages, ASDF, cursor struct) and bracket/statement core
 - [x] 04-02-PLAN.md — Expression types: references, agents, bundles, lenses, search, decree, modifiers
-- [ ] 04-03-PLAN.md — Emission and fulfillment operators, burg_pipeline.dpn integration test
+- [x] 04-03-PLAN.md — Emission and fulfillment operators, burg_pipeline.dpn integration test
 
 ### Phase 5: Resolver Protocol and Environment
 **Goal**: The resolver contract is defined as CLOS defgenerics with documented call signatures, and the evaluation environment struct carries context through all subsequent evaluator work
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 2/3 | In Progress|  |
-| 4. Parser | 2/3 | In Progress|  |
+| 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |

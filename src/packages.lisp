@@ -51,7 +51,15 @@
 
 (defpackage :innate.parser.tokenizer
   (:use :cl)
-  (:export))
+  (:import-from :innate.conditions
+    #:innate-parse-error)
+  (:export
+   #:make-token
+   #:token-type
+   #:token-value
+   #:token-line
+   #:token-col
+   #:tokenize))
 
 (defpackage :innate.parser
   (:use :cl)

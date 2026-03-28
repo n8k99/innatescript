@@ -73,3 +73,23 @@
     #:resistance-message
     #:resistance-source)
   (:export))
+
+(defpackage :innate.tests.tokenizer
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest
+    #:assert-equal
+    #:assert-true
+    #:assert-nil
+    #:assert-signals
+    #:run-tests)
+  (:import-from :innate.parser.tokenizer
+    #:make-token
+    #:token-type
+    #:token-value
+    #:token-line
+    #:token-col
+    #:tokenize)
+  (:import-from :innate.conditions
+    #:innate-parse-error)
+  (:export))

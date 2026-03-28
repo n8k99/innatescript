@@ -13,7 +13,7 @@ Innate is a Common Lisp interpreter for a "language of intention" — markdown-l
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Project Scaffolding** - ASDF system, package namespaces, test harness, cold-load verification (completed 2026-03-28)
-- [ ] **Phase 2: Conditions and AST Nodes** - All condition types and all AST defstruct definitions
+- [x] **Phase 2: Conditions and AST Nodes** - All condition types and all AST defstruct definitions (completed 2026-03-28)
 - [ ] **Phase 3: Tokenizer** - Full Innate symbol vocabulary including wikilink disambiguation
 - [ ] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar
 - [ ] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct
@@ -143,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
-| 2. Conditions and AST Nodes | 1/3 | In Progress|  |
+| 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 0/TBD | Not started | - |
 | 4. Parser | 0/TBD | Not started | - |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |

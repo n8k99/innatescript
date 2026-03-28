@@ -81,7 +81,12 @@ Plans:
   3. Prose lines appear as `prose-node` AST nodes in the output; they are not discarded
   4. `@type:"[[Burg]]"+all{state:==}` parses as a compound reference node with type filter, combinator, and lens as distinct AST children
   5. A `innate-parse-error` with line/col is signaled on malformed input rather than a raw SBCL error
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Parser infrastructure (packages, ASDF, cursor struct) and bracket/statement core
+- [ ] 04-02-PLAN.md — Expression types: references, agents, bundles, lenses, search, decree, modifiers
+- [ ] 04-03-PLAN.md — Emission and fulfillment operators, burg_pipeline.dpn integration test
 
 ### Phase 5: Resolver Protocol and Environment
 **Goal**: The resolver contract is defined as CLOS defgenerics with documented call signatures, and the evaluation environment struct carries context through all subsequent evaluator work
@@ -150,7 +155,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 2/3 | In Progress|  |
-| 4. Parser | 0/TBD | Not started | - |
+| 4. Parser | 0/3 | Not started | - |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |

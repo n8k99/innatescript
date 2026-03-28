@@ -109,3 +109,31 @@
     #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+)
   (:import-from :innate.conditions #:innate-parse-error)
   (:export))
+
+(defpackage :innate.tests.resolver
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest #:assert-equal #:assert-true #:assert-nil #:assert-signals #:run-tests)
+  (:import-from :innate.eval.resolver
+    #:resolver
+    #:resolve-reference
+    #:resolve-search
+    #:deliver-commission
+    #:resolve-wikilink
+    #:resolve-context
+    #:load-bundle
+    #:eval-env
+    #:make-eval-env
+    #:eval-env-resolver
+    #:eval-env-decrees
+    #:eval-env-bindings
+    #:eval-env-scope)
+  (:import-from :innate.types
+    #:make-innate-result
+    #:innate-result-value
+    #:innate-result-context
+    #:make-resistance
+    #:resistance-p
+    #:resistance-message
+    #:resistance-source)
+  (:export))

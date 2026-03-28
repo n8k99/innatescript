@@ -48,7 +48,12 @@ Plans:
   2. `innate-parse-error` condition carries line and column numbers accessible as slots
   3. Making a `resistance` condition does not call `error` — it calls `signal` (resistance is not an unrecoverable failure)
   4. All 18+ AST node types exist as `defstruct` instances with `kind`, `value`, `children`, and `props` fields; constructors and accessors compile and round-trip in a test
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Package export contracts (innate.types, innate.conditions), test sub-packages, ASDF test system registration
+- [ ] 02-02-PLAN.md — Condition hierarchy implementation (innate-condition, innate-parse-error, innate-resistance) and condition tests
+- [ ] 02-03-PLAN.md — AST node defstructs, node kind constants, result/resistance structs, and types round-trip tests
 
 ### Phase 3: Tokenizer
 **Goal**: Any valid Innate source text can be converted to a typed, positioned token stream with no ambiguity on wikilinks vs. nested brackets
@@ -138,7 +143,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
-| 2. Conditions and AST Nodes | 0/TBD | Not started | - |
+| 2. Conditions and AST Nodes | 0/3 | Not started | - |
 | 3. Tokenizer | 0/TBD | Not started | - |
 | 4. Parser | 0/TBD | Not started | - |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |

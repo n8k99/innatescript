@@ -28,9 +28,9 @@
 
 ### Parser
 
-- [ ] **PAR-01**: Parse `[context[verb[args]]]` nested bracket expressions
-- [ ] **PAR-02**: Parse anonymous bracket depth — `[[["Hello"]]]` as a complete statement with three nesting levels
-- [ ] **PAR-03**: Parse multiple top-level statements per file (multiple `[[[]]]` enclosures)
+- [x] **PAR-01**: Parse `[context[verb[args]]]` nested bracket expressions
+- [x] **PAR-02**: Parse anonymous bracket depth — `[[["Hello"]]]` as a complete statement with three nesting levels
+- [x] **PAR-03**: Parse multiple top-level statements per file (multiple `[[[]]]` enclosures)
 - [ ] **PAR-04**: Parse `(agent_name)` agent address expressions
 - [ ] **PAR-05**: Parse `(agent){instruction}` agent-with-bundle commission
 - [ ] **PAR-06**: Parse `{name}` bundle references
@@ -42,13 +42,13 @@
 - [ ] **PAR-12**: Parse `expr || (agent){instruction}` fulfillment expressions
 - [ ] **PAR-13**: Parse `-> value [, value]*` emission statements
 - [ ] **PAR-14**: Parse `decree name [body]` declarations
-- [ ] **PAR-15**: Parse `key: value` key-value pairs inside brackets
+- [x] **PAR-15**: Parse `key: value` key-value pairs inside brackets
 - [ ] **PAR-16**: Parse `+word` combinators attached to expressions
 - [ ] **PAR-17**: Parse `/modifier` presentation directives
 - [ ] **PAR-18**: Parse `[[Title]]` wikilinks as AST nodes
 - [ ] **PAR-19**: Parse `# text` headings as AST nodes
-- [ ] **PAR-20**: Parse prose lines as first-class AST nodes (not discarded)
-- [ ] **PAR-21**: Parse block bodies with purposive sequencing (multiple operations in a named bracket)
+- [x] **PAR-20**: Parse prose lines as first-class AST nodes (not discarded)
+- [x] **PAR-21**: Parse block bodies with purposive sequencing (multiple operations in a named bracket)
 - [x] **PAR-22**: Produce typed AST using `defstruct` nodes with kind, value, children, props
 
 ### Evaluator
@@ -171,9 +171,9 @@
 | TOK-16 | Phase 3 | Complete |
 | TOK-17 | Phase 3 | Complete |
 | TOK-18 | Phase 3 | Complete |
-| PAR-01 | Phase 4 | Pending |
-| PAR-02 | Phase 4 | Pending |
-| PAR-03 | Phase 4 | Pending |
+| PAR-01 | Phase 4 | Complete |
+| PAR-02 | Phase 4 | Complete |
+| PAR-03 | Phase 4 | Complete |
 | PAR-04 | Phase 4 | Pending |
 | PAR-05 | Phase 4 | Pending |
 | PAR-06 | Phase 4 | Pending |
@@ -185,13 +185,13 @@
 | PAR-12 | Phase 4 | Pending |
 | PAR-13 | Phase 4 | Pending |
 | PAR-14 | Phase 4 | Pending |
-| PAR-15 | Phase 4 | Pending |
+| PAR-15 | Phase 4 | Complete |
 | PAR-16 | Phase 4 | Pending |
 | PAR-17 | Phase 4 | Pending |
 | PAR-18 | Phase 4 | Pending |
 | PAR-19 | Phase 4 | Pending |
-| PAR-20 | Phase 4 | Pending |
-| PAR-21 | Phase 4 | Pending |
+| PAR-20 | Phase 4 | Complete |
+| PAR-21 | Phase 4 | Complete |
 | RES-01 | Phase 5 | Pending |
 | RES-02 | Phase 5 | Pending |
 | RES-03 | Phase 5 | Pending |

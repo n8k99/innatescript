@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-tokenizer/03-03-PLAN.md
-last_updated: "2026-03-28T21:34:31.836Z"
+stopped_at: Completed 04-parser/04-01-PLAN.md
+last_updated: "2026-03-28T22:46:45.308Z"
 progress:
   total_phases: 9
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 11
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
-**Current focus:** Phase 03 — tokenizer
+**Current focus:** Phase 04 — parser
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (parser) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Plan: Not started
 | Phase 03-tokenizer P01 | 2 | 2 tasks | 5 files |
 | Phase 03-tokenizer P02 | 3 | 2 tasks | 2 files |
 | Phase 03-tokenizer P03 | 9min | 2 tasks | 2 files |
+| Phase 04-parser P01 | 6min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 03-tokenizer]: nesting-depth tracker gates prose detection inside brackets — prevents multi-line bracket expressions from being misclassified as prose
 - [Phase 03-tokenizer]: dash '-' without '>' emits :prose in both line-start and normal dispatch — burg_pipeline.dpn list-item syntax compatibility (spec gap)
 - [Phase 03-tokenizer]: dot '.' added to bare-word chars — filename tokens like burg_pipeline.dpn parse correctly (spec gap, not in grammar)
+- [Phase 04-parser]: Brackets are always anonymous (nil value) — bare-words never consumed as bracket names; all tokens become children. Behavior tests (PAR-01, PAR-21) are canonical.
+- [Phase 04-parser]: cursor-peek-next used for kv-pair disambiguation: bare-word followed by :colon in bracket body triggers parse-kv-pair, not atom parsing
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:31:19.221Z
-Stopped at: Completed 03-tokenizer/03-03-PLAN.md
+Last session: 2026-03-28T22:46:45.305Z
+Stopped at: Completed 04-parser/04-01-PLAN.md
 Resume file: None

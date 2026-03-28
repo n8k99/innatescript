@@ -91,7 +91,9 @@
 
 (defun parse-statement (cursor)
   "Parse one top-level statement from the cursor.
-   Dispatches based on the current token type."
+   Dispatches based on the current token type.
+   Prose, headings, and decrees bypass the precedence chain.
+   Everything else routes through parse-fulfillment-expr (loosest binding)."
   (let ((tok (cursor-peek cursor)))
     (when tok
       (case (token-type tok)
@@ -100,16 +102,73 @@
          (make-node :kind +node-prose+ :value (token-value tok)))
         (:hash
          (parse-heading cursor))
-        (:lbracket
-         (parse-bracket cursor))
-        (:arrow
-         ;; Stub for Plan 03 — consume and return nil
-         (cursor-consume cursor)
-         nil)
         (:decree
          (parse-decree cursor))
+        (:newline
+         nil)
         (t
-         (parse-expression cursor))))))
+         (parse-fulfillment-expr cursor))))))
+
+;;; -----------------------------------------------------------------------
+;;; Fulfillment expression — loosest binding operator
+;;; -----------------------------------------------------------------------
+
+(defun parse-fulfillment-expr (cursor)
+  "Parse a fulfillment expression: emission-expr (|| emission-expr)*.
+   || is left-associative: a || b || c => (|| (|| a b) c).
+   Returns a single node — either the left side or a :fulfillment node."
+  (let ((left (parse-emission-expr cursor)))
+    (loop
+      (let ((tok (cursor-peek cursor)))
+        (unless (and tok (eq (token-type tok) :pipe-pipe))
+          (return left))
+        (cursor-consume cursor) ; consume ||
+        (let ((right (parse-emission-expr cursor)))
+          (setf left (make-node :kind +node-fulfillment+
+                                :children (list left right))))))
+    left))
+
+;;; -----------------------------------------------------------------------
+;;; Emission expression — binds tighter than ||, looser than expressions
+;;; -----------------------------------------------------------------------
+
+(defun parse-emission-expr (cursor)
+  "Parse an emission expression.
+   Two forms:
+   1. Leading ->: -> value (, value)*  — emission at statement start
+   2. Infix ->: expr -> value (, value)* (-> value (, value)*)*  — left-associative
+   Returns a single node — either the left side or a :emission node."
+  (let ((tok (cursor-peek cursor)))
+    (if (and tok (eq (token-type tok) :arrow))
+        ;; Leading -> form
+        (progn
+          (cursor-consume cursor) ; consume ->
+          (let ((values (list (parse-expression cursor))))
+            (loop
+              (let ((t2 (cursor-peek cursor)))
+                (unless (and t2 (eq (token-type t2) :comma))
+                  (return))
+                (cursor-consume cursor) ; consume comma
+                (push (parse-expression cursor) values)))
+            (make-node :kind +node-emission+
+                       :children (nreverse values))))
+        ;; Infix -> form: parse left side first
+        (let ((left (parse-expression cursor)))
+          (loop
+            (let ((t2 (cursor-peek cursor)))
+              (unless (and t2 (eq (token-type t2) :arrow))
+                (return left))
+              (cursor-consume cursor) ; consume ->
+              (let ((values (list (parse-expression cursor))))
+                (loop
+                  (let ((t3 (cursor-peek cursor)))
+                    (unless (and t3 (eq (token-type t3) :comma))
+                      (return))
+                    (cursor-consume cursor) ; consume comma
+                    (push (parse-expression cursor) values)))
+                (setf left (make-node :kind +node-emission+
+                                      :children (cons left (nreverse values)))))))
+          left))))
 
 ;;; -----------------------------------------------------------------------
 ;;; Expression dispatch
@@ -220,9 +279,9 @@
           ;; Heading inside bracket
           ((eq (token-type tok) :hash)
            (push (parse-heading cursor) children))
-          ;; Everything else: call parse-expression
+          ;; Everything else: call parse-fulfillment-expr (handles -> and || inside brackets)
           (t
-           (let ((expr (parse-expression cursor)))
+           (let ((expr (parse-fulfillment-expr cursor)))
              (when expr
                (push expr children)))))))
     (nreverse children)))
@@ -233,11 +292,13 @@
 
 (defun parse-kv-pair (cursor)
   "Parse a key-value pair: bare-word COLON expression.
-   Returns a :kv-pair node with value = key-string, children = (value-node)."
+   Returns a :kv-pair node with value = key-string, children = (value-node).
+   Uses parse-fulfillment-expr to allow bracket expressions as values,
+   e.g. description:[@Alaran:generative hard prompt]"
   (let* ((key-tok (cursor-consume cursor))   ; bare-word
          (key-name (token-value key-tok)))
     (cursor-expect cursor :colon)
-    (let ((value-node (parse-expression cursor)))
+    (let ((value-node (parse-fulfillment-expr cursor)))
       (make-node :kind +node-kv-pair+
                  :value key-name
                  :children (list value-node)))))

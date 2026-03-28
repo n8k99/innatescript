@@ -347,3 +347,105 @@
          (wl (second children)))
     (assert-equal :wikilink (node-kind wl) "second child is wikilink")
     (assert-equal "Title" (node-value wl) "wikilink value is Title")))
+
+;;; -----------------------------------------------------------------------
+;;; Plan 03 Task 1: Emission and fulfillment operator tests
+;;; -----------------------------------------------------------------------
+
+(deftest test-emission
+  "PAR-13: -> \"hello\" parses as :emission node with one :string-lit child"
+  (let* ((result (parse (tokenize "-> \"hello\"")))
+         (stmt (first (node-children result))))
+    (assert-equal :emission (node-kind stmt) "node kind is :emission")
+    (let ((children (node-children stmt)))
+      (assert-equal 1 (length children) "emission has 1 child")
+      (assert-equal :string-lit (node-kind (first children)) "emission child is string-lit")
+      (assert-equal "hello" (node-value (first children)) "emission child value is hello"))))
+
+(deftest test-emission-multi-value
+  "PAR-13: -> a, b, c parses as :emission node with three :bare-word children"
+  (let* ((result (parse (tokenize "-> a, b, c")))
+         (stmt (first (node-children result))))
+    (assert-equal :emission (node-kind stmt) "node kind is :emission")
+    (let ((children (node-children stmt)))
+      (assert-equal 3 (length children) "emission has 3 children")
+      (assert-equal :bare-word (node-kind (first children)) "first child is bare-word")
+      (assert-equal "a" (node-value (first children)) "first value is a")
+      (assert-equal :bare-word (node-kind (second children)) "second child is bare-word")
+      (assert-equal "b" (node-value (second children)) "second value is b")
+      (assert-equal :bare-word (node-kind (third children)) "third child is bare-word")
+      (assert-equal "c" (node-value (third children)) "third value is c"))))
+
+(deftest test-emission-chain
+  "PAR-13: [a -> b -> c] parses left-associatively as (-> (-> a b) c) inside bracket"
+  ;; Use bracket context: bare words at top level become :prose.
+  ;; Inside brackets, -> tokenizes as :arrow and bare-words as :bare-word.
+  (let* ((result (parse (tokenize "[a -> b -> c]")))
+         (bracket (first (node-children result)))
+         (outer (first (node-children bracket))))
+    (assert-equal :emission (node-kind outer) "outer node is :emission")
+    ;; outer children: inner emission and c
+    (let ((outer-children (node-children outer)))
+      (assert-equal 2 (length outer-children) "outer emission has 2 children")
+      (let ((inner (first outer-children)))
+        (assert-equal :emission (node-kind inner) "first child is inner :emission")
+        ;; inner's children: bare-word a and bare-word b
+        (let ((inner-children (node-children inner)))
+          (assert-equal 2 (length inner-children) "inner emission has 2 children")
+          (assert-equal :bare-word (node-kind (first inner-children)) "inner first child is bare-word")
+          (assert-equal "a" (node-value (first inner-children)) "inner first value is a")
+          (assert-equal :bare-word (node-kind (second inner-children)) "inner second child is bare-word")
+          (assert-equal "b" (node-value (second inner-children)) "inner second value is b")))
+      ;; outer second child: c
+      (let ((last-child (second outer-children)))
+        (assert-equal :bare-word (node-kind last-child) "outer second child is bare-word")
+        (assert-equal "c" (node-value last-child) "outer second value is c")))))
+
+(deftest test-fulfillment
+  "PAR-12: @ref || (agent){fallback} parses as :fulfillment with reference left child"
+  (let* ((result (parse (tokenize "@ref || (agent)")))
+         (stmt (first (node-children result))))
+    (assert-equal :fulfillment (node-kind stmt) "node kind is :fulfillment")
+    (let ((children (node-children stmt)))
+      (assert-equal 2 (length children) "fulfillment has 2 children")
+      (assert-equal :reference (node-kind (first children)) "left child is :reference")
+      (assert-equal "ref" (node-value (first children)) "left reference value is ref")
+      (assert-equal :agent (node-kind (second children)) "right child is :agent")
+      (assert-equal "agent" (node-value (second children)) "right agent value is agent"))))
+
+(deftest test-fulfillment-chain
+  "PAR-12: @a || @b || @c parses left-associatively as (|| (|| @a @b) @c)"
+  ;; Use @ references to avoid prose detection at depth 0 (bare words are prose at top level)
+  (let* ((result (parse (tokenize "@a || @b || @c")))
+         (outer (first (node-children result))))
+    (assert-equal :fulfillment (node-kind outer) "outer node is :fulfillment")
+    (let ((outer-children (node-children outer)))
+      (assert-equal 2 (length outer-children) "outer fulfillment has 2 children")
+      (let ((inner (first outer-children)))
+        (assert-equal :fulfillment (node-kind inner) "first child is inner :fulfillment")
+        (let ((inner-children (node-children inner)))
+          (assert-equal :reference (node-kind (first inner-children)) "inner left is :reference @a")
+          (assert-equal "a" (node-value (first inner-children)) "inner left value is a")
+          (assert-equal :reference (node-kind (second inner-children)) "inner right is :reference @b")
+          (assert-equal "b" (node-value (second inner-children)) "inner right value is b")))
+      (let ((last-child (second outer-children)))
+        (assert-equal :reference (node-kind last-child) "outer right child is :reference @c")
+        (assert-equal "c" (node-value last-child) "outer right value is c")))))
+
+(deftest test-emission-fulfillment-precedence
+  "PAR-12 + PAR-13: -> a || (agent){fallback} — emission binds tighter than fulfillment"
+  ;; The -> a part is an emission node. That emission is the left side of ||.
+  (let* ((result (parse (tokenize "-> a || (agent)")))
+         (stmt (first (node-children result))))
+    (assert-equal :fulfillment (node-kind stmt) "top node is :fulfillment (looser binding)")
+    (let ((children (node-children stmt)))
+      (assert-equal :emission (node-kind (first children))
+                    "left child of fulfillment is :emission (tighter binding)")
+      (assert-equal :agent (node-kind (second children))
+                    "right child of fulfillment is :agent"))))
+
+(deftest test-parse-error-signals
+  "malformed input [unterminated signals innate-parse-error with line/col"
+  (assert-signals innate-parse-error
+                  (parse (tokenize "["))
+                  "unterminated bracket signals innate-parse-error"))

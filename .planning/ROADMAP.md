@@ -64,7 +64,12 @@ Plans:
   2. Every token in the stream carries a line number and column number accessible as fields
   3. A tokenizer test suite passes for every symbol in the Innate vocabulary: `@`, `![]`, `||`, `->`, `[[]]`, `[]`, `()`, `{}`, `<emoji>`, `#`, `+`, `:`, `,`, `/`, `decree`, bare words, strings, integers, and prose lines
   4. Prose lines (not starting with executable syntax) emit as PROSE tokens rather than being discarded or causing errors
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Package exports, token defstruct, ASDF wiring, and test scaffold
+- [ ] 03-02-PLAN.md — Core tokenizer loop: single-char dispatch, two-char operators, string/number/bare-word literals, emoji slot, decree keyword
+- [ ] 03-03-PLAN.md — Wikilink disambiguation, prose line detection, newline handling, integration test with burg_pipeline.dpn
 
 ### Phase 4: Parser
 **Goal**: Any tokenized Innate source produces a typed AST where prose is a first-class node, all infix operators have correct left-associativity, and compound expressions like `@type:"[[Burg]]"+all{state:==}` parse completely
@@ -144,7 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Project Scaffolding | 2/2 | Complete   | 2026-03-28 |
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
-| 3. Tokenizer | 0/TBD | Not started | - |
+| 3. Tokenizer | 0/3 | Not started | - |
 | 4. Parser | 0/TBD | Not started | - |
 | 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |

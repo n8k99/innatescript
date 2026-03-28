@@ -24,7 +24,7 @@
 - [ ] **TOK-15**: Tokenize `decree` as keyword
 - [ ] **TOK-16**: Disambiguate `[[...]]` (wikilink) from nested brackets: scan forward from `[[` — if `]` is reached before any `[`, it's a wikilink; if `[` is hit first, it's nested brackets. `[[Burg]]` = wikilink, `[[sylvia[command]]]` = three bracket levels
 - [ ] **TOK-17**: Detect prose lines (lines not starting with executable syntax) and emit as prose tokens
-- [ ] **TOK-18**: Track line and column numbers on every token for error reporting
+- [x] **TOK-18**: Track line and column numbers on every token for error reporting
 
 ### Parser
 
@@ -49,7 +49,7 @@
 - [ ] **PAR-19**: Parse `# text` headings as AST nodes
 - [ ] **PAR-20**: Parse prose lines as first-class AST nodes (not discarded)
 - [ ] **PAR-21**: Parse block bodies with purposive sequencing (multiple operations in a named bracket)
-- [ ] **PAR-22**: Produce typed AST using `defstruct` nodes with kind, value, children, props
+- [x] **PAR-22**: Produce typed AST using `defstruct` nodes with kind, value, children, props
 
 ### Evaluator
 
@@ -84,9 +84,9 @@
 
 ### Error Model
 
-- [ ] **ERR-01**: Define `innate-resistance` condition for structural failures (reference cannot resolve, no fulfillment)
-- [ ] **ERR-02**: Define `innate-parse-error` condition for syntax errors with line/col
-- [ ] **ERR-03**: Resistance is a condition, not an error — it signals, not raises
+- [x] **ERR-01**: Define `innate-resistance` condition for structural failures (reference cannot resolve, no fulfillment)
+- [x] **ERR-02**: Define `innate-parse-error` condition for syntax errors with line/col
+- [x] **ERR-03**: Resistance is a condition, not an error — it signals, not raises
 - [ ] **ERR-04**: Fulfillment converts resistance into commission (the `||` operator)
 
 ### REPL and Runner
@@ -149,10 +149,10 @@
 | PRJ-03 | Phase 1 | Complete |
 | PRJ-04 | Phase 1 | Complete |
 | RUN-05 | Phase 1 | Complete |
-| ERR-01 | Phase 2 | Pending |
-| ERR-02 | Phase 2 | Pending |
-| ERR-03 | Phase 2 | Pending |
-| PAR-22 | Phase 2 | Pending |
+| ERR-01 | Phase 2 | Complete |
+| ERR-02 | Phase 2 | Complete |
+| ERR-03 | Phase 2 | Complete |
+| PAR-22 | Phase 2 | Complete |
 | TOK-01 | Phase 3 | Pending |
 | TOK-02 | Phase 3 | Pending |
 | TOK-03 | Phase 3 | Pending |
@@ -170,7 +170,7 @@
 | TOK-15 | Phase 3 | Pending |
 | TOK-16 | Phase 3 | Pending |
 | TOK-17 | Phase 3 | Pending |
-| TOK-18 | Phase 3 | Pending |
+| TOK-18 | Phase 3 | Complete |
 | PAR-01 | Phase 4 | Pending |
 | PAR-02 | Phase 4 | Pending |
 | PAR-03 | Phase 4 | Pending |

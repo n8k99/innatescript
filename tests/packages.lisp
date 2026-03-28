@@ -93,3 +93,19 @@
   (:import-from :innate.conditions
     #:innate-parse-error)
   (:export))
+
+(defpackage :innate.tests.parser
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest #:assert-equal #:assert-true #:assert-nil #:assert-signals #:run-tests)
+  (:import-from :innate.parser #:parse)
+  (:import-from :innate.parser.tokenizer #:tokenize #:make-token #:token-type #:token-value)
+  (:import-from :innate.types
+    #:make-node #:node-kind #:node-value #:node-children #:node-props
+    #:+node-program+ #:+node-bracket+ #:+node-kv-pair+ #:+node-prose+
+    #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
+    #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
+    #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
+    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+)
+  (:import-from :innate.conditions #:innate-parse-error)
+  (:export))

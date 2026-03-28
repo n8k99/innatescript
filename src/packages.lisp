@@ -63,8 +63,18 @@
 
 (defpackage :innate.parser
   (:use :cl)
-  (:import-from :innate.parser.tokenizer)
-  (:export))
+  (:import-from :innate.parser.tokenizer
+    #:token-type #:token-value #:token-line #:token-col #:tokenize)
+  (:import-from :innate.types
+    #:make-node #:node-kind #:node-value #:node-children #:node-props
+    #:+node-program+ #:+node-bracket+ #:+node-kv-pair+ #:+node-prose+
+    #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
+    #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
+    #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
+    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+)
+  (:import-from :innate.conditions
+    #:innate-parse-error)
+  (:export #:parse))
 
 (defpackage :innate.eval.resolver
   (:use :cl)

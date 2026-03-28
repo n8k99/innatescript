@@ -34,4 +34,5 @@
    (:file "smoke-test"      :depends-on ("packages" "test-framework"))
    (:file "test-conditions" :depends-on ("packages" "test-framework"))
    (:file "test-types"      :depends-on ("packages" "test-framework"))
-   (:file "test-tokenizer"  :depends-on ("packages" "test-framework"))))
+   (:file "test-tokenizer"  :depends-on ("packages" "test-framework"))
+   (:file "test-parser"    :depends-on ("packages" "test-framework"))))

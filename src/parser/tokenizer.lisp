@@ -17,11 +17,13 @@
 (defun tokenize (source)
   "Convert SOURCE string to a list of token structs.
    Signals innate-parse-error on unterminated strings or unexpected characters."
-  (let ((tokens '())
-        (pos    0)
-        (line   1)
-        (col    1)
-        (len    (length source)))
+  (let ((tokens         '())
+        (pos            0)
+        (line           1)
+        (col            1)
+        (len            (length source))
+        (line-start-p   t)     ; T at start and after each newline
+        (last-was-newline nil)) ; for consecutive newline collapse
     (labels
         ;; ── Character access ──────────────────────────────────────────────
         ((current ()
@@ -40,6 +42,12 @@
          (peek-next ()
            "Return char at pos+1, or nil if out of bounds."
            (when (< (1+ pos) len) (char source (1+ pos))))
+
+         ;; ── Helper: mark that a non-newline token was emitted ──────────
+         (note-token-emitted ()
+           "Called after pushing any non-newline token."
+           (setf last-was-newline nil)
+           (setf line-start-p nil))
 
          ;; ── Multi-char literal readers ─────────────────────────────────
 
@@ -74,6 +82,7 @@
                                       :line start-line
                                       :col  start-col)
                           tokens)
+                    (note-token-emitted)
                     (return))
                    ;; Ordinary character
                    (t
@@ -92,26 +101,30 @@
                                :value (coerce (nreverse buf) 'string)
                                :line  start-line
                                :col   start-col)
-                   tokens)))
+                   tokens)
+             (note-token-emitted)))
 
          (%read-bare-word ()
-           "Called when current char is alpha or underscore."
-           (let ((start-line line)
-                 (start-col  col)
-                 (buf '()))
+           "Called when current char is alpha or underscore.
+            Returns the accumulated word string without emitting — caller decides token type."
+           (let ((buf '()))
              (loop while (and (current)
                               (or (alphanumericp (current))
                                   (char= (current) #\_)))
                    do (push (current) buf)
                       (advance))
-             (let ((word (coerce (nreverse buf) 'string)))
-               (push (make-token :type  (if (string= word "decree")
-                                            :decree
-                                            :bare-word)
-                                 :value word
-                                 :line  start-line
-                                 :col   start-col)
-                     tokens))))
+             (coerce (nreverse buf) 'string)))
+
+         (%emit-bare-word-or-decree (word sl sc)
+           "Emit either :decree or :bare-word for WORD at position SL/SC."
+           (push (make-token :type  (if (string= word "decree")
+                                        :decree
+                                        :bare-word)
+                             :value word
+                             :line  sl
+                             :col   sc)
+                 tokens)
+           (note-token-emitted))
 
          (%try-emoji-slot ()
            "Called when current char is #\<. Tries to match literal <emoji>."
@@ -125,83 +138,276 @@
                                      :value "<emoji>"
                                      :line  start-line
                                      :col   start-col)
-                         tokens))
+                         tokens)
+                   (note-token-emitted))
                  (error 'innate-parse-error
                         :line line :col col
-                        :text (format nil "Unexpected character <"))))))
+                        :text (format nil "Unexpected character <")))))
+
+         ;; ── Wikilink disambiguation (TOK-16) ──────────────────────────
+         ;; Pure lookahead — does NOT advance pos. Returns values:
+         ;;   :wikilink    + inner-text + end-pos-of-closing-]
+         ;;   :nested      + nil        + scan-pos-of-first-[
+         ;;   :unterminated + nil       + scan-pos
+         (%scan-double-bracket ()
+           "Lookahead from pos (pointing just past second [). Determine wikilink vs. nested.
+            Returns (values kind inner-text close-scan-pos)."
+           ;; At entry, pos points to the char after the second [
+           ;; We scan forward to find the first ] or [
+           (let ((scan pos)  ; start scanning from current pos
+                 (buf  '()))
+             (loop
+               (when (>= scan len)
+                 (return (values :unterminated nil scan)))
+               (let ((c (char source scan)))
+                 (cond
+                   ((char= c #\])
+                    ;; Found ] before [ — this is a wikilink
+                    ;; inner text is everything from pos to scan
+                    (return (values :wikilink
+                                    (coerce (nreverse buf) 'string)
+                                    scan)))
+                   ((char= c #\[)
+                    ;; Found [ before ] — nested brackets
+                    (return (values :nested nil scan)))
+                   (t
+                    (push c buf)
+                    (incf scan)))))))
+
+         ;; ── Prose readers (TOK-17) ────────────────────────────────────
+
+         (%read-to-eol ()
+           "Read characters up to (not including) a newline or end of source.
+            Return the accumulated string."
+           (let ((buf '()))
+             (loop
+               (let ((c (current)))
+                 (when (or (null c) (char= c #\Newline))
+                   (return (coerce (nreverse buf) 'string)))
+                 (push c buf)
+                 (advance))))))
 
       ;; ── Main dispatch loop ─────────────────────────────────────────────
       (loop while (current)
             do (let ((c (current)))
                  (cond
-                   ;; Whitespace — consume silently (not newlines)
+                   ;; ── Whitespace on same line — consume silently ─────────
                    ((or (char= c #\Space) (char= c #\Tab))
                     (advance))
 
-                   ;; Newline — consume silently (Plan 03 adds :newline emission)
+                   ;; ── Newline — emit :newline with collapse ─────────────
                    ((char= c #\Newline)
-                    (advance))
-
-                   ;; Single-char bracket tokens
-                   ((char= c #\[)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :lbracket :value nil :line sl :col sc) tokens)))
+                      (unless last-was-newline
+                        (push (make-token :type :newline :value nil :line sl :col sc)
+                              tokens)
+                        (setf last-was-newline t))
+                      (setf line-start-p t)))
+
+                   ;; ── Prose detection — only when at line start ──────────
+                   ;; When line-start-p is T and we reach here, leading
+                   ;; whitespace has already been consumed above. Now
+                   ;; inspect first non-whitespace char.
+                   (line-start-p
+                    ;; Prose detection at line start.
+                    ;; Executable sigils and all punctuation fall through to
+                    ;; normal dispatch. Only alpha chars (not "decree") trigger prose.
+                    (cond
+                      ;; All punctuation and operator chars — fall through to
+                      ;; normal dispatch regardless of line position.
+                      ;; This preserves test behavior for standalone tokens.
+                      ((member c '(#\[ #\] #\( #\) #\{ #\} #\@ #\! #\# #\/ #\|
+                                   #\+ #\" #\< #\: #\, #\= #\*))
+                       (setf line-start-p nil))
+
+                      ;; Digits at line start — fall through to normal dispatch
+                      ((digit-char-p c)
+                       (setf line-start-p nil))
+
+                      ;; - at line start: could be -> (executable) or list-item (prose)
+                      ;; Spec gap: - without > treated as prose at line start (burg_pipeline.dpn compat)
+                      ((char= c #\-)
+                       (if (and (peek-next) (char= (peek-next) #\>))
+                           ;; -> emission — executable, fall through
+                           (setf line-start-p nil)
+                           ;; bare - not followed by > — treat entire line as prose
+                           (let ((sl line) (sc col))
+                             (let ((rest (%read-to-eol)))
+                               (push (make-token :type  :prose
+                                                 :value (concatenate 'string "-" rest)
+                                                 :line  sl
+                                                 :col   sc)
+                                     tokens)
+                               (note-token-emitted)))))
+
+                      ;; > at line start: in sigil set but no operator defined
+                      ;; Spec gap: > without context treated as prose at line start
+                      ((char= c #\>)
+                       (let ((sl line) (sc col))
+                         (let ((rest (%read-to-eol)))
+                           (push (make-token :type  :prose
+                                             :value (concatenate 'string ">" rest)
+                                             :line  sl
+                                             :col   sc)
+                                 tokens)
+                           (note-token-emitted))))
+
+                      ;; Bare word at line start — check if it is "decree"
+                      ((or (alpha-char-p c) (char= c #\_))
+                       (let ((sl line) (sc col))
+                         (let ((word (%read-bare-word)))
+                           (if (string= word "decree")
+                               ;; decree keyword — executable, emit :decree
+                               (progn
+                                 (push (make-token :type  :decree
+                                                   :value word
+                                                   :line  sl
+                                                   :col   sc)
+                                       tokens)
+                                 (note-token-emitted))
+                               ;; Any other word — this whole line is prose
+                               ;; Read remaining chars to EOL, prepend the word
+                               (let ((rest (%read-to-eol)))
+                                 (push (make-token :type  :prose
+                                                   :value (if (string= rest "")
+                                                              word
+                                                              (concatenate 'string
+                                                                           word
+                                                                           rest))
+                                                   :line  sl
+                                                   :col   sc)
+                                       tokens)
+                                 (note-token-emitted))))))
+
+                      ;; Any other non-sigil char at line start — prose
+                      (t
+                       (let ((sl line) (sc col))
+                         (let ((buf (list c)))
+                           (advance)
+                           (loop
+                             (let ((nc (current)))
+                               (when (or (null nc) (char= nc #\Newline))
+                                 (return))
+                               (push nc buf)
+                               (advance)))
+                           (push (make-token :type  :prose
+                                             :value (coerce (nreverse buf) 'string)
+                                             :line  sl
+                                             :col   sc)
+                                 tokens)
+                           (note-token-emitted))))))
+
+                   ;; ── Normal (non-line-start) dispatch ──────────────────
+
+                   ;; Double or single bracket — wikilink vs. lbracket
+                   ((char= c #\[)
+                    (let ((sl line) (sc col))
+                      (advance) ; consume first [
+                      (if (and (current) (char= (current) #\[))
+                          ;; Double bracket — disambiguate
+                          (progn
+                            (advance) ; consume second [
+                            (multiple-value-bind (kind inner-text close-pos)
+                                (%scan-double-bracket)
+                              (cond
+                                ((eq kind :wikilink)
+                                 ;; pos points at start of inner text.
+                                 ;; close-pos is the index of the first closing ].
+                                 ;; Advance pos through the inner text up to (not including)
+                                 ;; the first ], then consume both ]].
+                                 ;; All on one line, so no newline handling needed.
+                                 (loop while (< pos close-pos)
+                                       do (incf col) (incf pos))
+                                 ;; Now at first ]
+                                 (advance) ; consume first ]
+                                 (when (and (current) (char= (current) #\]))
+                                   (advance)) ; consume second ]
+                                 (push (make-token :type  :wikilink
+                                                   :value inner-text
+                                                   :line  sl
+                                                   :col   sc)
+                                       tokens)
+                                 (note-token-emitted))
+                                ((eq kind :nested)
+                                 ;; Two lbracket tokens; pos still at start of inner content
+                                 (push (make-token :type :lbracket :value nil :line sl :col sc) tokens)
+                                 (push (make-token :type :lbracket :value nil :line sl :col (1+ sc)) tokens)
+                                 (note-token-emitted))
+                                (t ; :unterminated
+                                 (error 'innate-parse-error
+                                        :line sl :col sc
+                                        :text "Unterminated [[")))))
+                          ;; Single bracket
+                          (progn
+                            (push (make-token :type :lbracket :value nil :line sl :col sc) tokens)
+                            (note-token-emitted)))))
 
                    ((char= c #\])
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :rbracket :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :rbracket :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\()
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :lparen :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :lparen :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\))
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :rparen :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :rparen :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\{)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :lbrace :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :lbrace :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\})
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :rbrace :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :rbrace :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\:)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :colon :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :colon :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\,)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :comma :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :comma :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\#)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :hash :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :hash :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\/)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :slash :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :slash :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\+)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :plus :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :plus :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ((char= c #\@)
                     (let ((sl line) (sc col))
                       (advance)
-                      (push (make-token :type :at :value nil :line sl :col sc) tokens)))
+                      (push (make-token :type :at :value nil :line sl :col sc) tokens)
+                      (note-token-emitted)))
 
                    ;; Two-char operators
                    ((char= c #\!)
@@ -210,7 +416,8 @@
                           (progn
                             (advance) ; consume !
                             (advance) ; consume [
-                            (push (make-token :type :bang-bracket :value nil :line sl :col sc) tokens))
+                            (push (make-token :type :bang-bracket :value nil :line sl :col sc) tokens)
+                            (note-token-emitted))
                           (error 'innate-parse-error
                                  :line sl :col sc
                                  :text "! must be followed by [ (bang-bracket)"))))
@@ -221,7 +428,8 @@
                           (progn
                             (advance) ; consume first |
                             (advance) ; consume second |
-                            (push (make-token :type :pipe-pipe :value nil :line sl :col sc) tokens))
+                            (push (make-token :type :pipe-pipe :value nil :line sl :col sc) tokens)
+                            (note-token-emitted))
                           (error 'innate-parse-error
                                  :line sl :col sc
                                  :text "| must be followed by | (pipe-pipe)"))))
@@ -232,7 +440,8 @@
                           (progn
                             (advance) ; consume -
                             (advance) ; consume >
-                            (push (make-token :type :arrow :value nil :line sl :col sc) tokens))
+                            (push (make-token :type :arrow :value nil :line sl :col sc) tokens)
+                            (note-token-emitted))
                           (error 'innate-parse-error
                                  :line sl :col sc
                                  :text "- must be followed by > (arrow)"))))
@@ -251,7 +460,9 @@
 
                    ;; Bare word or decree keyword
                    ((or (alpha-char-p c) (char= c #\_))
-                    (%read-bare-word))
+                    (let ((sl line) (sc col))
+                      (let ((word (%read-bare-word)))
+                        (%emit-bare-word-or-decree word sl sc))))
 
                    ;; Unexpected character
                    (t

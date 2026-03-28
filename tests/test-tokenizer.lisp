@@ -109,10 +109,15 @@
 
 (deftest test-newline-position-tracking
   ;; TOK-18: token on second line has line=2
+  ;; Now that :newline tokens are emitted, "[<newline>[" produces 3 tokens:
+  ;; :lbracket(1,1) :newline(1,2) :lbracket(2,1)
   (let ((toks (tokenize (format nil "[~%["))))
-    (assert-equal 2 (length toks) "two brackets across newline")
+    (assert-equal 3 (length toks) "three tokens: lbracket newline lbracket")
+    (assert-equal :lbracket (token-type (first toks)) "first is :lbracket")
     (assert-equal 1 (token-line (first toks)) "first bracket on line 1")
-    (assert-equal 2 (token-line (second toks)) "second bracket on line 2")))
+    (assert-equal :newline (token-type (second toks)) "second is :newline")
+    (assert-equal :lbracket (token-type (third toks)) "third is :lbracket")
+    (assert-equal 2 (token-line (third toks)) "second bracket on line 2")))
 
 ;;; ─── Task 2: Literal token tests (TOK-11 through TOK-15) ───
 
@@ -149,22 +154,36 @@
     (assert-equal "0" (token-value (first toks)) "0 value is string")))
 
 (deftest test-bare-word
-  ;; TOK-13: bare words tokenize as :bare-word
+  ;; TOK-13: bare words tokenize as :bare-word inside expressions
+  ;; At line start a bare word (not "decree") is emitted as :prose per TOK-17.
+  ;; Inside brackets it is :bare-word. Test inside brackets:
+  (let ((toks (tokenize "[entry]")))
+    (assert-equal 3 (length toks) "[entry]: three tokens")
+    (assert-equal :lbracket (token-type (first toks)) "first is :lbracket")
+    (assert-equal :bare-word (token-type (second toks)) "entry inside brackets type")
+    (assert-equal "entry" (token-value (second toks)) "entry value")
+    (assert-equal :rbracket (token-type (third toks)) "last is :rbracket"))
+  ;; Bare word at line start is prose (TOK-17)
   (let ((toks (tokenize "entry")))
-    (assert-equal 1 (length toks) "entry: one token")
-    (assert-equal :bare-word (token-type (first toks)) "entry type")
-    (assert-equal "entry" (token-value (first toks)) "entry value")))
+    (assert-equal 1 (length toks) "entry at line start: one prose token")
+    (assert-equal :prose (token-type (first toks)) "entry at line start is :prose")
+    (assert-equal "entry" (token-value (first toks)) "prose value is entry")))
 
 (deftest test-decree-keyword
-  ;; TOK-15: "decree" tokenizes as :decree
+  ;; TOK-15: "decree" at line start tokenizes as :decree (not prose)
   (let ((toks (tokenize "decree")))
     (assert-equal 1 (length toks) "decree: one token")
     (assert-equal :decree (token-type (first toks)) "decree type"))
-  ;; "decrement" tokenizes as :bare-word (not :decree)
+  ;; "decrement" at line start tokenizes as :prose (not :decree, not :bare-word)
+  ;; because it is not the exact "decree" keyword, so the whole line is prose (TOK-17)
   (let ((toks (tokenize "decrement")))
-    (assert-equal 1 (length toks) "decrement: one token")
-    (assert-equal :bare-word (token-type (first toks)) "decrement is :bare-word not :decree")
-    (assert-equal "decrement" (token-value (first toks)) "decrement value")))
+    (assert-equal 1 (length toks) "decrement at line start: one prose token")
+    (assert-equal :prose (token-type (first toks)) "decrement at line start is :prose")
+    (assert-equal "decrement" (token-value (first toks)) "prose value is decrement"))
+  ;; "decree" inside brackets tokenizes as :decree
+  (let ((toks (tokenize "[decree foo]")))
+    (assert-equal 4 (length toks) "[decree foo]: four tokens")
+    (assert-equal :decree (token-type (second toks)) "decree inside brackets is :decree")))
 
 (deftest test-emoji-slot
   ;; TOK-14: <emoji> tokenizes as :emoji-slot
@@ -176,3 +195,107 @@
   (assert-signals innate-parse-error
     (tokenize "<other")
     "non-emoji-slot < signals parse error"))
+
+;;; ─── Task 1 (Plan 03): Wikilink disambiguation (TOK-16) ───
+
+(deftest test-wikilink-simple
+  ;; TOK-16: [[Burg]] emits one :wikilink token with value "Burg"
+  (let ((toks (tokenize "[[Burg]]")))
+    (assert-equal 1 (length toks) "[[Burg]]: one token")
+    (assert-equal :wikilink (token-type (first toks)) "type is :wikilink")
+    (assert-equal "Burg" (token-value (first toks)) "value is Burg")
+    (assert-equal 1 (token-line (first toks)) "wikilink on line 1")
+    (assert-equal 1 (token-col (first toks)) "wikilink at col 1")))
+
+(deftest test-wikilink-longer-title
+  ;; TOK-16: [[Longer Title Here]] emits :wikilink with full inner text
+  (let ((toks (tokenize "[[Longer Title Here]]")))
+    (assert-equal 1 (length toks) "longer wikilink: one token")
+    (assert-equal :wikilink (token-type (first toks)) "type is :wikilink")
+    (assert-equal "Longer Title Here" (token-value (first toks)) "full title preserved")))
+
+(deftest test-wikilink-vs-nested-brackets
+  ;; TOK-16: [[sylvia[command]]] is nested brackets, NOT a wikilink
+  ;; Expected: :lbracket :lbracket :bare-word("sylvia") :lbracket :bare-word("command") :rbracket :rbracket :rbracket
+  (let* ((toks (tokenize "[[sylvia[command]]]"))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 8 (length toks) "nested brackets: 8 tokens")
+    (assert-equal :lbracket (first types) "token 1 is :lbracket")
+    (assert-equal :lbracket (second types) "token 2 is :lbracket")
+    (assert-equal :bare-word (third types) "token 3 is :bare-word")
+    (assert-equal "sylvia" (token-value (third toks)) "bare-word value is sylvia")
+    (assert-equal :lbracket (fourth types) "token 4 is :lbracket")
+    (assert-equal :bare-word (fifth types) "token 5 is :bare-word")
+    (assert-equal "command" (token-value (fifth toks)) "bare-word value is command")
+    (assert-equal :rbracket (sixth types) "token 6 is :rbracket")
+    (assert-equal :rbracket (seventh types) "token 7 is :rbracket")
+    (assert-equal :rbracket (eighth types) "token 8 is :rbracket")))
+
+;;; ─── Task 1 (Plan 03): Prose detection (TOK-17) ───
+
+(deftest test-prose-line
+  ;; TOK-17: plain text line emits one :prose token
+  (let ((toks (tokenize "This is plain text")))
+    (assert-equal 1 (length toks) "prose: one token")
+    (assert-equal :prose (token-type (first toks)) "type is :prose")
+    (assert-equal "This is plain text" (token-value (first toks)) "prose value is full line")))
+
+(deftest test-prose-not-decree
+  ;; TOK-17: "decree foo" at line start is NOT prose — emits :decree then :bare-word
+  (let* ((toks (tokenize "decree foo"))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 2 (length toks) "decree foo: two tokens")
+    (assert-equal :decree (first types) "first token is :decree")
+    (assert-equal :bare-word (second types) "second token is :bare-word")
+    (assert-equal "foo" (token-value (second toks)) "bare-word value is foo")))
+
+(deftest test-prose-not-lbracket
+  ;; TOK-17: "[foo]" at line start is NOT prose — starts with executable sigil
+  (let* ((toks (tokenize "[foo]"))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 3 (length toks) "[foo]: three tokens")
+    (assert-equal :lbracket (first types) "first is :lbracket")
+    (assert-equal :bare-word (second types) "second is :bare-word")
+    (assert-equal :rbracket (third types) "third is :rbracket")))
+
+(deftest test-prose-not-arrow
+  ;; TOK-17: "-> value" at line start is NOT prose — starts with ->
+  (let* ((toks (tokenize "-> value"))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 2 (length toks) "-> value: two tokens")
+    (assert-equal :arrow (first types) "first is :arrow")
+    (assert-equal :bare-word (second types) "second is :bare-word")))
+
+;;; ─── Task 1 (Plan 03): Newline emission and collapse (TOK-18) ───
+
+(deftest test-newline-between-prose
+  ;; Newline between two lines emits :newline token between prose tokens
+  (let* ((toks (tokenize (format nil "a~%b")))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 3 (length toks) "a NL b: three tokens")
+    (assert-equal :prose (first types) "first is :prose")
+    (assert-equal :newline (second types) "second is :newline")
+    (assert-equal :prose (third types) "third is :prose")))
+
+(deftest test-newline-collapse
+  ;; TOK-18: consecutive newlines collapse to one :newline token
+  (let* ((toks (tokenize (format nil "a~%~%b")))
+         (types (mapcar #'token-type toks)))
+    (assert-equal 3 (length toks) "a NL NL b collapses to 3 tokens")
+    (assert-equal :prose (first types) "first is :prose(a)")
+    (assert-equal :newline (second types) "second is :newline (collapsed)")
+    (assert-equal :prose (third types) "third is :prose(b)")))
+
+(deftest test-newline-position
+  ;; Newline token has correct position; bracket on line 2 has line=2 col=1
+  (let* ((toks (tokenize (format nil "[~%]")))
+         (types (mapcar #'token-type toks)))
+    ;; Expect: :lbracket(1,1), :newline(1,2), :rbracket(2,1)
+    (assert-equal 3 (length toks) "[NL]: three tokens")
+    (assert-equal :lbracket (first types) "first is :lbracket")
+    (assert-equal 1 (token-line (first toks)) "lbracket on line 1")
+    (assert-equal 1 (token-col (first toks)) "lbracket at col 1")
+    (assert-equal :newline (second types) "second is :newline")
+    (assert-equal :rbracket (third types) "third is :rbracket")
+    (assert-equal 2 (token-line (third toks)) "rbracket on line 2")
+    (assert-equal 1 (token-col (third toks)) "rbracket at col 1")))

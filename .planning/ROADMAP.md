@@ -97,7 +97,10 @@ Plans:
   2. The evaluation environment struct exists with `resolver`, `decrees`, `bindings`, and `scope` fields; it can be constructed and passed as an argument
   3. The evaluator package imports only from `innate/resolver` (the defgeneric declarations) — no concrete resolver implementation is visible to the evaluator
   4. A written resolver protocol specification (in `docs/` or docstrings) describes what each generic must return for "found", "not found", and "fulfillment required" cases
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — Resolver class, 6 defgenerics with default methods, eval-env struct, protocol tests
 
 ### Phase 6: Stub Resolver
 **Goal**: A fully conforming in-memory resolver exists that passes the resolver conformance test suite, enabling evaluator tests to run without any external infrastructure
@@ -156,7 +159,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Conditions and AST Nodes | 3/3 | Complete   | 2026-03-28 |
 | 3. Tokenizer | 2/3 | In Progress|  |
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
-| 5. Resolver Protocol and Environment | 0/TBD | Not started | - |
+| 5. Resolver Protocol and Environment | 0/1 | Not started | - |
 | 6. Stub Resolver | 0/TBD | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |

@@ -69,7 +69,7 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Package exports, token defstruct, ASDF wiring, and test scaffold
 - [x] 03-02-PLAN.md — Core tokenizer loop: single-char dispatch, two-char operators, string/number/bare-word literals, emoji slot, decree keyword
-- [ ] 03-03-PLAN.md — Wikilink disambiguation, prose line detection, newline handling, integration test with burg_pipeline.dpn
+- [x] 03-03-PLAN.md — Wikilink disambiguation, prose line detection, newline handling, integration test with burg_pipeline.dpn
 
 ### Phase 4: Parser
 **Goal**: Any tokenized Innate source produces a typed AST where prose is a first-class node, all infix operators have correct left-associativity, and compound expressions like `@type:"[[Burg]]"+all{state:==}` parse completely

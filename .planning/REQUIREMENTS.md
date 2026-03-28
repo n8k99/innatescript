@@ -22,8 +22,8 @@
 - [x] **TOK-13**: Tokenize bare words (identifiers)
 - [x] **TOK-14**: Tokenize `<emoji>` as emoji slot
 - [x] **TOK-15**: Tokenize `decree` as keyword
-- [ ] **TOK-16**: Disambiguate `[[...]]` (wikilink) from nested brackets: scan forward from `[[` — if `]` is reached before any `[`, it's a wikilink; if `[` is hit first, it's nested brackets. `[[Burg]]` = wikilink, `[[sylvia[command]]]` = three bracket levels
-- [ ] **TOK-17**: Detect prose lines (lines not starting with executable syntax) and emit as prose tokens
+- [x] **TOK-16**: Disambiguate `[[...]]` (wikilink) from nested brackets: scan forward from `[[` — if `]` is reached before any `[`, it's a wikilink; if `[` is hit first, it's nested brackets. `[[Burg]]` = wikilink, `[[sylvia[command]]]` = three bracket levels
+- [x] **TOK-17**: Detect prose lines (lines not starting with executable syntax) and emit as prose tokens
 - [x] **TOK-18**: Track line and column numbers on every token for error reporting
 
 ### Parser
@@ -168,8 +168,8 @@
 | TOK-13 | Phase 3 | Complete |
 | TOK-14 | Phase 3 | Complete |
 | TOK-15 | Phase 3 | Complete |
-| TOK-16 | Phase 3 | Pending |
-| TOK-17 | Phase 3 | Pending |
+| TOK-16 | Phase 3 | Complete |
+| TOK-17 | Phase 3 | Complete |
 | TOK-18 | Phase 3 | Complete |
 | PAR-01 | Phase 4 | Pending |
 | PAR-02 | Phase 4 | Pending |

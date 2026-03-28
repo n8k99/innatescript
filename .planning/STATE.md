@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-tokenizer/03-02-PLAN.md
-last_updated: "2026-03-28T21:20:12.319Z"
+stopped_at: Completed 03-tokenizer/03-03-PLAN.md
+last_updated: "2026-03-28T21:31:19.224Z"
 progress:
   total_phases: 9
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -53,6 +53,7 @@ Plan: 3 of 3
 | Phase 02-conditions-and-ast-nodes P03 | 2 | 2 tasks | 2 files |
 | Phase 03-tokenizer P01 | 2 | 2 tasks | 5 files |
 | Phase 03-tokenizer P02 | 3 | 2 tasks | 2 files |
+| Phase 03-tokenizer P03 | 9min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Recent decisions affecting current work:
 - [Phase 03-tokenizer]: cond used instead of case for main dispatch — mixes char= tests with digit-char-p/alpha-char-p predicates in one form
 - [Phase 03-tokenizer]: labels-local helpers inside tokenize (%read-X pattern) share pos/line/col/tokens lexically, no parameter threading
 - [Phase 03-tokenizer]: newline and [[ handling stubbed in Plan 02 — consumed silently, :newline emission and wikilink disambiguation deferred to Plan 03
+- [Phase 03-tokenizer]: nesting-depth tracker gates prose detection inside brackets — prevents multi-line bracket expressions from being misclassified as prose
+- [Phase 03-tokenizer]: dash '-' without '>' emits :prose in both line-start and normal dispatch — burg_pipeline.dpn list-item syntax compatibility (spec gap)
+- [Phase 03-tokenizer]: dot '.' added to bare-word chars — filename tokens like burg_pipeline.dpn parse correctly (spec gap, not in grammar)
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:20:12.313Z
-Stopped at: Completed 03-tokenizer/03-02-PLAN.md
+Last session: 2026-03-28T21:31:19.221Z
+Stopped at: Completed 03-tokenizer/03-03-PLAN.md
 Resume file: None

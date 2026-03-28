@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Innate is a scripting language of intention — "markdown that runs." You write `.dpn` files that are simultaneously readable documents and executable programs. The interpreter is written in Common Lisp with a pluggable resolver protocol, so it can be connected to any backing store or agent system. The first resolver connects it to the Dragonpunk noosphere (private, separate repo), but the language itself is generic and public.
+Innate is a scripting language of intention — "markdown that runs." You write `.dpn` files that are simultaneously readable documents and executable programs. The interpreter is written in Common Lisp with a pluggable resolver protocol, so it can be connected to any substrate or agent system. The first resolver connects it to the Dragonpunk noosphere (private, separate repo), but the language itself is generic and public.
 
 ## Core Value
 
@@ -60,8 +60,8 @@ An `innatescript.ttf` font file exists on the droplet, suggesting visual/brandin
 
 - **Language**: Common Lisp (SBCL) — the ghosts speak Lisp natively, so Innate must too
 - **No external dependencies**: follows AF64 conventions (hand-rolled everything, ASDF system definition, package-per-module)
-- **Public repo**: zero secrets, zero hardcoded infrastructure references
-- **Generic**: the interpreter must know nothing about Postgres, the noosphere, or any specific deployment
+- **Public repo**: zero secrets, zero hardcoded substrate references
+- **Generic**: the interpreter must know nothing about any specific substrate, agent roster, or deployment
 - **File extension**: `.dpn`
 
 ## Key Decisions

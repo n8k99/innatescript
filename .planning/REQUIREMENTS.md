@@ -144,19 +144,91 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOK-01 through TOK-18 | TBD | Pending |
-| PAR-01 through PAR-22 | TBD | Pending |
-| EVL-01 through EVL-15 | TBD | Pending |
-| RES-01 through RES-10 | TBD | Pending |
-| ERR-01 through ERR-04 | TBD | Pending |
-| RUN-01 through RUN-05 | TBD | Pending |
-| PRJ-01 through PRJ-05 | TBD | Pending |
+| PRJ-01 | Phase 1 | Pending |
+| PRJ-02 | Phase 1 | Pending |
+| PRJ-03 | Phase 1 | Pending |
+| PRJ-04 | Phase 1 | Pending |
+| RUN-05 | Phase 1 | Pending |
+| ERR-01 | Phase 2 | Pending |
+| ERR-02 | Phase 2 | Pending |
+| ERR-03 | Phase 2 | Pending |
+| PAR-22 | Phase 2 | Pending |
+| TOK-01 | Phase 3 | Pending |
+| TOK-02 | Phase 3 | Pending |
+| TOK-03 | Phase 3 | Pending |
+| TOK-04 | Phase 3 | Pending |
+| TOK-05 | Phase 3 | Pending |
+| TOK-06 | Phase 3 | Pending |
+| TOK-07 | Phase 3 | Pending |
+| TOK-08 | Phase 3 | Pending |
+| TOK-09 | Phase 3 | Pending |
+| TOK-10 | Phase 3 | Pending |
+| TOK-11 | Phase 3 | Pending |
+| TOK-12 | Phase 3 | Pending |
+| TOK-13 | Phase 3 | Pending |
+| TOK-14 | Phase 3 | Pending |
+| TOK-15 | Phase 3 | Pending |
+| TOK-16 | Phase 3 | Pending |
+| TOK-17 | Phase 3 | Pending |
+| TOK-18 | Phase 3 | Pending |
+| PAR-01 | Phase 4 | Pending |
+| PAR-02 | Phase 4 | Pending |
+| PAR-03 | Phase 4 | Pending |
+| PAR-04 | Phase 4 | Pending |
+| PAR-05 | Phase 4 | Pending |
+| PAR-06 | Phase 4 | Pending |
+| PAR-07 | Phase 4 | Pending |
+| PAR-08 | Phase 4 | Pending |
+| PAR-09 | Phase 4 | Pending |
+| PAR-10 | Phase 4 | Pending |
+| PAR-11 | Phase 4 | Pending |
+| PAR-12 | Phase 4 | Pending |
+| PAR-13 | Phase 4 | Pending |
+| PAR-14 | Phase 4 | Pending |
+| PAR-15 | Phase 4 | Pending |
+| PAR-16 | Phase 4 | Pending |
+| PAR-17 | Phase 4 | Pending |
+| PAR-18 | Phase 4 | Pending |
+| PAR-19 | Phase 4 | Pending |
+| PAR-20 | Phase 4 | Pending |
+| PAR-21 | Phase 4 | Pending |
+| RES-01 | Phase 5 | Pending |
+| RES-02 | Phase 5 | Pending |
+| RES-03 | Phase 5 | Pending |
+| RES-04 | Phase 5 | Pending |
+| RES-05 | Phase 5 | Pending |
+| RES-06 | Phase 5 | Pending |
+| RES-07 | Phase 5 | Pending |
+| EVL-13 | Phase 5 | Pending |
+| RES-08 | Phase 6 | Pending |
+| RES-09 | Phase 6 | Pending |
+| RES-10 | Phase 6 | Pending |
+| EVL-01 | Phase 7 | Pending |
+| EVL-02 | Phase 7 | Pending |
+| EVL-03 | Phase 7 | Pending |
+| EVL-08 | Phase 7 | Pending |
+| EVL-11 | Phase 7 | Pending |
+| EVL-12 | Phase 7 | Pending |
+| EVL-14 | Phase 7 | Pending |
+| EVL-15 | Phase 7 | Pending |
+| EVL-04 | Phase 8 | Pending |
+| EVL-05 | Phase 8 | Pending |
+| EVL-06 | Phase 8 | Pending |
+| EVL-07 | Phase 8 | Pending |
+| EVL-09 | Phase 8 | Pending |
+| EVL-10 | Phase 8 | Pending |
+| ERR-04 | Phase 8 | Pending |
+| RUN-01 | Phase 9 | Pending |
+| RUN-02 | Phase 9 | Pending |
+| RUN-03 | Phase 9 | Pending |
+| RUN-04 | Phase 9 | Pending |
+| PRJ-05 | Phase 9 | Pending |
 
 **Coverage:**
-- v1 requirements: 74 total
-- Mapped to phases: 0
-- Unmapped: 74
+- v1 requirements: 79 total (note: REQUIREMENTS.md previously stated 74 — recount of actual listed requirements is 79)
+- Mapped to phases: 79
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 after initial definition*
+*Last updated: 2026-03-27 after roadmap creation — all requirements mapped*

@@ -132,8 +132,20 @@
     #:load-bundle)
   (:import-from :innate.types
     #:make-innate-result
-    #:make-resistance)
-  (:export))
+    #:innate-result-value
+    #:innate-result-context
+    #:make-resistance
+    #:resistance-p
+    #:resistance-message
+    #:resistance-source)
+  (:export
+   #:stub-resolver
+   #:make-stub-resolver
+   #:stub-add-entity
+   #:stub-add-wikilink
+   #:stub-add-bundle
+   #:stub-add-context
+   #:stub-commissions))
 
 (defpackage :innate.repl
   (:use :cl)

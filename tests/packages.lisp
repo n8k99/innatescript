@@ -137,3 +137,20 @@
     #:resistance-message
     #:resistance-source)
   (:export))
+
+(defpackage :innate.tests.stub-resolver
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest #:assert-equal #:assert-true #:assert-nil #:assert-signals #:run-tests)
+  (:import-from :innate.eval.stub-resolver
+    #:stub-resolver #:make-stub-resolver
+    #:stub-add-entity #:stub-add-wikilink #:stub-add-bundle
+    #:stub-add-context #:stub-commissions)
+  (:import-from :innate.eval.resolver
+    #:resolve-reference #:resolve-search #:deliver-commission
+    #:resolve-wikilink #:resolve-context #:load-bundle)
+  (:import-from :innate.types
+    #:make-innate-result #:innate-result-value #:innate-result-context
+    #:make-resistance #:resistance-p #:resistance-message #:resistance-source
+    #:make-node #:+node-prose+)
+  (:export))

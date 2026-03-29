@@ -185,9 +185,29 @@
 
 (defpackage :innate.repl
   (:use :cl)
-  (:import-from :innate.eval)
-  (:import-from :innate.conditions)
-  (:export))
+  (:import-from :innate.parser.tokenizer #:tokenize)
+  (:import-from :innate.parser #:parse)
+  (:import-from :innate.eval #:evaluate)
+  (:import-from :innate.eval.resolver
+    #:make-eval-env
+    #:eval-env-resolver
+    #:eval-env-decrees)
+  (:import-from :innate.eval.stub-resolver
+    #:make-stub-resolver
+    #:stub-commissions)
+  (:import-from :innate.types
+    #:innate-result-value
+    #:resistance-p
+    #:resistance-message
+    #:resistance-source)
+  (:import-from :innate.conditions
+    #:innate-parse-error
+    #:innate-resistance
+    #:parse-error-line
+    #:parse-error-col
+    #:resistance-condition-message
+    #:resistance-condition-source)
+  (:export #:repl #:run-file))
 
 (defpackage :innate
   (:use :cl)

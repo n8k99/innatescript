@@ -110,7 +110,10 @@ Plans:
   1. The stub resolver passes every test in the resolver conformance suite — it is a correct implementation, not a minimal fixture
   2. Commissions delivered to the stub resolver are recorded and retrievable for test assertions (e.g., `(assert-equal (stub-commissions resolver) '(("agent-name" "instruction")))`)
   3. `@name:qualifier` reference chains resolve against plist entities stored in the stub's in-memory hashtable
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — stub-resolver class, 6 method specializations, seeding helpers, conformance tests
 
 ### Phase 7: Evaluator Core
 **Goal**: The two-pass hoisting architecture is in place, all non-commission AST node types evaluate correctly via etypecase dispatch, and resistance propagates upward through nested brackets
@@ -160,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. Tokenizer | 2/3 | In Progress|  |
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
-| 6. Stub Resolver | 0/TBD | Not started | - |
+| 6. Stub Resolver | 0/1 | Not started | - |
 | 7. Evaluator Core | 0/TBD | Not started | - |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

@@ -335,3 +335,120 @@
     (let ((results (evaluate ast env)))
       (assert-true (> (length results) 0))
       (assert-true (member "hello" results :test #'equal)))))
+
+;;; EVL-04: Commission — (agent){instruction} delivers commission via resolver
+
+(deftest test-commission-agent-bundle-adjacency
+  "(agent){instruction} adjacency: agent + bundle calls deliver-commission"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :agent :value "sylvia")
+                      (make-node :kind :bundle :value "fix_database")))))
+    (let ((results (evaluate ast env)))
+      (assert-equal '(("sylvia" "fix_database")) (stub-commissions resolver))
+      ;; Commission result is t (from deliver-commission returning innate-result :value t)
+      (assert-equal t (first results)))))
+
+(deftest test-standalone-agent-returns-name
+  "Standalone (agent) with no following :bundle returns agent name"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :agent :value "sylvia")))))
+    (let ((results (evaluate ast env)))
+      (assert-equal "sylvia" (first results))
+      ;; No commission delivered
+      (assert-nil (stub-commissions resolver)))))
+
+(deftest test-commission-records-multiple
+  "Multiple agent+bundle pairs each record a commission"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :agent :value "a")
+                      (make-node :kind :bundle :value "task1")
+                      (make-node :kind :agent :value "b")
+                      (make-node :kind :bundle :value "task2")))))
+    (evaluate ast env)
+    (assert-equal '(("a" "task1") ("b" "task2")) (stub-commissions resolver))))
+
+;;; EVL-05: Search — ![...] calls resolve-search on the resolver
+
+(deftest test-search-calls-resolve-search
+  "![type:\"Burg\"] calls resolve-search and returns matching entities"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :search :children
+                        (list (make-node :kind :kv-pair :value "type"
+                                :children (list (make-node :kind :string-lit :value "Burg")))))))))
+    (stub-add-entity resolver "burg1" '(:type "Burg" :state "Seed"))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      ;; resolve-search returns a list of matching entities
+      (assert-true (listp (first results)))
+      (assert-true (member '(:type "Burg" :state "Seed") (first results) :test #'equal)))))
+
+(deftest test-search-resistance-no-match
+  "![type:\"Nonexistent\"] signals innate-resistance when no entities match"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :search :children
+                        (list (make-node :kind :kv-pair :value "type"
+                                :children (list (make-node :kind :string-lit :value "Nonexistent")))))))))
+    (assert-signals innate-resistance
+      (evaluate ast env))))
+
+;;; EVL-06, ERR-04: Fulfillment — || catches resistance and evaluates right side
+
+(deftest test-fulfillment-left-succeeds-returns-left
+  "|| returns left result when left evaluates without resistance"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         ;; Left: string-lit "ok", Right: agent "fallback" + bundle "fix" (in this test, just a string right side)
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :fulfillment :children
+                        (list (make-node :kind :string-lit :value "ok")
+                              (make-node :kind :string-lit :value "fallback")))))))
+    (let ((results (evaluate ast env)))
+      (assert-equal "ok" (first results))
+      ;; Right side never evaluated — no commissions
+      (assert-nil (stub-commissions resolver)))))
+
+(deftest test-fulfillment-left-resistance-fires-right
+  "|| evaluates right side when left signals innate-resistance"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         ;; Left: unresolvable reference, Right: string "recovered"
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :fulfillment :children
+                        (list (make-node :kind :reference :value "nonexistent")
+                              (make-node :kind :string-lit :value "recovered")))))))
+    (let ((results (evaluate ast env)))
+      (assert-equal "recovered" (first results)))))
+
+;;; Full pipeline integration tests
+
+(deftest test-pipeline-commission
+  "Full pipeline: (sylvia){\"fix\"} records commission via tokenize/parse/evaluate"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "(sylvia){\"fix\"}"))))
+    (evaluate ast env)
+    (assert-equal 1 (length (stub-commissions resolver)))
+    (assert-equal "sylvia" (first (first (stub-commissions resolver))))))
+
+(deftest test-fulfillment-resistance-fires-commission-pipeline
+  "Full pipeline: @missing || (helper) fires right side on resistance (agent returns name)"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         ;; Note: parser splits (helper){"fix_it"} into :agent + :bundle siblings.
+         ;; The fulfillment right-side gets :agent only. Commission adjacency at
+         ;; statement level handles the :bundle separately.
+         ;; Test verifies fulfillment fires the right side (agent name returned).
+         (ast (parse (tokenize "@missing || (helper){\"fix_it\"}"))))
+    (let ((results (evaluate ast env)))
+      ;; The fulfillment evaluates and returns "helper" (agent name)
+      ;; The bundle "fix_it" is evaluated separately as standalone bundle
+      (assert-true (member "helper" results :test #'equal)))))

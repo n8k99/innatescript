@@ -113,11 +113,9 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
                                  :source (resistance-source result))
                          (innate-result-value result)))))))))
 
-    ;; Phase 8 stubs — signal resistance with "not yet implemented"
+    ;; Agent — standalone agent returns name; commission adjacency handled in evaluate loop
     ((eql :agent)
-     (signal 'innate-resistance
-             :message "Agent commission evaluation not yet implemented"
-             :source (or (node-value node) "agent")))
+     (node-value node))
     ((eql :bundle)
      (let* ((name (node-value node))
             (nodes (load-bundle (eval-env-resolver env) name)))
@@ -131,14 +129,31 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
            (signal 'innate-resistance
                    :message (format nil "Bundle not found: ~a" name)
                    :source (or name "bundle")))))
+    ;; Search — evaluate children to extract search-type and terms, call resolve-search
     ((eql :search)
-     (signal 'innate-resistance
-             :message "Search evaluation not yet implemented"
-             :source "search"))
+     (let* ((children (node-children node))
+            (search-type (if children
+                             (let ((first-child (first children)))
+                               (if (eq (node-kind first-child) :kv-pair)
+                                   (node-value first-child)
+                                   (eval-node first-child env)))
+                             "default"))
+            (terms (mapcar (lambda (c) (eval-node c env)) children))
+            (result (resolve-search (eval-env-resolver env) search-type terms)))
+       (if (resistance-p result)
+           (signal 'innate-resistance
+                   :message (resistance-message result)
+                   :source (resistance-source result))
+           (innate-result-value result))))
+
+    ;; Fulfillment — expr || fallback: try left, catch resistance, fire right
     ((eql :fulfillment)
-     (signal 'innate-resistance
-             :message "Fulfillment evaluation not yet implemented"
-             :source "fulfillment"))
+     (let ((left (first (node-children node)))
+           (right (second (node-children node))))
+       (handler-case
+           (eval-node left env)
+         (innate-resistance ()
+           (eval-node right env)))))
     ((eql :emission)
      (let ((children (node-children node)))
        (if (= (length children) 1)
@@ -161,15 +176,37 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
 (defun evaluate (ast env)
   "Evaluate an AST (a :program node) in the given eval-env.
 Pass 1: Collect all decree definitions into (eval-env-decrees env).
-Pass 2: Evaluate each top-level child via eval-node, collecting results.
+Pass 2: Evaluate each top-level child via eval-node, with commission adjacency
+detection: when an :agent node is followed by a :bundle node, deliver a commission.
 Returns a list of evaluation results in source order. Decree nodes produce no result."
   (let ((children (node-children ast)))
     ;; Pass 1: collect decrees
     (collect-decrees children env)
-    ;; Pass 2: evaluate, skipping decree nodes
-    (let ((results nil))
-      (dolist (child children)
-        (unless (eq (node-kind child) :decree)
-          (let ((result (eval-node child env)))
-            (push result results))))
+    ;; Pass 2: evaluate with index-based iteration for adjacency detection
+    (let ((results nil)
+          (len (length children))
+          (i 0))
+      (loop while (< i len)
+            do (let ((child (nth i children)))
+                 (cond
+                   ;; Skip decree nodes
+                   ((eq (node-kind child) :decree)
+                    (incf i))
+                   ;; Commission adjacency: :agent followed by :bundle
+                   ((and (eq (node-kind child) :agent)
+                         (< (1+ i) len)
+                         (eq (node-kind (nth (1+ i) children)) :bundle))
+                    (let* ((agent-name (node-value child))
+                           (bundle-node (nth (1+ i) children))
+                           (instruction (node-value bundle-node))
+                           (result (deliver-commission
+                                    (eval-env-resolver env)
+                                    agent-name instruction)))
+                      (push (innate-result-value result) results))
+                    (incf i 2))  ; skip both agent and bundle
+                   ;; Normal evaluation
+                   (t
+                    (let ((result (eval-node child env)))
+                      (push result results))
+                    (incf i)))))
       (nreverse results))))

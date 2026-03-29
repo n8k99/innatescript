@@ -486,20 +486,26 @@
          (cursor-expect cursor :rbrace)
          (make-node :kind +node-bundle+ :value name)))
 
-      ;; Empty braces or other content — treat as empty lens
+      ;; Empty braces or other content — parse as bundle with expression children
+      ;; e.g. {"fix"} or {42} or {} (empty)
       (t
-       ;; Consume until rbrace
-       (loop
-         (let ((t2 (cursor-peek cursor)))
-           (cond
-             ((null t2)
-              (error 'innate-parse-error
-                     :line 0 :col 0
-                     :text "Unterminated brace expression"))
-             ((eq (token-type t2) :rbrace)
-              (cursor-consume cursor)
-              (return)))))
-       (make-node :kind +node-lens+ :children nil)))))
+       (let ((children '()))
+         (loop
+           (let ((t2 (cursor-peek cursor)))
+             (cond
+               ((null t2)
+                (error 'innate-parse-error
+                       :line 0 :col 0
+                       :text "Unterminated brace expression"))
+               ((eq (token-type t2) :rbrace)
+                (cursor-consume cursor)
+                (return))
+               ((eq (token-type t2) :newline)
+                (cursor-consume cursor))
+               (t
+                (let ((expr (parse-expression cursor)))
+                  (when expr (push expr children)))))))
+         (make-node :kind +node-bundle+ :children (nreverse children)))))))
 
 (defun parse-lens (cursor)
   "Parse a lens expression: {key:value ...}.

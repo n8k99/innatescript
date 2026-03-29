@@ -63,17 +63,24 @@ against hash-tables. This is a correct implementation, not a fixture."))
 
 (defmethod resolve-search ((r stub-resolver) search-type terms)
   (declare (ignore search-type))
-  ;; Filter entities: each term is a (key value) pair
+  ;; Filter entities: each term is a cons pair (key . value) from kv-pair evaluation
   ;; Collect entities whose plists match all terms
   (let ((matches nil))
     (maphash (lambda (name entity)
                (declare (ignore name))
                (let ((match t))
                  (dolist (term terms)
-                   (when (and (consp term) (= (length term) 2))
-                     (let* ((key (intern (string-upcase (first term)) :keyword))
+                   (when (consp term)
+                     (let* ((term-key (car term))
+                            ;; Handle both (key . value) cons and (key value) list
+                            (term-val (if (consp (cdr term))
+                                          (cadr term)    ; list format
+                                          (cdr term)))   ; cons format
+                            (key (intern (string-upcase (if (stringp term-key) term-key (format nil "~a" term-key))) :keyword))
                             (val (getf entity key)))
-                       (unless (and val (string-equal val (second term)))
+                       (unless (and val (if (stringp term-val)
+                                            (string-equal val term-val)
+                                            (equal val term-val)))
                          (setf match nil)))))
                  (when match
                    (push entity matches))))

@@ -207,7 +207,7 @@
     #:parse-error-col
     #:resistance-condition-message
     #:resistance-condition-source)
-  (:export #:repl #:run-file))
+  (:export #:repl #:run-file #:print-result))
 
 (defpackage :innate
   (:use :cl)

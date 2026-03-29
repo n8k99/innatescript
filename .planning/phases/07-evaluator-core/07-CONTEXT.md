@@ -74,8 +74,8 @@ The two-pass hoisting architecture is in place, all non-commission AST node type
   - If inside a bracket expression with no `||` fulfillment: signal `innate-resistance` condition
   - The signal propagates upward through `handler-case` frames until caught
   - If no handler catches it at any bracket level, it surfaces to the top-level caller
-- The evaluator uses `handler-case` around bracket body evaluation to catch `innate-resistance` from nested evaluations
-- Phase 8 adds `||` fulfillment which catches resistance before it propagates
+- Natural CL condition propagation handles resistance — `innate-resistance` signals propagate upward through the call stack without needing explicit `handler-case` at every bracket level. The evaluator checks `resistance-p` on direct resolver return values; nested signals propagate naturally.
+- Phase 8 adds `||` fulfillment which uses `handler-case` to catch resistance before it propagates
 
 ### Package and exports
 

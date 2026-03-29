@@ -125,7 +125,11 @@ Plans:
   3. Prose nodes and heading nodes pass through evaluation and appear in rendered output rather than being dropped or causing errors
   4. An unresolvable `@reference` with no `||` fulfillment propagates `innate-resistance` upward through all enclosing bracket levels until it surfaces to the caller
   5. Internal evaluator dispatch uses `etypecase` on AST node kinds — CLOS method dispatch is not used for AST walking
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Two-pass architecture, decree collection, etypecase dispatch skeleton, passthrough and literal evaluation
+- [ ] 07-02-PLAN.md — Reference resolution (decrees-first then resolver), bracket evaluation, resistance propagation, full pipeline tests
 
 ### Phase 8: Commission and Fulfillment Evaluation
 **Goal**: Agent commissions, search directives, the fulfillment operator, emission, wikilinks, and bundle loading all evaluate correctly against the stub resolver
@@ -164,6 +168,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
-| 7. Evaluator Core | 0/TBD | Not started | - |
+| 7. Evaluator Core | 0/2 | Not started | - |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

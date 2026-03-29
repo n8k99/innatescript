@@ -119,9 +119,18 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
              :message "Agent commission evaluation not yet implemented"
              :source (or (node-value node) "agent")))
     ((eql :bundle)
-     (signal 'innate-resistance
-             :message "Bundle loading not yet implemented"
-             :source (or (node-value node) "bundle")))
+     (let* ((name (node-value node))
+            (nodes (load-bundle (eval-env-resolver env) name)))
+       (if nodes
+           ;; Evaluate returned AST nodes as sub-program, return last result (progn semantics)
+           (let ((last-result nil))
+             (dolist (n nodes)
+               (setf last-result (eval-node n env)))
+             last-result)
+           ;; Bundle not found — signal resistance
+           (signal 'innate-resistance
+                   :message (format nil "Bundle not found: ~a" name)
+                   :source (or name "bundle")))))
     ((eql :search)
      (signal 'innate-resistance
              :message "Search evaluation not yet implemented"
@@ -131,13 +140,18 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
              :message "Fulfillment evaluation not yet implemented"
              :source "fulfillment"))
     ((eql :emission)
-     (signal 'innate-resistance
-             :message "Emission evaluation not yet implemented"
-             :source "emission"))
+     (let ((children (node-children node)))
+       (if (= (length children) 1)
+           (eval-node (first children) env)
+           (mapcar (lambda (child) (eval-node child env)) children))))
     ((eql :wikilink)
-     (signal 'innate-resistance
-             :message "Wikilink evaluation not yet implemented"
-             :source (or (node-value node) "wikilink")))
+     (let* ((title (node-value node))
+            (result (resolve-wikilink (eval-env-resolver env) title)))
+       (if (resistance-p result)
+           (signal 'innate-resistance
+                   :message (resistance-message result)
+                   :source (resistance-source result))
+           (innate-result-value result))))
 
     ;; Program — should not be dispatched to eval-node directly
     ((eql :program)

@@ -93,8 +93,8 @@
 
 - [x] **RUN-01**: Interactive REPL with `read-line` loop and `handler-case` error recovery
 - [x] **RUN-02**: File execution: parse and evaluate a `.dpn` file
-- [ ] **RUN-03**: Shell script `run-tests.sh` that loads system, runs all tests, exits with pass/fail code
-- [ ] **RUN-04**: Shell script `run-repl.sh` that loads system and starts REPL (or runs a file if argument given)
+- [x] **RUN-03**: Shell script `run-tests.sh` that loads system, runs all tests, exits with pass/fail code
+- [x] **RUN-04**: Shell script `run-repl.sh` that loads system and starts REPL (or runs a file if argument given)
 - [x] **RUN-05**: ASDF cold-load test: wipe fasl cache, full `asdf:load-system`, verify clean load
 
 ### Project Structure
@@ -103,7 +103,7 @@
 - [x] **PRJ-02**: Single `packages.lisp` with all `defpackage` forms using `:import-from` (not `:use`)
 - [x] **PRJ-03**: Zero external dependencies
 - [x] **PRJ-04**: Hand-rolled test framework (deftest, assert-equal, assert-true, run-tests)
-- [ ] **PRJ-05**: Integration test that parses and evaluates `burg_pipeline.dpn`
+- [x] **PRJ-05**: Integration test that parses and evaluates `burg_pipeline.dpn`
 
 ## v2 Requirements
 
@@ -220,9 +220,9 @@
 | ERR-04 | Phase 8 | Pending |
 | RUN-01 | Phase 9 | Complete |
 | RUN-02 | Phase 9 | Complete |
-| RUN-03 | Phase 9 | Pending |
-| RUN-04 | Phase 9 | Pending |
-| PRJ-05 | Phase 9 | Pending |
+| RUN-03 | Phase 9 | Complete |
+| RUN-04 | Phase 9 | Complete |
+| PRJ-05 | Phase 9 | Complete |
 
 **Coverage:**
 - v1 requirements: 79 total (note: REQUIREMENTS.md previously stated 74 — recount of actual listed requirements is 79)

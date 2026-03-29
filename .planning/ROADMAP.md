@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol (completed 2026-03-29)
 - [x] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough (completed 2026-03-29)
 - [ ] **Phase 8: Commission and Fulfillment Evaluation** - Agent, search, emission, wikilink, bundle, || operator
-- [ ] **Phase 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test
+- [x] **Phase 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test (completed 2026-03-29)
 
 ## Phase Details
 
@@ -161,7 +161,7 @@ Plans:
 
 Plans:
 - [x] 09-01-PLAN.md — REPL loop, file runner, package exports, REPL tests with burg_pipeline.dpn integration
-- [ ] 09-02-PLAN.md — run-repl.sh shell script and end-to-end integration verification
+- [x] 09-02-PLAN.md — run-repl.sh shell script and end-to-end integration verification
 
 ## Progress
 
@@ -178,4 +178,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
 | 7. Evaluator Core | 2/2 | Complete   | 2026-03-29 |
 | 8. Commission and Fulfillment Evaluation | 1/2 | In Progress|  |
-| 9. REPL and Integration | 1/2 | In Progress|  |
+| 9. REPL and Integration | 2/2 | Complete   | 2026-03-29 |

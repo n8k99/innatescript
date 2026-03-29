@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 09-repl-and-integration/09-01-PLAN.md
-last_updated: "2026-03-29T05:04:05.191Z"
+stopped_at: Completed 09-repl-and-integration/09-02-PLAN.md
+last_updated: "2026-03-29T05:07:25.499Z"
 progress:
   total_phases: 9
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 19
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State
@@ -63,6 +63,7 @@ Plan: 2 of 2
 | Phase 07-evaluator-core P02 | 216 | 2 tasks | 2 files |
 | Phase 08-commission-and-fulfillment-evaluation P01 | 105s | 2 tasks | 3 files |
 | Phase 09 P01 | 2min | 2 tasks | 5 files |
+| Phase 09 P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,8 @@ Recent decisions affecting current work:
 - [Phase 08-commission-and-fulfillment-evaluation]: Bundle nil-as-not-found: load-bundle returns nil (not resistance), evaluator signals innate-resistance on nil
 - [Phase 09-repl-and-integration]: unless used instead of next-iteration for empty-line skip — CL's loop does not have next-iteration (that is ITERATE); unless guards the eval block
 - [Phase 09-repl-and-integration]: run-file uses file-length + make-string + read-sequence for full-file slurp — avoids line-by-line iteration and preserves newline semantics the tokenizer depends on
+- [Phase 09-repl-and-integration]: Interactive mode uses sbcl without --non-interactive — that flag disables stdin read-line; file mode uses --non-interactive to force exit after eval
+- [Phase 09-repl-and-integration]: print-result exported from innate.repl — shell scripts call it externally via package-qualified symbol; must be in :export list
 
 ### Pending Todos
 
@@ -133,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T05:04:05.187Z
-Stopped at: Completed 09-repl-and-integration/09-01-PLAN.md
+Last session: 2026-03-29T05:07:25.495Z
+Stopped at: Completed 09-repl-and-integration/09-02-PLAN.md
 Resume file: None

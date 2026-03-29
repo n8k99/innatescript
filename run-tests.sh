@@ -7,10 +7,14 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CACHE_ROOT="${HOME}/.cache/common-lisp"
+PROJECT_CACHE_SUFFIX="${SCRIPT_DIR#/}"
 
-# Wipe fasl cache to ensure cold-load (RUN-05)
-echo "Wiping FASL cache (~/.cache/common-lisp/)..."
-rm -rf ~/.cache/common-lisp/
+# Wipe only this project's FASL cache to ensure cold-load (RUN-05)
+echo "Wiping project FASL cache entries under ${CACHE_ROOT} for ${SCRIPT_DIR}..."
+if [ -d "${CACHE_ROOT}" ]; then
+  find "${CACHE_ROOT}" -type d -path "*/${PROJECT_CACHE_SUFFIX}" -prune -exec rm -rf {} +
+fi
 
 PREFIX="${1:-}"
 

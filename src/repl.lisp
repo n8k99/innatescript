@@ -24,6 +24,14 @@ Signals innate-parse-error on syntax errors; other conditions propagate normally
 ;;; print-result — format a single evaluation result to *standard-output*
 ;;; -----------------------------------------------------------------------
 
+(defun print-resistance-condition (condition)
+  "Print a signaled innate-resistance condition in a user-meaningful form."
+  (let ((message (resistance-condition-message condition))
+        (source (resistance-condition-source condition)))
+    (if (and source (plusp (length source)))
+        (format t "[resistance] ~A (from: ~A)~%" message source)
+        (format t "[resistance] ~A~%" message))))
+
 (defun print-result (result)
   "Print a single evaluation result. Handles resistance structs, innate-result
 values, strings, and arbitrary Lisp objects."
@@ -96,7 +104,6 @@ Exits on EOF, (quit), (exit), or :quit."
                       (parse-error-col e)
                       e))
             (innate-resistance (e)
-              (format t "[commission queued] ~A~%"
-                      (resistance-condition-source e)))
+              (print-resistance-condition e))
             (error (e)
               (format t "Error: ~A~%" e))))))))

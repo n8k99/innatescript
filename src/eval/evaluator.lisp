@@ -182,31 +182,29 @@ Returns a list of evaluation results in source order. Decree nodes produce no re
   (let ((children (node-children ast)))
     ;; Pass 1: collect decrees
     (collect-decrees children env)
-    ;; Pass 2: evaluate with index-based iteration for adjacency detection
+    ;; Pass 2: evaluate with direct list traversal for commission adjacency
     (let ((results nil)
-          (len (length children))
-          (i 0))
-      (loop while (< i len)
-            do (let ((child (nth i children)))
+          (remaining children))
+      (loop while remaining
+            do (let* ((child (first remaining))
+                      (next (second remaining)))
                  (cond
                    ;; Skip decree nodes
                    ((eq (node-kind child) :decree)
-                    (incf i))
+                    (setf remaining (rest remaining)))
                    ;; Commission adjacency: :agent followed by :bundle
                    ((and (eq (node-kind child) :agent)
-                         (< (1+ i) len)
-                         (eq (node-kind (nth (1+ i) children)) :bundle))
+                         next
+                         (eq (node-kind next) :bundle))
                     (let* ((agent-name (node-value child))
-                           (bundle-node (nth (1+ i) children))
-                           (instruction (node-value bundle-node))
+                           (instruction (node-value next))
                            (result (deliver-commission
                                     (eval-env-resolver env)
                                     agent-name instruction)))
                       (push (innate-result-value result) results))
-                    (incf i 2))  ; skip both agent and bundle
+                    (setf remaining (cddr remaining)))
                    ;; Normal evaluation
                    (t
-                    (let ((result (eval-node child env)))
-                      (push result results))
-                    (incf i)))))
+                    (push (eval-node child env) results)
+                    (setf remaining (rest remaining))))))
       (nreverse results))))

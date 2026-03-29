@@ -12,6 +12,12 @@
     (write-string contents stream))
   path)
 
+(defun capture-repl-output (input env)
+  "Run REPL with INPUT string and capture stdout as a string."
+  (with-input-from-string (*standard-input* input)
+    (with-output-to-string (*standard-output*)
+      (repl env))))
+
 ;;; REPL-01: run-file evaluates a prose-only file
 (deftest test-repl-01-run-file-prose-only
   (let ((path "/tmp/innate-test-prose.dpn"))
@@ -62,3 +68,23 @@
           (setf error-occurred t)))
       (assert-nil error-occurred "REPL-04: no unhandled error escapes from burg_pipeline.dpn")
       (assert-true (listp results) "REPL-04: results is a list (not nil)"))))
+
+;;; REPL-05: unresolved reference prints resistance, not commission text
+(deftest test-repl-05-resistance-output-is-accurate
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (output (capture-repl-output "@missing
+(quit)
+" env)))
+    (assert-true (search "[resistance]" output) "REPL-05: output labels resistance")
+    (assert-true (search "Entity not found: missing" output) "REPL-05: output includes actual resistance message")
+    (assert-true (search "from: missing" output) "REPL-05: output includes resistance source")
+    (assert-nil (search "[commission queued]" output) "REPL-05: output no longer mislabels resistance as commission")))
+
+;;; REPL-06: successful commission stays on the normal result path
+(deftest test-repl-06-commission-does-not-print-resistance
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (output (capture-repl-output "(sylvia){investigate}
+(quit)
+" env)))
+    (assert-true (search "= T" output) "REPL-06: commission success prints normal result")
+    (assert-nil (search "[resistance]" output) "REPL-06: commission success is not printed as resistance")))

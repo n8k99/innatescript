@@ -14,18 +14,24 @@
   "Positional cursor over a flat token list.
    tokens — the token list from (tokenize source)
    pos    — current read position (zero-based index)"
-  (tokens nil)
+  (tokens #())
   (pos    0   :type fixnum))
 
 (defun cursor-peek (cursor)
   "Return the token at the current position without consuming it.
    Returns nil if at end of token list."
-  (nth (parse-cursor-pos cursor) (parse-cursor-tokens cursor)))
+  (let ((pos (parse-cursor-pos cursor))
+        (tokens (parse-cursor-tokens cursor)))
+    (when (< pos (length tokens))
+      (aref tokens pos))))
 
 (defun cursor-peek-next (cursor)
   "Return the token at pos+1 without consuming it.
    Returns nil if pos+1 is past the end."
-  (nth (1+ (parse-cursor-pos cursor)) (parse-cursor-tokens cursor)))
+  (let ((next-pos (1+ (parse-cursor-pos cursor)))
+        (tokens (parse-cursor-tokens cursor)))
+    (when (< next-pos (length tokens))
+      (aref tokens next-pos))))
 
 (defun cursor-consume (cursor)
   "Return the token at the current position and advance pos by one.
@@ -60,7 +66,7 @@
   "Parse a flat token list into a :program AST node.
    TOKENS is the list returned by (tokenize source).
    Returns a node of kind :program whose children are top-level statements."
-  (let ((cursor (make-parse-cursor :tokens tokens)))
+  (let ((cursor (make-parse-cursor :tokens (coerce tokens 'vector))))
     (make-node :kind +node-program+
                :children (parse-statement-list cursor))))
 

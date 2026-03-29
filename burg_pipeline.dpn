@@ -1,0 +1,10 @@
+# burg_pipeline.dpn
+[burg[type: "[[Burg]]"
+          [levels
+           - "<emoji> Seed"
+		   - "<emoji> Sapling"
+		   - "<emoji> Tree"]
+		#header[burg_name]
+		description:[@Alaran:generative hard prompt]
+		![image("emblem"+burg_name + png)]/wrapLef
+]]]

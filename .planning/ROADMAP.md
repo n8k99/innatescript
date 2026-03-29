@@ -141,7 +141,11 @@ Plans:
   3. `expr || (agent){instruction}` — when the left side produces resistance, the right side commission fires; when the left side succeeds, the right side is never called
   4. `-> value, value` emission evaluates and returns the value sequence to the caller
   5. `[[Title]]` wikilinks evaluate by calling `resolve-wikilink`; `{bundle_name}` evaluates by calling `load-bundle`
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Emission, wikilink, and bundle evaluation (replace 3 stubs)
+- [ ] 08-02-PLAN.md — Commission adjacency, search, and fulfillment operator (replace final 3 stubs)
 
 ### Phase 9: REPL and Integration
 **Goal**: The full pipeline is assembled end-to-end; the REPL handles all conditions gracefully and never crashes on bad input; `burg_pipeline.dpn` evaluates without error
@@ -169,5 +173,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
 | 7. Evaluator Core | 2/2 | Complete   | 2026-03-29 |
-| 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
+| 8. Commission and Fulfillment Evaluation | 0/2 | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

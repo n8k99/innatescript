@@ -211,3 +211,30 @@
   (:import-from :innate.parser.tokenizer
     #:tokenize)
   (:export))
+
+(defpackage :innate.tests.repl
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest
+    #:assert-equal
+    #:assert-true
+    #:assert-nil
+    #:assert-signals
+    #:run-tests)
+  (:import-from :innate.repl
+    #:repl
+    #:run-file)
+  (:import-from :innate.eval.resolver
+    #:make-eval-env
+    #:eval-env-decrees)
+  (:import-from :innate.eval.stub-resolver
+    #:make-stub-resolver
+    #:stub-commissions)
+  (:import-from :innate.types
+    #:innate-result-value
+    #:resistance-p
+    #:resistance-message)
+  (:import-from :innate.conditions
+    #:innate-resistance
+    #:innate-parse-error)
+  (:export))

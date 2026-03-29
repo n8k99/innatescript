@@ -38,4 +38,5 @@
    (:file "test-parser"    :depends-on ("packages" "test-framework"))
    (:file "test-resolver"  :depends-on ("packages" "test-framework"))
    (:file "test-stub-resolver" :depends-on ("packages" "test-framework"))
-   (:file "test-evaluator"    :depends-on ("packages" "test-framework"))))
+   (:file "test-evaluator"    :depends-on ("packages" "test-framework"))
+   (:file "test-repl"         :depends-on ("packages" "test-framework"))))

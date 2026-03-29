@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 07-evaluator-core/07-01-PLAN.md
-last_updated: "2026-03-29T00:54:15.576Z"
+stopped_at: Completed 07-evaluator-core/07-02-PLAN.md
+last_updated: "2026-03-29T00:59:49.499Z"
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -60,6 +60,7 @@ Plan: 2 of 2
 | Phase 05 P01 | 2min | 2 tasks | 5 files |
 | Phase 06-stub-resolver P01 | 3min | 1 tasks | 5 files |
 | Phase 07-evaluator-core P01 | 185s | 2 tasks | 5 files |
+| Phase 07-evaluator-core P02 | 216 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase 07-evaluator-core]: evaluate entry point takes :program node + eval-env, returns flat list of results in source order; decree nodes collected in pass 1, filtered in pass 2
 - [Phase 07-evaluator-core]: :reference and :bracket stub with (signal 'innate-resistance ...) in Plan 01 — Plan 02 replaces these with full resolution logic
 - [Phase 07-evaluator-core]: :program reaching eval-node signals error (not resistance) — this is a BUG indicator, not a recoverable condition
+- [Phase 07-evaluator-core]: Decree body evaluation evaluates first child of decree node — simple and sufficient for Phase 7; complex decree bodies deferred
+- [Phase 07-evaluator-core]: Bracket context/verb extraction: first bare-word = context, inner bracket's first bare-word = verb — consistent with spec's [ctx[verb]] notation
+- [Phase 07-evaluator-core]: resistance-p guard on both reference and bracket paths — evaluator never swallows resistance silently
 
 ### Pending Todos
 
@@ -122,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T00:54:15.571Z
-Stopped at: Completed 07-evaluator-core/07-01-PLAN.md
+Last session: 2026-03-29T00:59:49.495Z
+Stopped at: Completed 07-evaluator-core/07-02-PLAN.md
 Resume file: None

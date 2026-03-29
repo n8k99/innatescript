@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar (completed 2026-03-28)
 - [x] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct (completed 2026-03-28)
 - [x] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol (completed 2026-03-29)
-- [ ] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough
+- [x] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough (completed 2026-03-29)
 - [ ] **Phase 8: Commission and Fulfillment Evaluation** - Agent, search, emission, wikilink, bundle, || operator
 - [ ] **Phase 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test
 
@@ -129,7 +129,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Two-pass architecture, decree collection, etypecase dispatch skeleton, passthrough and literal evaluation
-- [ ] 07-02-PLAN.md — Reference resolution (decrees-first then resolver), bracket evaluation, resistance propagation, full pipeline tests
+- [x] 07-02-PLAN.md — Reference resolution (decrees-first then resolver), bracket evaluation, resistance propagation, full pipeline tests
 
 ### Phase 8: Commission and Fulfillment Evaluation
 **Goal**: Agent commissions, search directives, the fulfillment operator, emission, wikilinks, and bundle loading all evaluate correctly against the stub resolver
@@ -168,6 +168,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
-| 7. Evaluator Core | 1/2 | In Progress|  |
+| 7. Evaluator Core | 2/2 | Complete   | 2026-03-29 |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

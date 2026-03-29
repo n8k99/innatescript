@@ -54,8 +54,8 @@
 ### Evaluator
 
 - [x] **EVL-01**: Two-pass evaluation: pass 1 collects all decree definitions (hoisting), pass 2 evaluates
-- [ ] **EVL-02**: `@` references resolve against decrees first (any position in script), then fall through to resolver. `@` is a soft/indirect reference (hoisted, can be local). `[[]]` always goes straight to the resolver (hard link to the substrate).
-- [ ] **EVL-03**: Evaluate bracket expressions by calling `resolve-context` on the resolver
+- [x] **EVL-02**: `@` references resolve against decrees first (any position in script), then fall through to resolver. `@` is a soft/indirect reference (hoisted, can be local). `[[]]` always goes straight to the resolver (hard link to the substrate).
+- [x] **EVL-03**: Evaluate bracket expressions by calling `resolve-context` on the resolver
 - [ ] **EVL-04**: Evaluate `(agent){instruction}` by calling `deliver-commission` on the resolver
 - [ ] **EVL-05**: Evaluate `![search]` by calling `resolve-search` on the resolver
 - [ ] **EVL-06**: Evaluate `expr || (agent){instruction}` — try left side, if resistance, fire right side commission
@@ -67,7 +67,7 @@
 - [x] **EVL-12**: Pass through presentation directives (`#header`, `/modifier`) as part of rendered output
 - [x] **EVL-13**: Carry evaluation context (query/scope/render/commission) as an argument through all dispatch
 - [x] **EVL-14**: Use `etypecase` for internal AST dispatch, not CLOS methods
-- [ ] **EVL-15**: Propagate resistance upward through bracket nesting for unresolvable references with no fulfillment
+- [x] **EVL-15**: Propagate resistance upward through bracket nesting for unresolvable references with no fulfillment
 
 ### Resolver Protocol
 
@@ -204,13 +204,13 @@
 | RES-09 | Phase 6 | Complete |
 | RES-10 | Phase 6 | Complete |
 | EVL-01 | Phase 7 | Complete |
-| EVL-02 | Phase 7 | Pending |
-| EVL-03 | Phase 7 | Pending |
+| EVL-02 | Phase 7 | Complete |
+| EVL-03 | Phase 7 | Complete |
 | EVL-08 | Phase 7 | Complete |
 | EVL-11 | Phase 7 | Complete |
 | EVL-12 | Phase 7 | Complete |
 | EVL-14 | Phase 7 | Complete |
-| EVL-15 | Phase 7 | Pending |
+| EVL-15 | Phase 7 | Complete |
 | EVL-04 | Phase 8 | Pending |
 | EVL-05 | Phase 8 | Pending |
 | EVL-06 | Phase 8 | Pending |

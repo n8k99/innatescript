@@ -144,7 +144,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Emission, wikilink, and bundle evaluation (replace 3 stubs)
+- [x] 08-01-PLAN.md — Emission, wikilink, and bundle evaluation (replace 3 stubs)
 - [ ] 08-02-PLAN.md — Commission adjacency, search, and fulfillment operator (replace final 3 stubs)
 
 ### Phase 9: REPL and Integration
@@ -173,5 +173,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
 | 7. Evaluator Core | 2/2 | Complete   | 2026-03-29 |
-| 8. Commission and Fulfillment Evaluation | 0/2 | Not started | - |
+| 8. Commission and Fulfillment Evaluation | 1/2 | In Progress|  |
 | 9. REPL and Integration | 0/TBD | Not started | - |

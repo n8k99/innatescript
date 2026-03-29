@@ -59,10 +59,10 @@
 - [ ] **EVL-04**: Evaluate `(agent){instruction}` by calling `deliver-commission` on the resolver
 - [ ] **EVL-05**: Evaluate `![search]` by calling `resolve-search` on the resolver
 - [ ] **EVL-06**: Evaluate `expr || (agent){instruction}` — try left side, if resistance, fire right side commission
-- [ ] **EVL-07**: Evaluate `-> values` emission — return values to caller
+- [x] **EVL-07**: Evaluate `-> values` emission — return values to caller
 - [x] **EVL-08**: Evaluate `decree` — register in environment, make available to `@` references
-- [ ] **EVL-09**: Evaluate `[[Title]]` wikilinks by calling `resolve-wikilink` on the resolver
-- [ ] **EVL-10**: Evaluate `{bundle_name}` by calling `load-bundle` on the resolver
+- [x] **EVL-09**: Evaluate `[[Title]]` wikilinks by calling `resolve-wikilink` on the resolver
+- [x] **EVL-10**: Evaluate `{bundle_name}` by calling `load-bundle` on the resolver
 - [x] **EVL-11**: Pass through prose and headings as rendered text
 - [x] **EVL-12**: Pass through presentation directives (`#header`, `/modifier`) as part of rendered output
 - [x] **EVL-13**: Carry evaluation context (query/scope/render/commission) as an argument through all dispatch
@@ -214,9 +214,9 @@
 | EVL-04 | Phase 8 | Pending |
 | EVL-05 | Phase 8 | Pending |
 | EVL-06 | Phase 8 | Pending |
-| EVL-07 | Phase 8 | Pending |
-| EVL-09 | Phase 8 | Pending |
-| EVL-10 | Phase 8 | Pending |
+| EVL-07 | Phase 8 | Complete |
+| EVL-09 | Phase 8 | Complete |
+| EVL-10 | Phase 8 | Complete |
 | ERR-04 | Phase 8 | Pending |
 | RUN-01 | Phase 9 | Pending |
 | RUN-02 | Phase 9 | Pending |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 08-commission-and-fulfillment-evaluation/08-01-PLAN.md
-last_updated: "2026-03-29T04:52:24.984Z"
+stopped_at: Completed 09-repl-and-integration/09-01-PLAN.md
+last_updated: "2026-03-29T05:04:05.191Z"
 progress:
   total_phases: 9
   completed_phases: 8
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 19
+  completed_plans: 18
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
-**Current focus:** Phase 08 — commission-and-fulfillment-evaluation
+**Current focus:** Phase 09 — repl-and-integration
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
+Phase: 09 (repl-and-integration) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Plan: Not started
 | Phase 07-evaluator-core P01 | 185s | 2 tasks | 5 files |
 | Phase 07-evaluator-core P02 | 216 | 2 tasks | 2 files |
 | Phase 08-commission-and-fulfillment-evaluation P01 | 105s | 2 tasks | 3 files |
+| Phase 09 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase 08-commission-and-fulfillment-evaluation]: Emission: single child returns value directly, multiple children returns list — matches spec
 - [Phase 08-commission-and-fulfillment-evaluation]: Bundle progn semantics: evaluate all returned nodes, return last result — consistent with sub-program model
 - [Phase 08-commission-and-fulfillment-evaluation]: Bundle nil-as-not-found: load-bundle returns nil (not resistance), evaluator signals innate-resistance on nil
+- [Phase 09-repl-and-integration]: unless used instead of next-iteration for empty-line skip — CL's loop does not have next-iteration (that is ITERATE); unless guards the eval block
+- [Phase 09-repl-and-integration]: run-file uses file-length + make-string + read-sequence for full-file slurp — avoids line-by-line iteration and preserves newline semantics the tokenizer depends on
 
 ### Pending Todos
 
@@ -130,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T01:15:22.216Z
-Stopped at: Completed 08-commission-and-fulfillment-evaluation/08-01-PLAN.md
+Last session: 2026-03-29T05:04:05.187Z
+Stopped at: Completed 09-repl-and-integration/09-01-PLAN.md
 Resume file: None

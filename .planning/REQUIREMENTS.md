@@ -91,8 +91,8 @@
 
 ### REPL and Runner
 
-- [ ] **RUN-01**: Interactive REPL with `read-line` loop and `handler-case` error recovery
-- [ ] **RUN-02**: File execution: parse and evaluate a `.dpn` file
+- [x] **RUN-01**: Interactive REPL with `read-line` loop and `handler-case` error recovery
+- [x] **RUN-02**: File execution: parse and evaluate a `.dpn` file
 - [ ] **RUN-03**: Shell script `run-tests.sh` that loads system, runs all tests, exits with pass/fail code
 - [ ] **RUN-04**: Shell script `run-repl.sh` that loads system and starts REPL (or runs a file if argument given)
 - [x] **RUN-05**: ASDF cold-load test: wipe fasl cache, full `asdf:load-system`, verify clean load
@@ -218,8 +218,8 @@
 | EVL-09 | Phase 8 | Complete |
 | EVL-10 | Phase 8 | Complete |
 | ERR-04 | Phase 8 | Pending |
-| RUN-01 | Phase 9 | Pending |
-| RUN-02 | Phase 9 | Pending |
+| RUN-01 | Phase 9 | Complete |
+| RUN-02 | Phase 9 | Complete |
 | RUN-03 | Phase 9 | Pending |
 | RUN-04 | Phase 9 | Pending |
 | PRJ-05 | Phase 9 | Pending |

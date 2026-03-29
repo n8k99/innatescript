@@ -128,7 +128,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Two-pass architecture, decree collection, etypecase dispatch skeleton, passthrough and literal evaluation
+- [x] 07-01-PLAN.md — Two-pass architecture, decree collection, etypecase dispatch skeleton, passthrough and literal evaluation
 - [ ] 07-02-PLAN.md — Reference resolution (decrees-first then resolver), bracket evaluation, resistance propagation, full pipeline tests
 
 ### Phase 8: Commission and Fulfillment Evaluation
@@ -168,6 +168,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
 | 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
-| 7. Evaluator Core | 0/2 | Not started | - |
+| 7. Evaluator Core | 1/2 | In Progress|  |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

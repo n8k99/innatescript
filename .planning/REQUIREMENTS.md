@@ -53,20 +53,20 @@
 
 ### Evaluator
 
-- [ ] **EVL-01**: Two-pass evaluation: pass 1 collects all decree definitions (hoisting), pass 2 evaluates
+- [x] **EVL-01**: Two-pass evaluation: pass 1 collects all decree definitions (hoisting), pass 2 evaluates
 - [ ] **EVL-02**: `@` references resolve against decrees first (any position in script), then fall through to resolver. `@` is a soft/indirect reference (hoisted, can be local). `[[]]` always goes straight to the resolver (hard link to the substrate).
 - [ ] **EVL-03**: Evaluate bracket expressions by calling `resolve-context` on the resolver
 - [ ] **EVL-04**: Evaluate `(agent){instruction}` by calling `deliver-commission` on the resolver
 - [ ] **EVL-05**: Evaluate `![search]` by calling `resolve-search` on the resolver
 - [ ] **EVL-06**: Evaluate `expr || (agent){instruction}` — try left side, if resistance, fire right side commission
 - [ ] **EVL-07**: Evaluate `-> values` emission — return values to caller
-- [ ] **EVL-08**: Evaluate `decree` — register in environment, make available to `@` references
+- [x] **EVL-08**: Evaluate `decree` — register in environment, make available to `@` references
 - [ ] **EVL-09**: Evaluate `[[Title]]` wikilinks by calling `resolve-wikilink` on the resolver
 - [ ] **EVL-10**: Evaluate `{bundle_name}` by calling `load-bundle` on the resolver
-- [ ] **EVL-11**: Pass through prose and headings as rendered text
-- [ ] **EVL-12**: Pass through presentation directives (`#header`, `/modifier`) as part of rendered output
+- [x] **EVL-11**: Pass through prose and headings as rendered text
+- [x] **EVL-12**: Pass through presentation directives (`#header`, `/modifier`) as part of rendered output
 - [x] **EVL-13**: Carry evaluation context (query/scope/render/commission) as an argument through all dispatch
-- [ ] **EVL-14**: Use `etypecase` for internal AST dispatch, not CLOS methods
+- [x] **EVL-14**: Use `etypecase` for internal AST dispatch, not CLOS methods
 - [ ] **EVL-15**: Propagate resistance upward through bracket nesting for unresolvable references with no fulfillment
 
 ### Resolver Protocol
@@ -203,13 +203,13 @@
 | RES-08 | Phase 6 | Complete |
 | RES-09 | Phase 6 | Complete |
 | RES-10 | Phase 6 | Complete |
-| EVL-01 | Phase 7 | Pending |
+| EVL-01 | Phase 7 | Complete |
 | EVL-02 | Phase 7 | Pending |
 | EVL-03 | Phase 7 | Pending |
-| EVL-08 | Phase 7 | Pending |
-| EVL-11 | Phase 7 | Pending |
-| EVL-12 | Phase 7 | Pending |
-| EVL-14 | Phase 7 | Pending |
+| EVL-08 | Phase 7 | Complete |
+| EVL-11 | Phase 7 | Complete |
+| EVL-12 | Phase 7 | Complete |
+| EVL-14 | Phase 7 | Complete |
 | EVL-15 | Phase 7 | Pending |
 | EVL-04 | Phase 8 | Pending |
 | EVL-05 | Phase 8 | Pending |

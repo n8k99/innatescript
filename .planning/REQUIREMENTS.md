@@ -78,9 +78,9 @@
 - [x] **RES-05**: Define `resolve-context` generic function (context, verb, args -> result or resistance)
 - [x] **RES-06**: Define `load-bundle` generic function (name -> AST or nil)
 - [x] **RES-07**: Default methods on base `resolver` class return resistance
-- [ ] **RES-08**: Stub resolver with in-memory entity store for testing
-- [ ] **RES-09**: Stub resolver records commissions for test assertions
-- [ ] **RES-10**: Stub resolver resolves `@` references with qualifier chains against plist entities
+- [x] **RES-08**: Stub resolver with in-memory entity store for testing
+- [x] **RES-09**: Stub resolver records commissions for test assertions
+- [x] **RES-10**: Stub resolver resolves `@` references with qualifier chains against plist entities
 
 ### Error Model
 
@@ -200,9 +200,9 @@
 | RES-06 | Phase 5 | Complete |
 | RES-07 | Phase 5 | Complete |
 | EVL-13 | Phase 5 | Complete |
-| RES-08 | Phase 6 | Pending |
-| RES-09 | Phase 6 | Pending |
-| RES-10 | Phase 6 | Pending |
+| RES-08 | Phase 6 | Complete |
+| RES-09 | Phase 6 | Complete |
+| RES-10 | Phase 6 | Complete |
 | EVL-01 | Phase 7 | Pending |
 | EVL-02 | Phase 7 | Pending |
 | EVL-03 | Phase 7 | Pending |

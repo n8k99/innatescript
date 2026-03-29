@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Tokenizer** - Full Innate symbol vocabulary including wikilink disambiguation
 - [x] **Phase 4: Parser** - Recursive descent, prose passthrough, complete expression grammar (completed 2026-03-28)
 - [x] **Phase 5: Resolver Protocol and Environment** - defgeneric boundary, evaluation environment struct (completed 2026-03-28)
-- [ ] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol
+- [x] **Phase 6: Stub Resolver** - In-memory implementation conforming to resolver protocol (completed 2026-03-29)
 - [ ] **Phase 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough
 - [ ] **Phase 8: Commission and Fulfillment Evaluation** - Agent, search, emission, wikilink, bundle, || operator
 - [ ] **Phase 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test
@@ -113,7 +113,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md — stub-resolver class, 6 method specializations, seeding helpers, conformance tests
+- [x] 06-01-PLAN.md — stub-resolver class, 6 method specializations, seeding helpers, conformance tests
 
 ### Phase 7: Evaluator Core
 **Goal**: The two-pass hoisting architecture is in place, all non-commission AST node types evaluate correctly via etypecase dispatch, and resistance propagates upward through nested brackets
@@ -163,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. Tokenizer | 2/3 | In Progress|  |
 | 4. Parser | 3/3 | Complete   | 2026-03-28 |
 | 5. Resolver Protocol and Environment | 1/1 | Complete   | 2026-03-28 |
-| 6. Stub Resolver | 0/1 | Not started | - |
+| 6. Stub Resolver | 1/1 | Complete   | 2026-03-29 |
 | 7. Evaluator Core | 0/TBD | Not started | - |
 | 8. Commission and Fulfillment Evaluation | 0/TBD | Not started | - |
 | 9. REPL and Integration | 0/TBD | Not started | - |

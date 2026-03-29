@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-resolver-protocol-and-environment/05-01-PLAN.md
-last_updated: "2026-03-28T23:34:48.186Z"
+stopped_at: Completed 06-stub-resolver/06-01-PLAN.md
+last_updated: "2026-03-29T00:08:38.518Z"
 progress:
   total_phases: 9
-  completed_phases: 5
-  total_plans: 12
-  completed_plans: 12
+  completed_phases: 6
+  total_plans: 13
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
-**Current focus:** Phase 05 — resolver-protocol-and-environment
+**Current focus:** Phase 06 — stub-resolver
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
+Phase: 06 (stub-resolver) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: Not started
 | Phase 04-parser P02 | 4min | 2 tasks | 3 files |
 | Phase 04 P03 | 5min | 2 tasks | 2 files |
 | Phase 05 P01 | 2min | 2 tasks | 5 files |
+| Phase 06-stub-resolver P01 | 3min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,9 @@ Recent decisions affecting current work:
 - [Phase 05]: deliver-commission default returns innate-result (never resistance) — commissions are fire-and-forget at the protocol level
 - [Phase 05]: load-bundle default returns nil (not resistance) — bundle-not-found is a soft miss, not an error; evaluator proceeds without bundle
 - [Phase 05]: eval-env decrees and bindings default to fresh hash-tables — prevents null-pointer in evaluator decree collection pass
+- [Phase 06-stub-resolver]: stub-commissions as CLOS slot accessor serves as getter/setter — consistent with other slot accessors in stub-resolver class
+- [Phase 06-stub-resolver]: deliver-commission returns innate-result :value t — signals successful delivery, distinguishes from no-op nil
+- [Phase 06-stub-resolver]: Qualifier lookup uses (intern (string-upcase qual) :keyword) for case-insensitive plist access — normalizes parser strings to keywords
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T23:32:30.493Z
-Stopped at: Completed 05-resolver-protocol-and-environment/05-01-PLAN.md
+Last session: 2026-03-29T00:08:38.515Z
+Stopped at: Completed 06-stub-resolver/06-01-PLAN.md
 Resume file: None

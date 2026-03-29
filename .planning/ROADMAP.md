@@ -145,7 +145,7 @@ Plans:
 
 Plans:
 - [x] 08-01-PLAN.md — Emission, wikilink, and bundle evaluation (replace 3 stubs)
-- [ ] 08-02-PLAN.md — Commission adjacency, search, and fulfillment operator (replace final 3 stubs)
+- [x] 08-02-PLAN.md — Commission adjacency, search, and fulfillment operator (replace final 3 stubs)
 
 ### Phase 9: REPL and Integration
 **Goal**: The full pipeline is assembled end-to-end; the REPL handles all conditions gracefully and never crashes on bad input; `burg_pipeline.dpn` evaluates without error

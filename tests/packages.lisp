@@ -154,3 +154,57 @@
     #:make-resistance #:resistance-p #:resistance-message #:resistance-source
     #:make-node #:+node-prose+)
   (:export))
+
+(defpackage :innate.tests.evaluator
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest
+    #:assert-equal
+    #:assert-true
+    #:assert-nil
+    #:assert-signals
+    #:run-tests)
+  (:import-from :innate.eval
+    #:evaluate)
+  (:import-from :innate.eval.resolver
+    #:make-eval-env
+    #:eval-env-decrees
+    #:eval-env-resolver)
+  (:import-from :innate.eval.stub-resolver
+    #:make-stub-resolver
+    #:stub-add-entity
+    #:stub-add-context)
+  (:import-from :innate.types
+    #:make-node
+    #:node-kind
+    #:node-value
+    #:node-children
+    #:innate-result-value
+    #:resistance-p
+    #:+node-program+
+    #:+node-bracket+
+    #:+node-agent+
+    #:+node-bundle+
+    #:+node-reference+
+    #:+node-search+
+    #:+node-fulfillment+
+    #:+node-emission+
+    #:+node-decree+
+    #:+node-wikilink+
+    #:+node-combinator+
+    #:+node-lens+
+    #:+node-kv-pair+
+    #:+node-modifier+
+    #:+node-prose+
+    #:+node-heading+
+    #:+node-string-lit+
+    #:+node-number-lit+
+    #:+node-bare-word+
+    #:+node-emoji-slot+)
+  (:import-from :innate.conditions
+    #:innate-resistance)
+  (:import-from :innate.parser
+    #:parse)
+  (:import-from :innate.parser.tokenizer
+    #:tokenize)
+  (:export))

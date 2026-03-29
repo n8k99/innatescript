@@ -116,9 +116,45 @@
     #:resolve-wikilink
     #:resolve-context
     #:load-bundle)
-  (:import-from :innate.types)
-  (:import-from :innate.conditions)
-  (:export))
+  (:import-from :innate.types
+    #:make-node
+    #:node-kind
+    #:node-value
+    #:node-children
+    #:node-props
+    #:+node-program+
+    #:+node-bracket+
+    #:+node-agent+
+    #:+node-bundle+
+    #:+node-reference+
+    #:+node-search+
+    #:+node-fulfillment+
+    #:+node-emission+
+    #:+node-decree+
+    #:+node-wikilink+
+    #:+node-combinator+
+    #:+node-lens+
+    #:+node-kv-pair+
+    #:+node-modifier+
+    #:+node-prose+
+    #:+node-heading+
+    #:+node-string-lit+
+    #:+node-number-lit+
+    #:+node-bare-word+
+    #:+node-emoji-slot+
+    #:make-innate-result
+    #:innate-result-value
+    #:innate-result-context
+    #:make-resistance
+    #:resistance-p
+    #:resistance-message
+    #:resistance-source)
+  (:import-from :innate.conditions
+    #:innate-resistance
+    #:resistance-condition-message
+    #:resistance-condition-source)
+  (:export
+   #:evaluate))
 
 (defpackage :innate.eval.stub-resolver
   (:use :cl)

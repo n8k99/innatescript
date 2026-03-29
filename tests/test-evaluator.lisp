@@ -234,3 +234,104 @@
          (ast (parse (tokenize source))))
     (let ((results (evaluate ast env)))
       (assert-true (> (length results) 0)))))
+
+;;; EVL-07: Emission — -> value evaluates children and returns values
+
+(deftest test-emission-single-value
+  "Single child emission returns the child value directly"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :emission :children
+                        (list (make-node :kind :string-lit :value "hello")))))))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      (assert-equal "hello" (first results)))))
+
+(deftest test-emission-multiple-values
+  "Multiple children emission returns a list of values"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :emission :children
+                        (list (make-node :kind :string-lit :value "a")
+                              (make-node :kind :string-lit :value "b")))))))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      (let ((emission-result (first results)))
+        (assert-equal '("a" "b") emission-result)))))
+
+(deftest test-emission-evaluates-children
+  "Emission evaluates its children (e.g. number-lit parses to integer)"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :emission :children
+                        (list (make-node :kind :number-lit :value "42")))))))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      (assert-equal 42 (first results)))))
+
+;;; EVL-09: Wikilink — [[Title]] calls resolve-wikilink on the resolver
+
+(deftest test-wikilink-calls-resolve-wikilink
+  "[[Title]] calls resolve-wikilink and returns the resolved content"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :wikilink :value "Burg")))))
+    (stub-add-wikilink resolver "Burg" "The Burg entity")
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      (assert-equal "The Burg entity" (first results)))))
+
+(deftest test-wikilink-resistance-when-not-found
+  "[[Nonexistent]] signals innate-resistance when wikilink not in resolver"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :wikilink :value "Nonexistent")))))
+    (assert-signals innate-resistance
+      (evaluate ast env))))
+
+;;; EVL-10: Bundle — {bundle_name} loads and evaluates sub-program nodes
+
+(deftest test-bundle-loads-and-evaluates-nodes
+  "{bundle_name} loads AST nodes via load-bundle and evaluates them"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :bundle :value "config")))))
+    (stub-add-bundle resolver "config"
+                     (list (make-node :kind :string-lit :value "loaded")))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      (assert-equal "loaded" (first results)))))
+
+(deftest test-bundle-not-found-signals-resistance
+  "{missing} signals innate-resistance when bundle not in resolver"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :bundle :value "missing")))))
+    (assert-signals innate-resistance
+      (evaluate ast env))))
+
+(deftest test-bundle-evaluates-multiple-nodes
+  "{multi} bundle with multiple nodes evaluates all and returns last result"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (make-node :kind :program :children
+                (list (make-node :kind :bundle :value "multi")))))
+    (stub-add-bundle resolver "multi"
+                     (list (make-node :kind :string-lit :value "first")
+                           (make-node :kind :string-lit :value "second")))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (length results))
+      ;; Bundle evaluates as progn — returns last result
+      (assert-equal "second" (first results)))))
+
+;;; Full pipeline: tokenize -> parse -> evaluate for emission
+
+(deftest test-pipeline-emission
+  "Full pipeline: -> \"hello\" produces hello in result list"
+  (let* ((env (make-eval-env :resolver (make-stub-resolver)))
+         (ast (parse (tokenize "-> \"hello\""))))
+    (let ((results (evaluate ast env)))
+      (assert-true (> (length results) 0))
+      (assert-true (member "hello" results :test #'equal)))))

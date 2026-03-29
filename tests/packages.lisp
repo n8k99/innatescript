@@ -173,7 +173,10 @@
   (:import-from :innate.eval.stub-resolver
     #:make-stub-resolver
     #:stub-add-entity
-    #:stub-add-context)
+    #:stub-add-context
+    #:stub-add-wikilink
+    #:stub-add-bundle
+    #:stub-commissions)
   (:import-from :innate.types
     #:make-node
     #:node-kind

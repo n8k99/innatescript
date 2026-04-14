@@ -586,3 +586,128 @@
       ;; line and col should be in the condition — check via condition text
       ;; innate-parse-error has line/col slots (from conditions.lisp)
       (assert-true t "innate-parse-error was signaled"))))
+
+;;; -----------------------------------------------------------------------
+;;; Milestone 10: Choreographic parsing tests (T08)
+;;; -----------------------------------------------------------------------
+
+;; Verification
+
+(deftest test-parse-verification
+  "<- (agent){check} produces a :verification node"
+  (let* ((ast (parse (tokenize "[(agent){check} <- (reviewer){verify}]")))
+         (stmt (first (node-children ast))))
+    ;; The bracket body should contain a verification node
+    (let ((children (node-children stmt)))
+      ;; Should parse as verification with two sides
+      (assert-true (find :verification children :key #'node-kind)
+                   "verification node present in bracket"))))
+
+(deftest test-parse-verification-standalone
+  "<- in statement position works"
+  (let* ((ast (parse (tokenize "[@result <- (checker){review}]")))
+         (bracket (first (node-children ast)))
+         (children (node-children bracket)))
+    (let ((verif (find :verification children :key #'node-kind)))
+      (assert-true verif "verification node found")
+      (assert-equal 2 (length (node-children verif)) "verification has left and right"))))
+
+;; Concurrent
+
+(deftest test-parse-concurrent
+  "concurrent [expr1 expr2] produces :concurrent node"
+  (let* ((ast (parse (tokenize "concurrent [(a){x} (b){y}]")))
+         (stmt (first (node-children ast))))
+    (assert-equal :concurrent (node-kind stmt) "node kind is :concurrent")
+    ;; (a){x} and (b){y} each produce agent+bundle = 4 parser-level children
+    (assert-equal 4 (length (node-children stmt)) "four children (2 agent+bundle pairs)")))
+
+(deftest test-parse-concurrent-with-join
+  "join inside concurrent produces a join marker"
+  (let* ((ast (parse (tokenize "concurrent [(a){x} join (b){y}]")))
+         (stmt (first (node-children ast)))
+         (children (node-children stmt)))
+    ;; agent+bundle, join, agent+bundle = 5 children
+    (assert-equal 5 (length children) "five children (agent+bundle, join, agent+bundle)")
+    (let ((join-node (third children)))
+      (assert-equal "join" (node-value join-node) "join marker value")
+      (assert-true (getf (node-props join-node) :join-marker) "join-marker prop set"))))
+
+(deftest test-parse-concurrent-error
+  "concurrent without bracket signals parse error"
+  (handler-case
+      (progn
+        (parse (tokenize "concurrent (a){x}"))
+        (assert-true nil "expected parse error"))
+    (innate-parse-error (e)
+      (declare (ignore e))
+      (assert-true t "parse error signaled for concurrent without ["))))
+
+;; Sync
+
+(deftest test-parse-sync
+  "sync @agent{task} produces :sync node"
+  (let* ((ast (parse (tokenize "sync (a){task}")))
+         (stmt (first (node-children ast))))
+    (assert-equal :sync (node-kind stmt) "node kind is :sync")
+    (assert-equal 1 (length (node-children stmt)) "one child expression")))
+
+;; At
+
+(deftest test-parse-at-wikilink
+  "at [[2026-04-15]] @agent{task} produces :at node with wikilink time"
+  (let* ((ast (parse (tokenize "at [[2026-04-15]] (a){task}")))
+         (stmt (first (node-children ast))))
+    (assert-equal :at (node-kind stmt) "node kind is :at")
+    (assert-equal 2 (length (node-children stmt)) "two children: time and expr")
+    (let ((time-node (first (node-children stmt))))
+      (assert-equal :wikilink (node-kind time-node) "time is wikilink")
+      (assert-equal "2026-04-15" (node-value time-node) "wikilink date value"))))
+
+(deftest test-parse-at-error
+  "at without time signals parse error"
+  (handler-case
+      (progn
+        (parse (tokenize "at"))
+        (assert-true nil "expected parse error"))
+    (innate-parse-error (e)
+      (declare (ignore e))
+      (assert-true t "parse error signaled for at without time"))))
+
+;; Until (block form)
+
+(deftest test-parse-block-until
+  "until 3 days [expr] produces :until node"
+  (let* ((ast (parse (tokenize "until 3 days [(a){x}]")))
+         (stmt (first (node-children ast))))
+    (assert-equal :until (node-kind stmt) "node kind is :until")
+    (assert-equal "3" (getf (node-props stmt) :duration) "duration is 3")
+    (assert-equal "days" (getf (node-props stmt) :unit) "unit is days")))
+
+;; Until (postfix form)
+
+(deftest test-parse-postfix-until
+  "@agent{task} until 3 days produces :until wrapping commission"
+  (let* ((ast (parse (tokenize "[(a){task} until 3 days]")))
+         (bracket (first (node-children ast)))
+         (children (node-children bracket)))
+    (let ((until-node (find :until children :key #'node-kind)))
+      (assert-true until-node "until node found")
+      (assert-true (getf (node-props until-node) :postfix) "postfix flag set")
+      (assert-equal "3" (getf (node-props until-node) :duration) "duration is 3"))))
+
+;; Existing expression parsing unaffected
+
+(deftest test-parse-arrow-still-works
+  "-> emission still parses after adding <-"
+  (let* ((ast (parse (tokenize "[-> 42]")))
+         (bracket (first (node-children ast)))
+         (emission (first (node-children bracket))))
+    (assert-equal :emission (node-kind emission) "emission still works")))
+
+(deftest test-parse-fulfillment-still-works
+  "|| fulfillment still parses after adding <-"
+  (let* ((ast (parse (tokenize "[@missing || (fallback){fix}]")))
+         (bracket (first (node-children ast)))
+         (fulfillment (first (node-children bracket))))
+    (assert-equal :fulfillment (node-kind fulfillment) "fulfillment still works")))

@@ -110,6 +110,14 @@
          (parse-heading cursor))
         (:decree
          (parse-decree cursor))
+        (:concurrent
+         (parse-concurrent-block cursor))
+        (:sync
+         (parse-sync-expr cursor))
+        (:at-keyword
+         (parse-at-expr cursor))
+        (:until
+         (parse-block-until cursor))
         (:newline
          nil)
         (t
@@ -120,17 +128,39 @@
 ;;; -----------------------------------------------------------------------
 
 (defun parse-fulfillment-expr (cursor)
-  "Parse a fulfillment expression: emission-expr (|| emission-expr)*.
+  "Parse a fulfillment expression: verification-expr (|| verification-expr)*.
    || is left-associative: a || b || c => (|| (|| a b) c).
    Returns a single node — either the left side or a :fulfillment node."
-  (let ((left (parse-emission-expr cursor)))
+  (let ((left (parse-verification-expr cursor)))
     (loop
       (let ((tok (cursor-peek cursor)))
         (unless (and tok (eq (token-type tok) :pipe-pipe))
           (return left))
         (cursor-consume cursor) ; consume ||
-        (let ((right (parse-emission-expr cursor)))
+        (let ((right (parse-verification-expr cursor)))
           (setf left (make-node :kind +node-fulfillment+
+                                :children (list left right))))))
+    left))
+
+;;; -----------------------------------------------------------------------
+;;; Verification expression — <- binds between || and ->
+;;; -----------------------------------------------------------------------
+
+(defun parse-verification-expr (cursor)
+  "Parse a verification expression: emission-expr (<- emission-expr)*.
+   <- is left-associative. Returns the left side or a :verification node."
+  (let ((left (parse-emission-expr cursor)))
+    ;; Check for postfix until after the expression
+    (let ((tok (cursor-peek cursor)))
+      (when (and tok (eq (token-type tok) :until))
+        (setf left (parse-postfix-until cursor left))))
+    (loop
+      (let ((tok (cursor-peek cursor)))
+        (unless (and tok (eq (token-type tok) :verification))
+          (return left))
+        (cursor-consume cursor) ; consume <-
+        (let ((right (parse-emission-expr cursor)))
+          (setf left (make-node :kind +node-verification+
                                 :children (list left right))))))
     left))
 
@@ -285,6 +315,15 @@
           ;; Heading inside bracket
           ((eq (token-type tok) :hash)
            (push (parse-heading cursor) children))
+          ;; Choreographic keywords inside brackets
+          ((eq (token-type tok) :concurrent)
+           (push (parse-concurrent-block cursor) children))
+          ((eq (token-type tok) :sync)
+           (push (parse-sync-expr cursor) children))
+          ((eq (token-type tok) :at-keyword)
+           (push (parse-at-expr cursor) children))
+          ((eq (token-type tok) :until)
+           (push (parse-block-until cursor) children))
           ;; Everything else: call parse-fulfillment-expr (handles -> and || inside brackets)
           (t
            (let ((expr (parse-fulfillment-expr cursor)))
@@ -596,3 +635,159 @@
                        :value name
                        :children (node-children body-bracket)))
           (make-node :kind +node-decree+ :value name)))))
+
+;;; -----------------------------------------------------------------------
+;;; Choreographic parsing (Milestone 10)
+;;; -----------------------------------------------------------------------
+
+(defun parse-concurrent-block (cursor)
+  "Parse: concurrent [expr1 expr2 ...]. The bracket body may contain join markers.
+   Returns a :concurrent node with expression children."
+  (let ((tok (cursor-peek cursor)))
+    (cursor-consume cursor) ; consume 'concurrent'
+    (let ((next (cursor-peek cursor)))
+      (unless (and next (eq (token-type next) :lbracket))
+        (error 'innate-parse-error
+               :line (if tok (token-line tok) 0)
+               :col  (if tok (token-col tok) 0)
+               :text "concurrent must be followed by ["))
+      ;; Parse the bracket body, but recognize :join tokens as join markers
+      (cursor-expect cursor :lbracket)
+      (let ((children '()))
+        (loop
+          (let ((t2 (cursor-peek cursor)))
+            (cond
+              ((null t2)
+               (error 'innate-parse-error
+                      :line 0 :col 0
+                      :text "Unterminated concurrent block"))
+              ((eq (token-type t2) :rbracket)
+               (cursor-consume cursor)
+               (return))
+              ((eq (token-type t2) :newline)
+               (cursor-consume cursor))
+              ((eq (token-type t2) :join)
+               (cursor-consume cursor)
+               (push (make-node :kind +node-bare-word+ :value "join"
+                                :props '(:join-marker t))
+                     children))
+              (t
+               (let ((expr (parse-fulfillment-expr cursor)))
+                 (when expr (push expr children)))))))
+        (make-node :kind +node-concurrent+ :children (nreverse children))))))
+
+(defun parse-sync-expr (cursor)
+  "Parse: sync expression. Dispatches expression alongside main flow.
+   Returns a :sync node with the expression as sole child."
+  (let ((tok (cursor-peek cursor)))
+    (cursor-consume cursor) ; consume 'sync'
+    (let ((next (cursor-peek cursor)))
+      (unless next
+        (error 'innate-parse-error
+               :line (if tok (token-line tok) 0)
+               :col  (if tok (token-col tok) 0)
+               :text "sync must be followed by an expression"))
+      (let ((expr (parse-fulfillment-expr cursor)))
+        (make-node :kind +node-sync+ :children (list expr))))))
+
+(defun parse-at-expr (cursor)
+  "Parse: at time expression. Schedules expression at a time.
+   Time is a wikilink (absolute date) or a number+bare-word duration.
+   Returns an :at node with time in props and expression as child."
+  (let ((at-tok (cursor-consume cursor))) ; consume 'at'
+    (let ((next (cursor-peek cursor)))
+      (unless next
+        (error 'innate-parse-error
+               :line (token-line at-tok) :col (token-col at-tok)
+               :text "at must be followed by a time"))
+      (let ((time-node
+              (cond
+                ;; Wikilink date: at [[2026-04-15]]
+                ((eq (token-type next) :wikilink)
+                 (cursor-consume cursor)
+                 (make-node :kind +node-wikilink+ :value (token-value next)))
+                ;; Duration: at 3 days
+                ((eq (token-type next) :number)
+                 (let* ((num-tok (cursor-consume cursor))
+                        (unit-tok (cursor-peek cursor))
+                        (unit (if (and unit-tok (eq (token-type unit-tok) :bare-word))
+                                  (token-value (cursor-consume cursor))
+                                  nil)))
+                   (make-node :kind +node-number-lit+
+                              :value (token-value num-tok)
+                              :props (when unit (list :unit unit)))))
+                (t
+                 (error 'innate-parse-error
+                        :line (token-line next) :col (token-col next)
+                        :text (format nil "at expects a time (wikilink or duration), got ~a"
+                                      (token-type next)))))))
+        (let ((expr (parse-fulfillment-expr cursor)))
+          (make-node :kind +node-at+
+                     :children (list time-node expr)))))))
+
+(defun parse-block-until (cursor)
+  "Parse block until: until duration [body] (|| fulfillment)?.
+   Returns an :until node with duration in props, body as children."
+  (let ((until-tok (cursor-consume cursor))) ; consume 'until'
+    (let ((next (cursor-peek cursor)))
+      (unless next
+        (error 'innate-parse-error
+               :line (token-line until-tok) :col (token-col until-tok)
+               :text "until must be followed by a duration"))
+      ;; Parse duration: number + optional unit bare-word
+      (let* ((num-tok (cursor-expect cursor :number))
+             (unit-tok (cursor-peek cursor))
+             (unit (if (and unit-tok (eq (token-type unit-tok) :bare-word))
+                       (token-value (cursor-consume cursor))
+                       nil))
+             (duration-props (list :duration (token-value num-tok)
+                                   :unit unit)))
+        ;; Body must be a bracket
+        (let ((body-tok (cursor-peek cursor)))
+          (unless (and body-tok (eq (token-type body-tok) :lbracket))
+            (error 'innate-parse-error
+                   :line (token-line until-tok) :col (token-col until-tok)
+                   :text "block until must be followed by duration and [body]"))
+          (let ((bracket (parse-bracket cursor))
+                (fulfillment nil))
+            ;; Optional || fulfillment
+            (let ((pipe (cursor-peek cursor)))
+              (when (and pipe (eq (token-type pipe) :pipe-pipe))
+                (cursor-consume cursor)
+                (setf fulfillment (parse-fulfillment-expr cursor))))
+            (make-node :kind +node-until+
+                       :children (if fulfillment
+                                     (append (node-children bracket) (list fulfillment))
+                                     (node-children bracket))
+                       :props (if fulfillment
+                                  (list* :fulfillment t duration-props)
+                                  duration-props))))))))
+
+(defun parse-postfix-until (cursor left)
+  "Parse postfix until: left-expr until duration (|| fulfillment)?.
+   Called when :until follows a completed expression.
+   Returns an :until node wrapping the left expression."
+  (let ((until-tok (cursor-consume cursor))) ; consume 'until'
+    (declare (ignore until-tok))
+    ;; Parse duration: number + optional unit bare-word
+    (let* ((num-tok (cursor-expect cursor :number))
+           (unit-tok (cursor-peek cursor))
+           (unit (if (and unit-tok (eq (token-type unit-tok) :bare-word))
+                     (token-value (cursor-consume cursor))
+                     nil))
+           (duration-props (list :duration (token-value num-tok)
+                                 :unit unit))
+           (fulfillment nil))
+      ;; Optional || fulfillment
+      (let ((pipe (cursor-peek cursor)))
+        (when (and pipe (eq (token-type pipe) :pipe-pipe))
+          (cursor-consume cursor)
+          (setf fulfillment (parse-fulfillment-expr cursor))))
+      (make-node :kind +node-until+
+                 :children (if fulfillment
+                               (list left fulfillment)
+                               (list left))
+                 :props (list* :postfix t
+                               (if fulfillment
+                                   (list* :fulfillment t duration-props)
+                                   duration-props))))))

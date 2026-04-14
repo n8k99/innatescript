@@ -128,7 +128,7 @@
              ((string= word "join")       :join)
              ((string= word "until")      :until)
              ((string= word "sync")       :sync)
-             ((string= word "at")         :at)
+             ((string= word "at")         :at-keyword)
              (t nil)))
 
          (%emit-bare-word-or-keyword (word sl sc)

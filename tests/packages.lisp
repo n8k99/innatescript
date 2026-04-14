@@ -106,7 +106,8 @@
     #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
     #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
     #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
-    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+)
+    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+
+    #:+node-verification+ #:+node-concurrent+ #:+node-until+ #:+node-sync+ #:+node-at+)
   (:import-from :innate.conditions #:innate-parse-error)
   (:export))
 

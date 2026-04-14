@@ -171,7 +171,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   5. `sync @agent{task}` dispatches alongside the main flow without blocking subsequent evaluation
   6. `at [[2026-04-15]] @agent{task}` calls `schedule-at` on the resolver with the correct time and expression
   7. `<-` verification operators nest correctly inside `concurrent` blocks for parallel verification
-**Tasks**: TBD
+**Tasks**: 15
 
 ### Milestone 12: Choreographic Integration
 **Objective**: Three-bracket enforcement, per-agent projection, decree-to-named-bracket migration, and end-to-end choreographic tests
@@ -182,7 +182,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   2. Projection decomposes a global choreography into per-agent local slices
   3. Named bracket expressions replace `decree` for registration
   4. End-to-end choreographic test file evaluates without error
-**Tasks**: TBD
+**Tasks**: 12
 
 ## Progress
 

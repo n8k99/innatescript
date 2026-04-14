@@ -12,7 +12,7 @@ description: "Roadmap for the Innate scripting language interpreter"
 visibility: private
 started: "[[2026-03-28]]"
 target_completion:
-completed: 9
+completed: 10
 created: "[[2026-03-28]]"
 updated: "[[2026-04-14]]"
 tags: []
@@ -39,7 +39,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
 - [x] **Milestone 7: Evaluator Core** - Two-pass hoisting, etypecase dispatch, prose/heading passthrough (completed 2026-03-29; bracket depth enforcement deferred to Milestone 12)
 - [x] **Milestone 8: Commission and Fulfillment Evaluation** - Agent commission, search, emission, wikilink, bundle, fulfillment operator (completed 2026-03-29; `<-` verification operator deferred to Milestone 10)
 - [x] **Milestone 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test (completed 2026-03-29)
-- [ ] **Milestone 10: Choreographic Lexing and Parsing** - `<-` verification, choreographic tokens, resolver protocol extensions
+- [x] **Milestone 10: Choreographic Lexing and Parsing** - `<-` verification, choreographic tokens, resolver protocol extensions (completed 2026-04-14)
 - [ ] **Milestone 11: Choreographic Coordination** - `concurrent`, `join`, `until`, `sync`, `at` evaluation and projection
 - [ ] **Milestone 12: Choreographic Integration** - Three-bracket enforcement, projection, decree migration, end-to-end choreographic tests
 
@@ -157,7 +157,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   3. Parser produces AST nodes for verification expressions, coordination blocks, and temporal triggers
   4. `deliver-verification` and `schedule-at` generics are defined on the resolver protocol
   5. Stub resolver specializes both new generics
-**Tasks**: TBD
+**Tasks**: 12 (completed)
 
 ### Milestone 11: Choreographic Coordination
 **Objective**: The five coordination primitives (`concurrent`, `join`, `until`, `sync`, `at`) evaluate correctly, enabling multi-agent choreographies with parallel execution, synchronization, time-bounded obligations, and temporal triggers
@@ -200,6 +200,6 @@ v1.0 milestones (1-9) executed sequentially and are complete. Choreographic mile
 | 7. Evaluator Core | 5/5 | Complete | 2026-03-29 |
 | 8. Commission and Fulfillment | 5/5 | Complete | 2026-03-29 |
 | 9. REPL and Integration | 5/5 | Complete | 2026-03-29 |
-| 10. Choreographic Lexing and Parsing | 0/5 | Not started | - |
+| 10. Choreographic Lexing and Parsing | 5/5 | Complete | 2026-04-14 |
 | 11. Choreographic Coordination | 0/7 | Not started | - |
 | 12. Choreographic Integration | 0/4 | Not started | - |

@@ -12,7 +12,7 @@ description: "Roadmap for the Innate scripting language interpreter"
 visibility: private
 started: "[[2026-03-28]]"
 target_completion:
-completed: 11
+completed: 12
 created: "[[2026-03-28]]"
 updated: "[[2026-04-14]]"
 tags: []
@@ -41,7 +41,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
 - [x] **Milestone 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test (completed 2026-03-29)
 - [x] **Milestone 10: Choreographic Lexing and Parsing** - `<-` verification, choreographic tokens, resolver protocol extensions (completed 2026-04-14)
 - [x] **Milestone 11: Choreographic Coordination** - `concurrent`, `join`, `until`, `sync`, `at` evaluation and projection
-- [ ] **Milestone 12: Choreographic Integration** - Three-bracket enforcement, projection, decree migration, end-to-end choreographic tests
+- [x] **Milestone 12: Choreographic Integration** - Three-bracket enforcement, projection, decree migration, end-to-end choreographic tests
 
 ## Milestone Details
 
@@ -182,7 +182,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   2. Projection decomposes a global choreography into per-agent local slices
   3. Named bracket expressions replace `decree` for registration
   4. End-to-end choreographic test file evaluates without error
-**Tasks**: 12
+**Tasks**: 12 (completed)
 
 ## Progress
 
@@ -202,4 +202,4 @@ v1.0 milestones (1-9) executed sequentially and are complete. Choreographic mile
 | 9. REPL and Integration | 5/5 | Complete | 2026-03-29 |
 | 10. Choreographic Lexing and Parsing | 5/5 | Complete | 2026-04-14 |
 | 11. Choreographic Coordination | 7/7 | Complete | 2026-04-14 |
-| 12. Choreographic Integration | 0/4 | Not started | - |
+| 12. Choreographic Integration | 4/4 | Complete | 2026-04-14 |

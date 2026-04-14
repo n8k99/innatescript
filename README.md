@@ -1,103 +1,90 @@
-# Innate
+---
+title: Innatescript Overview
+type: "[[Project]]"
+icon: 📋
+Lifestage: 🌱 Seed
+status: active
+owner: nathan
+domain: "[[The Work]]"
+repository: ""
+project_number:
+description: ""
+visibility: private
+started:
+target_completion:
+completed:
+created:
+updated:
+tags: []
+project: "[[InnateScript]]"
+repo: github.com/n8k99/innatescript
+---
+# Innatescript — Project Overview
 
-**A scripting language of intention — markdown that runs.**
+## The Problem
+Real work requires multiple AI agents — each with different strengths — coordinating toward a shared outcome. Today, that coordination is bolted on after the fact: ad-hoc prompt chains, orchestration frameworks, centralized dispatchers. Agents hallucinate. Agents respond lazily. There is no built-in way to verify one agent's output before passing it to the next, no way to express concurrent work with synchronization, no language-level concept of time-bounded obligation or structured fallback. These are distributed systems problems that don't go away by making agents smarter. Coordination must be a first-class concern in the language itself.
 
-You write `.dpn` files that are simultaneously readable documents and executable programs. A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute.
+## What This Is
+Innate is a choreographic programming language that solves this. A single intention is expressed once as a repeatable process. The evaluator projects each agent's local slice. Coordination primitives — verification, concurrency, synchronization, temporal bounds, fulfillment — are part of the grammar. The result: a structured series of prompts distributed across multiple agents that produces dependable outcomes. Multiple agents' strengths compound. The choreography guarantees the composition.
 
-```
-[db[get_count[entry]]]
--> 52125
-```
+Innate expressions live inside markdown — in `.md` files, in database records, anywhere markdown is stored. The interpreter is written in Common Lisp (SBCL) with a pluggable resolver protocol.
 
-Read that as: *to db, regarding get_count, concerning entry.* Not a method call — a prepositional address. More like sending a letter than calling a function.
+## Core Value
+A human unfamiliar with any programming language should be able to make a reasonable guess at what an Innate program does — and that same program should execute as a coordinated multi-agent choreography.
 
-## What it looks like
+## Repo
+github.com/n8k99/innatescript (public)
 
-Innate has three container types — **Place, Person, Thing**:
+## Tech Stack
+- Common Lisp (SBCL) — zero external deps (AF64 convention)
+- Hand-rolled recursive descent parser
+- CLOS defgeneric pluggable resolver protocol
+- defstruct AST nodes with keyword dispatch
 
-| Container | Syntax | Role | Feels like |
-|-----------|--------|------|------------|
-| Brackets | `[context[verb[args]]]` | context / navigation | *going somewhere* |
-| Parentheses | `(name)` | agent address | *speaking to someone* |
-| Braces | `{name}` | bundle / scope | *bringing something* |
+## Syntax Overview
 
-Agents aren't functions. They get addressed, not called:
+### Containers
+| Container | Syntax | Role |
+|-----------|--------|------|
+| Brackets | `[context[verb[args]]]` | Place — navigation, choreography structure |
+| Braces | `{name}` | Thing — bundle/scope/lens |
 
-```
-[noosphere[discuss_project(sylvia){burg_pipeline}]]
-```
+Agents are entities addressed by `@`, not a separate container. `(@name)` and `@name` are semantically identical.
 
-*To the noosphere: discuss the burg_pipeline project with Sylvia.*
+### Key Operators
+- `@` — direct reference (hoisted, two-pass) — agents and data alike
+- `![]` — search directive
+- `||` — fulfillment (resistance becomes commission)
+- `->` — emission (results flow forward)
+- `<-` — verification (results checked against reality before advancing)
+- `[[]]` — wikilink document reference
+- `+` — combinator (extend scope)
+- `{}` — lens (filter/group)
 
-Results flow out with `->`, prose passes through untouched, and `@` references connect documents to live data. The full syntax is in [`dpn-lang-spec.md`](dpn-lang-spec.md).
+### Coordination Primitives
+- `concurrent` — multiple agents work simultaneously
+- `join` — wait for all concurrent branches (timing only)
+- `until` — time-bounded or condition-bounded waiting
+- `sync` — side-channel alongside main flow
+- `at` — temporal trigger
 
-## Status
+### Three-Bracket Limit
+Maximum three levels of bracket nesting. Deeper complexity extracts as a named choreography (a separate `.md` document or database record) referenced by `@`. This constraint forces self-composition — Innate programs are built from other Innate programs.
 
-Early development, but the core interpreter is running.
+## Current Status
+- Phase 1 (scaffolding): COMPLETE — ASDF, packages, test harness
+- Phase 2 (conditions/AST): COMPLETE — 3 conditions, 20 node types, 23 tests
+- Phase 3 (tokenizer): Context gathered, ready for planning
+- Phases 4-9: Not started
+- Choreographic semantics: Spec complete (April 2026), implementation phases TBD
 
-Current state:
+## Constraints
+- Language must be generic — no hardcoded substrate references
+- Innate expressions are markdown — no special file extension required
+- Public repo — zero secrets
+- Ghosts speak Lisp natively — no impedance mismatch
 
-- Tokenizer, parser, evaluator, resolver protocol, stub resolver, REPL, and file runner are implemented.
-- The project currently ships with a broad automated test suite covering tokenizer, parser, evaluator, resolver, and REPL behavior.
-- The public API surface in `src/innate.lisp` is still minimal and should be expanded into a cleaner top-level entry point.
-
-## Building
-
-Requires [SBCL](http://www.sbcl.org/) (Steel Bank Common Lisp). No external dependencies — no Quicklisp, no third-party libraries.
-
-```sh
-# Load the system
-sbcl --eval '(asdf:load-system "innatescript")' --quit
-
-# Run tests
-./run-tests.sh
-```
-
-## Project structure
-
-```
-innatescript.asd          # ASDF system definition
-src/
-  packages.lisp           # All package declarations
-  types.lisp              # AST node/value/result structs and node-kind constants
-  conditions.lisp         # Error/condition types
-  parser/
-    tokenizer.lisp        # Lexer — read-char/peek-char, no CL reader
-    parser.lisp           # Hand-rolled recursive descent
-  eval/
-    resolver.lisp         # Pluggable resolver protocol (defgeneric)
-    evaluator.lisp        # Two-pass: collect references, then resolve
-    stub-resolver.lisp    # Default no-op resolver for testing
-  repl.lisp               # Interactive REPL (read-line + handler-case)
-  innate.lisp             # Top-level entry point
-tests/
-  test-framework.lisp     # Hand-rolled test harness
-  smoke-test.lisp         # Harness verification tests
-  test-tokenizer.lisp     # Tokenizer behavior and position tracking
-  test-parser.lisp        # Parser structure and precedence
-  test-resolver.lisp      # Resolver protocol defaults and eval-env
-  test-stub-resolver.lisp # In-memory resolver conformance
-  test-evaluator.lisp     # Two-pass evaluation semantics
-  test-repl.lisp          # File runner and REPL integration
-```
-
-## Design decisions
-
-- **Common Lisp (SBCL)** — Lisp is self-modifying by nature, which matters for a language designed to be written by its own agents. It's also a deliberate callback to AI's roots — the lineage from McCarthy through Minsky to modern agent systems. The current interpreter uses `defstruct` for AST/result types and `etypecase` dispatch in the evaluator.
-- **Hand-rolled parser** — Innate's grammar mixes sigils, prose passthrough, and nested brackets. A recursive descent parser gives precise error messages and full control over whitespace handling. No parser generators.
-- **Two-pass evaluation** — first pass collects `decree` definitions, second pass evaluates references and expressions. This allows forward references without declaration ordering.
-- **Pluggable resolvers** — `defgeneric resolve-reference` lets any backend fulfill `@` references. The interpreter itself knows nothing about any specific substrate.
-- **Zero dependencies** — follows AF64 conventions. ASDF + SBCL built-ins only. The test harness is three macros.
-
-## Current priorities
-
-The highest-value near-term work is:
-
-1. Correct user-facing behavior in the REPL, especially resistance/error reporting.
-2. Tighten the public API and documentation so they match the implementation.
-3. Improve parser/evaluator data access patterns before larger inputs make list-based indexing expensive.
-4. Narrow test-runner side effects such as wiping the full SBCL cache.
-
-## License
-
-MIT
+## Related Work
+- [Kiran Gopinathan — Multi-Agentic Software Development as a Distributed Systems Problem](https://kirancodes.me/posts/log-distributed-llms.html) (2026)
+- [Fabrizio Montesi — Choreographic Programming](https://www.fabriziomontesi.com/publication/choreographic-programming) (2013)
+- [Chorex — Restartable, Language-Integrated Choreographies](https://programming-journal.org/2025/10/20/) (2025)

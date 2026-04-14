@@ -6,6 +6,10 @@
 
 (in-package :innate.parser)
 
+;;; Bracket depth tracking (CHR-08: three-bracket limit)
+(defvar *bracket-depth* 0
+  "Current bracket nesting depth. Enforced at max 3 levels.")
+
 ;;; -----------------------------------------------------------------------
 ;;; Token cursor struct
 ;;; -----------------------------------------------------------------------
@@ -118,6 +122,14 @@
          (parse-at-expr cursor))
         (:until
          (parse-block-until cursor))
+        ;; Named bracket at statement level: bare-word followed by [
+        (:bare-word
+         (let ((next (cursor-peek-next cursor)))
+           (if (and next (eq (token-type next) :lbracket))
+               (let* ((name-tok (cursor-consume cursor))
+                      (name (token-value name-tok)))
+                 (parse-bracket cursor name))
+               (parse-fulfillment-expr cursor))))
         (:newline
          nil)
         (t
@@ -271,14 +283,22 @@
 ;;; Bracket parsing
 ;;; -----------------------------------------------------------------------
 
-(defun parse-bracket (cursor)
+(defun parse-bracket (cursor &optional name)
   "Parse a bracket expression: [body].
    All tokens inside the brackets become children of the :bracket node.
    A lone bare-word followed by :rbracket or by other expressions is a child, not a name.
-   Returns a :bracket node with nil value (anonymous) and children from the body."
+   Enforces three-bracket nesting limit (CHR-08).
+   Returns a :bracket node with value NAME (nil if anonymous) and children from the body."
+  (when (>= *bracket-depth* 3)
+    (let ((tok (cursor-peek cursor)))
+      (error 'innate-parse-error
+             :line (if tok (token-line tok) 0)
+             :col (if tok (token-col tok) 0)
+             :text "Bracket nesting exceeds maximum depth of 3 — extract as a named document")))
   (cursor-expect cursor :lbracket)
-  (let ((children (parse-bracket-body cursor)))
-    (make-node :kind +node-bracket+ :value nil :children children)))
+  (let ((*bracket-depth* (1+ *bracket-depth*)))
+    (let ((children (parse-bracket-body cursor)))
+      (make-node :kind +node-bracket+ :value name :children children))))
 
 (defun parse-bracket-body (cursor)
   "Parse the body of a bracket until RBRACKET or EOF.
@@ -309,6 +329,13 @@
                 (let ((nn (cursor-peek-next cursor)))
                   (and nn (eq (token-type nn) :colon))))
            (push (parse-kv-pair cursor) children))
+          ;; Named bracket: bare-word followed by [ (CHR-08 migration)
+          ((and (eq (token-type tok) :bare-word)
+                (let ((nn (cursor-peek-next cursor)))
+                  (and nn (eq (token-type nn) :lbracket))))
+           (let* ((name-tok (cursor-consume cursor))
+                  (name (token-value name-tok)))
+             (push (parse-bracket cursor name) children)))
           ;; Nested bracket
           ((eq (token-type tok) :lbracket)
            (push (parse-bracket cursor) children))

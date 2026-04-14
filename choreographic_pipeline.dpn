@@ -1,0 +1,24 @@
+# Choreographic Pipeline
+
+This document describes a multi-agent content review workflow.
+Three agents collaborate: writer, reviewer, and publisher.
+
+# Concurrent Drafting
+
+concurrent [(writer){draft_article} (writer){draft_summary}]
+
+# Verification
+
+"article draft" <- (reviewer)
+
+# Scheduled Publication
+
+at [[2026-04-15]] [(publisher){publish}]
+
+# Background Monitoring
+
+sync [(monitor){watch_metrics}]
+
+# Time Bounded Review
+
+until 3 days [(reviewer){final_review}]

@@ -171,6 +171,17 @@
   (:export
    #:evaluate))
 
+(defpackage :innate.eval.projection
+  (:use :cl)
+  (:import-from :innate.types
+    #:make-node
+    #:node-kind
+    #:node-value
+    #:node-children
+    #:node-props)
+  (:export
+   #:project))
+
 (defpackage :innate.eval.stub-resolver
   (:use :cl)
   (:import-from :innate.eval.resolver

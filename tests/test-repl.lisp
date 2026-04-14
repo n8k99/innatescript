@@ -88,3 +88,16 @@
 " env)))
     (assert-true (search "= T" output) "REPL-06: commission success prints normal result")
     (assert-nil (search "[resistance]" output) "REPL-06: commission success is not printed as resistance")))
+
+;;; Milestone 12: Choreographic pipeline integration test
+
+(deftest test-repl-07-run-file-choreographic-pipeline
+  "REPL-07: choreographic_pipeline.dpn evaluates without unhandled errors"
+  (let ((env (make-eval-env :resolver (make-stub-resolver))))
+    ;; run-file should not signal any unhandled error
+    (handler-case
+        (progn
+          (run-file "choreographic_pipeline.dpn" env)
+          (assert-true t "REPL-07: no unhandled error from choreographic_pipeline.dpn"))
+      (error (e)
+        (assert-true nil (format nil "REPL-07: unexpected error: ~a" e))))))

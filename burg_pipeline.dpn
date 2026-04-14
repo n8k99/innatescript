@@ -1,10 +1,11 @@
 # burg_pipeline.dpn
+
+decree levels ["<emoji> Seed" "<emoji> Sapling" "<emoji> Tree"]
+
+A burg pipeline transforms raw FMG data into narrative vault entries.
+
 [burg[type: "[[Burg]]"
-          [levels
-           - "<emoji> Seed"
-		   - "<emoji> Sapling"
-		   - "<emoji> Tree"]
-		#header[burg_name]
-		description:[@Alaran:generative hard prompt]
-		![image("emblem"+burg_name + png)]/wrapLef
-]]]
+      @levels
+      description:[@Alaran:generative hard prompt]
+      ![image("emblem"+burg_name + png)]/wrapLef
+]]

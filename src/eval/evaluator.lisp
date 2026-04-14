@@ -2,11 +2,16 @@
 
 ;;; collect-decrees — Pass 1: walk top-level children, store :decree nodes
 (defun collect-decrees (children env)
-  "Walk CHILDREN list. For each :decree node, store it in (eval-env-decrees env)
-keyed by (node-value decree-node). Does not evaluate anything."
+  "Walk CHILDREN list. For each :decree node or named :bracket node (non-nil value),
+store it in (eval-env-decrees env) keyed by name. Does not evaluate anything."
   (dolist (child children)
-    (when (eq (node-kind child) :decree)
-      (setf (gethash (node-value child) (eval-env-decrees env)) child))))
+    (cond
+      ((eq (node-kind child) :decree)
+       (setf (gethash (node-value child) (eval-env-decrees env)) child))
+      ;; Named brackets (CHR-08 migration): bracket with non-nil value = named
+      ((and (eq (node-kind child) :bracket)
+            (node-value child))
+       (setf (gethash (node-value child) (eval-env-decrees env)) child)))))
 
 ;;; eval-children-with-adjacency — evaluate a list of children handling commission adjacency
 (defun eval-children-with-adjacency (children env)

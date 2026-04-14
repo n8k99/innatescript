@@ -229,6 +229,19 @@
     #:tokenize)
   (:export))
 
+(defpackage :innate.tests.projection
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest #:assert-equal #:assert-true #:assert-nil #:assert-signals #:run-tests)
+  (:import-from :innate.eval.projection
+    #:project)
+  (:import-from :innate.parser #:parse)
+  (:import-from :innate.parser.tokenizer #:tokenize)
+  (:import-from :innate.types
+    #:make-node #:node-kind #:node-value #:node-children #:node-props
+    #:+node-program+)
+  (:export))
+
 (defpackage :innate.tests.repl
   (:use :cl)
   (:import-from :innate.tests

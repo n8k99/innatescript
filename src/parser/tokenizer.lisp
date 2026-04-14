@@ -282,19 +282,29 @@
                                                    :col   sc)
                                        tokens)
                                  (note-token-emitted))
-                               ;; Any other word — this whole line is prose
-                               ;; Read remaining chars to EOL, prepend the word
-                               (let ((rest (%read-to-eol)))
-                                 (push (make-token :type  :prose
-                                                   :value (if (string= rest "")
-                                                              word
-                                                              (concatenate 'string
-                                                                           word
-                                                                           rest))
-                                                   :line  sl
-                                                   :col   sc)
-                                       tokens)
-                                 (note-token-emitted))))))
+                               ;; Check if followed by [ — named bracket, not prose
+                               (if (and (current) (char= (current) #\[))
+                                   ;; Named bracket: emit bare-word, let parser handle the [
+                                   (progn
+                                     (push (make-token :type  :bare-word
+                                                       :value word
+                                                       :line  sl
+                                                       :col   sc)
+                                           tokens)
+                                     (note-token-emitted))
+                                   ;; Any other word — this whole line is prose
+                                   ;; Read remaining chars to EOL, prepend the word
+                                   (let ((rest (%read-to-eol)))
+                                     (push (make-token :type  :prose
+                                                       :value (if (string= rest "")
+                                                                  word
+                                                                  (concatenate 'string
+                                                                               word
+                                                                               rest))
+                                                       :line  sl
+                                                       :col   sc)
+                                           tokens)
+                                     (note-token-emitted)))))))
 
                       ;; Any other non-sigil char at line start — prose
                       (t

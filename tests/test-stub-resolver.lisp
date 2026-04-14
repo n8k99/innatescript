@@ -138,3 +138,45 @@
 (deftest test-fresh-stub-has-no-commissions
   (let ((r (make-stub-resolver)))
     (assert-nil (stub-commissions r))))
+
+;;; Milestone 10: Choreographic stub resolver tests (RES-11, RES-12)
+
+(deftest test-deliver-verification-records
+  (let ((r (make-stub-resolver)))
+    (deliver-verification r "reviewer" "draft output")
+    (let ((vfs (stub-verifications r)))
+      (assert-equal 1 (length vfs))
+      (assert-equal '("reviewer" "draft output") (first vfs)))))
+
+(deftest test-deliver-verification-returns-result
+  (let* ((r (make-stub-resolver))
+         (result (deliver-verification r "reviewer" "draft")))
+    (assert-nil (resistance-p result))
+    (assert-equal t (innate-result-value result))))
+
+(deftest test-schedule-at-records
+  (let ((r (make-stub-resolver)))
+    (schedule-at r "2026-04-15" "some-expression")
+    (let ((scheds (stub-schedules r)))
+      (assert-equal 1 (length scheds))
+      (assert-equal '("2026-04-15" "some-expression") (first scheds)))))
+
+(deftest test-schedule-at-returns-handle
+  (let* ((r (make-stub-resolver))
+         (result (schedule-at r "2026-04-15" "expr")))
+    (assert-nil (resistance-p result))
+    (assert-equal 1 (innate-result-value result) "handle is schedule count")))
+
+(deftest test-stub-verifications-accessor
+  (let ((r (make-stub-resolver)))
+    (assert-nil (stub-verifications r) "fresh stub has no verifications")
+    (deliver-verification r "a" "x")
+    (deliver-verification r "b" "y")
+    (assert-equal 2 (length (stub-verifications r)))))
+
+(deftest test-stub-schedules-accessor
+  (let ((r (make-stub-resolver)))
+    (assert-nil (stub-schedules r) "fresh stub has no schedules")
+    (schedule-at r "t1" "e1")
+    (schedule-at r "t2" "e2")
+    (assert-equal 2 (length (stub-schedules r)))))

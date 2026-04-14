@@ -79,3 +79,17 @@
   (let ((env (make-eval-env)))
     (setf (gethash "my-decree" (eval-env-decrees env)) :some-node)
     (assert-equal :some-node (gethash "my-decree" (eval-env-decrees env)))))
+
+;;; Milestone 10: Choreographic resolver defaults (RES-11, RES-12)
+
+(deftest test-deliver-verification-default-returns-resistance
+  (let* ((r (make-instance 'resolver))
+         (result (deliver-verification r "agent" "prior-output")))
+    (assert-true (resistance-p result))
+    (assert-true (search "agent" (resistance-message result)))))
+
+(deftest test-schedule-at-default-returns-resistance
+  (let* ((r (make-instance 'resolver))
+         (result (schedule-at r "2026-04-15" "expression")))
+    (assert-true (resistance-p result))
+    (assert-true (search "2026-04-15" (resistance-message result)))))

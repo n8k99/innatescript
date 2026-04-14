@@ -122,6 +122,8 @@
     #:resolve-wikilink
     #:resolve-context
     #:load-bundle
+    #:deliver-verification
+    #:schedule-at
     #:eval-env
     #:make-eval-env
     #:eval-env-resolver
@@ -145,10 +147,12 @@
   (:import-from :innate.eval.stub-resolver
     #:stub-resolver #:make-stub-resolver
     #:stub-add-entity #:stub-add-wikilink #:stub-add-bundle
-    #:stub-add-context #:stub-commissions)
+    #:stub-add-context #:stub-add-verification
+    #:stub-commissions #:stub-verifications #:stub-schedules)
   (:import-from :innate.eval.resolver
     #:resolve-reference #:resolve-search #:deliver-commission
-    #:resolve-wikilink #:resolve-context #:load-bundle)
+    #:resolve-wikilink #:resolve-context #:load-bundle
+    #:deliver-verification #:schedule-at)
   (:import-from :innate.types
     #:make-innate-result #:innate-result-value #:innate-result-context
     #:make-resistance #:resistance-p #:resistance-message #:resistance-source

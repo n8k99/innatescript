@@ -29,6 +29,11 @@
    #:+node-number-lit+
    #:+node-bare-word+
    #:+node-emoji-slot+
+   #:+node-verification+
+   #:+node-concurrent+
+   #:+node-until+
+   #:+node-sync+
+   #:+node-at+
    #:make-innate-result
    #:innate-result-value
    #:innate-result-context
@@ -71,7 +76,8 @@
     #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
     #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
     #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
-    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+)
+    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+
+    #:+node-verification+ #:+node-concurrent+ #:+node-until+ #:+node-sync+ #:+node-at+)
   (:import-from :innate.conditions
     #:innate-parse-error)
   (:export #:parse))
@@ -93,6 +99,8 @@
    #:resolve-wikilink
    #:resolve-context
    #:load-bundle
+   #:deliver-verification
+   #:schedule-at
    #:eval-env
    #:make-eval-env
    #:eval-env-resolver
@@ -115,7 +123,9 @@
     #:deliver-commission
     #:resolve-wikilink
     #:resolve-context
-    #:load-bundle)
+    #:load-bundle
+    #:deliver-verification
+    #:schedule-at)
   (:import-from :innate.types
     #:make-node
     #:node-kind
@@ -142,6 +152,11 @@
     #:+node-number-lit+
     #:+node-bare-word+
     #:+node-emoji-slot+
+    #:+node-verification+
+    #:+node-concurrent+
+    #:+node-until+
+    #:+node-sync+
+    #:+node-at+
     #:make-innate-result
     #:innate-result-value
     #:innate-result-context
@@ -165,7 +180,9 @@
     #:deliver-commission
     #:resolve-wikilink
     #:resolve-context
-    #:load-bundle)
+    #:load-bundle
+    #:deliver-verification
+    #:schedule-at)
   (:import-from :innate.types
     #:make-innate-result
     #:innate-result-value
@@ -181,7 +198,10 @@
    #:stub-add-wikilink
    #:stub-add-bundle
    #:stub-add-context
-   #:stub-commissions))
+   #:stub-add-verification
+   #:stub-commissions
+   #:stub-verifications
+   #:stub-schedules))
 
 (defpackage :innate.repl
   (:use :cl)

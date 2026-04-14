@@ -25,6 +25,13 @@
 (defconstant +node-bare-word+   :bare-word)
 (defconstant +node-emoji-slot+  :emoji-slot)
 
+;;; Choreographic node kinds (Milestone 10)
+(defconstant +node-verification+ :verification)
+(defconstant +node-concurrent+   :concurrent)
+(defconstant +node-until+        :until)
+(defconstant +node-sync+         :sync)
+(defconstant +node-at+           :at)
+
 ;;; Universal AST node struct
 ;;; Dispatch on (node-kind n) using etypecase in the evaluator.
 ;;; Adding a new node kind requires zero struct changes — only a new constant above.

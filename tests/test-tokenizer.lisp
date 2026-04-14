@@ -355,3 +355,75 @@
          (types (mapcar #'token-type tokens)))
     (assert-equal '(:at :bare-word :colon :string :plus :bare-word) types
                   "combined expression token sequence")))
+
+;;; ─── Milestone 10: Choreographic token tests ───────────────────────────
+
+;; T02: Verification token
+
+(deftest test-verification-token
+  "CHR-01: <- tokenizes as :verification"
+  (let* ((toks (tokenize "<-"))
+         (tok (first toks)))
+    (assert-equal 1 (length toks) "<- is one token")
+    (assert-equal :verification (token-type tok) "<- type is :verification")
+    (assert-equal 1 (token-line tok) "<- line")
+    (assert-equal 1 (token-col tok) "<- col")))
+
+(deftest test-verification-distinct-from-arrow
+  "CHR-01: <- and -> produce distinct token types"
+  (let* ((toks (tokenize "[<- ->]"))
+         (types (mapcar #'token-type toks)))
+    (assert-true (member :verification types) "<- present")
+    (assert-true (member :arrow types) "-> present")
+    (assert-true (not (eql (position :verification types)
+                           (position :arrow types)))
+                 "<- and -> at different positions")))
+
+(deftest test-arrow-regression
+  "-> still produces :arrow after adding <-"
+  (let* ((toks (tokenize "->"))
+         (tok (first toks)))
+    (assert-equal :arrow (token-type tok) "-> is still :arrow")))
+
+;; T04: Choreographic keyword tokens
+
+(deftest test-concurrent-keyword
+  (let* ((toks (tokenize "[concurrent]"))
+         (kw (find :concurrent toks :key #'token-type)))
+    (assert-true kw "concurrent tokenizes as :concurrent")))
+
+(deftest test-join-keyword
+  (let* ((toks (tokenize "[join]"))
+         (kw (find :join toks :key #'token-type)))
+    (assert-true kw "join tokenizes as :join")))
+
+(deftest test-until-keyword
+  (let* ((toks (tokenize "[until]"))
+         (kw (find :until toks :key #'token-type)))
+    (assert-true kw "until tokenizes as :until")))
+
+(deftest test-sync-keyword
+  (let* ((toks (tokenize "[sync]"))
+         (kw (find :sync toks :key #'token-type)))
+    (assert-true kw "sync tokenizes as :sync")))
+
+(deftest test-at-keyword
+  "at tokenizes as :at keyword (not :at sigil — :at sigil is for @)"
+  (let* ((toks (tokenize "[at]"))
+         (kw (find-if (lambda (tok)
+                        (and (eql (token-type tok) :at)
+                             (string= (token-value tok) "at")))
+                      toks)))
+    (assert-true kw "at with value 'at' present as keyword")))
+
+(deftest test-decree-keyword-regression
+  "decree still tokenizes as :decree after adding choreographic keywords"
+  (let* ((toks (tokenize "[decree]"))
+         (kw (find :decree toks :key #'token-type)))
+    (assert-true kw "decree still works")))
+
+(deftest test-keyword-inside-string-not-promoted
+  "Keywords inside string literals are not promoted"
+  (let* ((toks (tokenize "\"concurrent\""))
+         (tok (first toks)))
+    (assert-equal :string (token-type tok) "string containing keyword stays :string")))

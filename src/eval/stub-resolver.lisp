@@ -12,10 +12,14 @@
                 :accessor stub-wikilinks)
    (bundles     :initform (make-hash-table :test 'equal)
                 :accessor stub-bundles)
-   (contexts    :initform (make-hash-table :test 'equal)
-                :accessor stub-contexts))
+   (contexts      :initform (make-hash-table :test 'equal)
+                  :accessor stub-contexts)
+   (verifications :initform nil
+                  :accessor stub-verifications)
+   (schedules     :initform nil
+                  :accessor stub-schedules))
   (:documentation "In-memory resolver for testing. Stores entities as plists,
-records commissions in delivery order, and resolves all 6 protocol generics
+records commissions in delivery order, and resolves all 8 protocol generics
 against hash-tables. This is a correct implementation, not a fixture."))
 
 (defun make-stub-resolver ()
@@ -39,6 +43,11 @@ against hash-tables. This is a correct implementation, not a fixture."))
 (defun stub-add-context (resolver context verb result)
   "Add a context resolution. Builds compound key 'context.verb'."
   (setf (gethash (format nil "~a.~a" context verb) (stub-contexts resolver)) result))
+
+(defun stub-add-verification (resolver agent-name response)
+  "Pre-seed a verification response for testing."
+  (setf (stub-verifications resolver)
+        (append (stub-verifications resolver) (list (list agent-name response)))))
 
 ;;; Protocol specializations
 
@@ -117,3 +126,15 @@ against hash-tables. This is a correct implementation, not a fixture."))
 
 (defmethod load-bundle ((r stub-resolver) name)
   (gethash name (stub-bundles r)))
+
+;;; Choreographic protocol specializations (Milestone 10)
+
+(defmethod deliver-verification ((r stub-resolver) agent-name prior-output)
+  (setf (stub-verifications r)
+        (append (stub-verifications r) (list (list agent-name prior-output))))
+  (make-innate-result :value t :context :commission))
+
+(defmethod schedule-at ((r stub-resolver) time expression)
+  (setf (stub-schedules r)
+        (append (stub-schedules r) (list (list time expression))))
+  (make-innate-result :value (length (stub-schedules r)) :context :query))

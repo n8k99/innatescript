@@ -81,6 +81,32 @@ Does NOT return a resistance struct — NIL is sufficient for bundle-not-found."
   (declare (ignore name))
   nil)
 
+;;; Choreographic generic functions (Milestone 10)
+
+(defgeneric deliver-verification (resolver agent-name prior-output)
+  (:documentation "Route verification to agent, return corrections or resistance.
+RESOLVER — a resolver instance
+AGENT-NAME — string, the verifying agent
+PRIOR-OUTPUT — the output from the prior stage to be verified
+Returns: innate-result with corrections on success, resistance on failure."))
+
+(defgeneric schedule-at (resolver time expression)
+  (:documentation "Schedule expression for future evaluation at specified time.
+RESOLVER — a resolver instance
+TIME — string or node, the target time (wikilink date or duration)
+EXPRESSION — AST node, the expression to evaluate at that time
+Returns: innate-result with a schedule handle on success, resistance on failure."))
+
+(defmethod deliver-verification ((r resolver) agent-name prior-output)
+  (declare (ignore prior-output))
+  (make-resistance :message (format nil "No resolver for verification: ~a" agent-name)
+                   :source agent-name))
+
+(defmethod schedule-at ((r resolver) time expression)
+  (declare (ignore expression))
+  (make-resistance :message (format nil "No resolver for schedule-at: ~a" time)
+                   :source (format nil "~a" time)))
+
 ;;; Evaluation environment struct
 
 (defstruct (eval-env (:constructor make-eval-env (&key resolver decrees bindings scope)))

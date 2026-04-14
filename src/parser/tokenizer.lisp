@@ -120,16 +120,26 @@
                       (advance))
              (coerce (nreverse buf) 'string)))
 
-         (%emit-bare-word-or-decree (word sl sc)
-           "Emit either :decree or :bare-word for WORD at position SL/SC."
-           (push (make-token :type  (if (string= word "decree")
-                                        :decree
-                                        :bare-word)
-                             :value word
-                             :line  sl
-                             :col   sc)
-                 tokens)
-           (note-token-emitted))
+         (%keyword-token-type (word)
+           "Return keyword token type for WORD, or nil if not a keyword."
+           (cond
+             ((string= word "decree")     :decree)
+             ((string= word "concurrent") :concurrent)
+             ((string= word "join")       :join)
+             ((string= word "until")      :until)
+             ((string= word "sync")       :sync)
+             ((string= word "at")         :at)
+             (t nil)))
+
+         (%emit-bare-word-or-keyword (word sl sc)
+           "Emit keyword token or :bare-word for WORD at position SL/SC."
+           (let ((kw (%keyword-token-type word)))
+             (push (make-token :type  (or kw :bare-word)
+                               :value word
+                               :line  sl
+                               :col   sc)
+                   tokens)
+             (note-token-emitted)))
 
          (%try-emoji-slot ()
            "Called when current char is #\<. Tries to match literal <emoji>."
@@ -258,14 +268,15 @@
                                  tokens)
                            (note-token-emitted))))
 
-                      ;; Bare word at line start — check if it is "decree"
+                      ;; Bare word at line start — check if it is a keyword
                       ((or (alpha-char-p c) (char= c #\_))
                        (let ((sl line) (sc col))
-                         (let ((word (%read-bare-word)))
-                           (if (string= word "decree")
-                               ;; decree keyword — executable, emit :decree
+                         (let* ((word (%read-bare-word))
+                                (kw   (%keyword-token-type word)))
+                           (if kw
+                               ;; keyword — executable, emit keyword token
                                (progn
-                                 (push (make-token :type  :decree
+                                 (push (make-token :type  kw
                                                    :value word
                                                    :line  sl
                                                    :col   sc)
@@ -469,9 +480,15 @@
                    ((char= c #\")
                     (%read-string))
 
-                   ;; Emoji slot
+                   ;; < — verification operator or emoji slot
                    ((char= c #\<)
-                    (%try-emoji-slot))
+                    (if (and (peek-next) (char= (peek-next) #\-))
+                        (let ((sl line) (sc col))
+                          (advance) ; consume <
+                          (advance) ; consume -
+                          (push (make-token :type :verification :value nil :line sl :col sc) tokens)
+                          (note-token-emitted))
+                        (%try-emoji-slot)))
 
                    ;; Number literal
                    ((digit-char-p c)
@@ -481,7 +498,7 @@
                    ((or (alpha-char-p c) (char= c #\_))
                     (let ((sl line) (sc col))
                       (let ((word (%read-bare-word)))
-                        (%emit-bare-word-or-decree word sl sc))))
+                        (%emit-bare-word-or-keyword word sl sc))))
 
                    ;; Operator bare-words starting with = (e.g. ==, >=, <=)
                    ((char= c #\=)

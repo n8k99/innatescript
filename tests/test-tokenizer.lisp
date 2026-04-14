@@ -408,13 +408,10 @@
     (assert-true kw "sync tokenizes as :sync")))
 
 (deftest test-at-keyword
-  "at tokenizes as :at keyword (not :at sigil — :at sigil is for @)"
+  "at tokenizes as :at-keyword (distinct from :at sigil for @)"
   (let* ((toks (tokenize "[at]"))
-         (kw (find-if (lambda (tok)
-                        (and (eql (token-type tok) :at)
-                             (string= (token-value tok) "at")))
-                      toks)))
-    (assert-true kw "at with value 'at' present as keyword")))
+         (kw (find :at-keyword toks :key #'token-type)))
+    (assert-true kw "at tokenizes as :at-keyword")))
 
 (deftest test-decree-keyword-regression
   "decree still tokenizes as :decree after adding choreographic keywords"

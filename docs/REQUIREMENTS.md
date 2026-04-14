@@ -18,8 +18,8 @@ updated:
 tags: []
 project: "[[InnateScript]]"
 total: 98
-complete: 79
-pending: 19
+complete: 98
+pending: 0
 ---
 # Requirements: Innate
 
@@ -114,31 +114,31 @@ pending: 19
 
 ### Choreographic Semantics (April 2026)
 
-- [ ] **CHR-01**: Verification operator `<-` — sends prior stage output to verifying agent, returns corrections before advancing
-- [ ] **CHR-02**: `concurrent` keyword — evaluate contained expressions in parallel
-- [ ] **CHR-03**: `join` keyword — synchronization barrier, wait for all concurrent branches (timing only)
-- [ ] **CHR-04**: `until` postfix — time-bounded or condition-bounded agent obligation
-- [ ] **CHR-05**: `until` block — time-bounded choreographic context bounding all contained agents
-- [ ] **CHR-06**: `sync` keyword — side-channel expression that runs alongside main flow without blocking
-- [ ] **CHR-07**: `at` keyword — absolute (wikilink date) or relative (duration) temporal trigger
-- [ ] **CHR-08**: Three-bracket nesting limit — enforce maximum depth of three; deeper expressions must extract as named markdown documents
-- [ ] **CHR-09**: Projection — evaluator decomposes global choreography into per-agent local slices
-- [ ] **CHR-10**: `<-` nests inside `concurrent` blocks for parallel verification against multiple facets
-- [ ] **CHR-11**: Agent identity — `(@name)` and `@name` are semantically identical; no separate agent type
+- [x] **CHR-01**: Verification operator `<-` — sends prior stage output to verifying agent, returns corrections before advancing (completed 2026-04-14, M10)
+- [x] **CHR-02**: `concurrent` keyword — evaluate contained expressions in parallel (completed 2026-04-14, M11)
+- [x] **CHR-03**: `join` keyword — synchronization barrier, wait for all concurrent branches (completed 2026-04-14, M11)
+- [x] **CHR-04**: `until` postfix — time-bounded or condition-bounded agent obligation (completed 2026-04-14, M11)
+- [x] **CHR-05**: `until` block — time-bounded choreographic context bounding all contained agents (completed 2026-04-14, M11)
+- [x] **CHR-06**: `sync` keyword — side-channel expression that runs alongside main flow without blocking (completed 2026-04-14, M11)
+- [x] **CHR-07**: `at` keyword — absolute (wikilink date) or relative (duration) temporal trigger (completed 2026-04-14, M11)
+- [x] **CHR-08**: Three-bracket nesting limit — enforce maximum depth of three; deeper expressions must extract as named markdown documents (completed 2026-04-14, M12)
+- [x] **CHR-09**: Projection — evaluator decomposes global choreography into per-agent local slices (completed 2026-04-14, M12)
+- [x] **CHR-10**: `<-` nests inside `concurrent` blocks for parallel verification against multiple facets (completed 2026-04-14, M11)
+- [x] **CHR-11**: Agent identity — `(@name)` and `@name` are semantically identical; no separate agent type (completed 2026-04-14, M10)
 
 ### Evaluator (Choreographic Extensions)
 
-- [ ] **EVL-16**: Evaluate `<- @agent{instruction}` — route verification to agent, apply corrections to prior output
-- [ ] **EVL-17**: Evaluate `concurrent [...]` — dispatch contained expressions in parallel
-- [ ] **EVL-18**: Evaluate `join` — block until all concurrent branches complete
-- [ ] **EVL-19**: Evaluate `until` (postfix and block forms) — enforce time/condition bounds with optional `||` fulfillment on expiry
-- [ ] **EVL-20**: Evaluate `sync` — launch side-channel expression without blocking main flow
-- [ ] **EVL-21**: Evaluate `at` — schedule expression for future evaluation at specified time
+- [x] **EVL-16**: Evaluate `<- @agent{instruction}` — route verification to agent, apply corrections to prior output (completed 2026-04-14, M11)
+- [x] **EVL-17**: Evaluate `concurrent [...]` — dispatch contained expressions in parallel (completed 2026-04-14, M11)
+- [x] **EVL-18**: Evaluate `join` — block until all concurrent branches complete (completed 2026-04-14, M11)
+- [x] **EVL-19**: Evaluate `until` (postfix and block forms) — enforce time/condition bounds with optional `||` fulfillment on expiry (completed 2026-04-14, M11)
+- [x] **EVL-20**: Evaluate `sync` — launch side-channel expression without blocking main flow (completed 2026-04-14, M11)
+- [x] **EVL-21**: Evaluate `at` — schedule expression for future evaluation at specified time (completed 2026-04-14, M11)
 
 ### Resolver Protocol (Choreographic Extensions)
 
-- [ ] **RES-11**: Define `deliver-verification` generic function (agent-name, prior-output -> corrections)
-- [ ] **RES-12**: Define `schedule-at` generic function (time, expression -> handle) for temporal triggers
+- [x] **RES-11**: Define `deliver-verification` generic function (completed 2026-04-14, M10)
+- [x] **RES-12**: Define `schedule-at` generic function (completed 2026-04-14, M10)
 
 ### REPL and Runner
 
@@ -274,31 +274,31 @@ pending: 19
 | RUN-03 | Phase 9 | Complete |
 | RUN-04 | Phase 9 | Complete |
 | PRJ-05 | Phase 9 | Complete |
-| CHR-11 | Phase 10 | Pending |
-| RES-11 | Phase 10 | Pending |
-| RES-12 | Phase 10 | Pending |
-| CHR-01 | Phase 10 | Pending |
-| EVL-16 | Phase 10 | Pending |
-| CHR-02 | Phase 11 | Pending |
-| CHR-03 | Phase 11 | Pending |
-| CHR-04 | Phase 11 | Pending |
-| CHR-05 | Phase 11 | Pending |
-| CHR-06 | Phase 11 | Pending |
-| CHR-07 | Phase 11 | Pending |
-| CHR-10 | Phase 11 | Pending |
-| EVL-17 | Phase 11 | Pending |
-| EVL-18 | Phase 11 | Pending |
-| EVL-19 | Phase 11 | Pending |
-| EVL-20 | Phase 11 | Pending |
-| EVL-21 | Phase 11 | Pending |
-| CHR-08 | Phase 12 | Pending |
-| CHR-09 | Phase 12 | Pending |
+| CHR-11 | Milestone 10 | Complete |
+| RES-11 | Milestone 10 | Complete |
+| RES-12 | Milestone 10 | Complete |
+| CHR-01 | Milestone 10 | Complete |
+| EVL-16 | Milestone 11 | Complete |
+| CHR-02 | Milestone 11 | Complete |
+| CHR-03 | Milestone 11 | Complete |
+| CHR-04 | Milestone 11 | Complete |
+| CHR-05 | Milestone 11 | Complete |
+| CHR-06 | Milestone 11 | Complete |
+| CHR-07 | Milestone 11 | Complete |
+| CHR-10 | Milestone 11 | Complete |
+| EVL-17 | Milestone 11 | Complete |
+| EVL-18 | Milestone 11 | Complete |
+| EVL-19 | Milestone 11 | Complete |
+| EVL-20 | Milestone 11 | Complete |
+| EVL-21 | Milestone 11 | Complete |
+| CHR-08 | Milestone 12 | Complete |
+| CHR-09 | Milestone 12 | Complete |
 
 **Coverage:**
 - v1 requirements: 79 total, 79 complete
-- Choreographic requirements: 19 total, 0 complete
-- Grand total: 98 total, 79 mapped and complete
+- Choreographic requirements: 19 total, 19 complete
+- Grand total: 98 total, 98 complete
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-04-14 — v1.0 completion reconciled, choreographic traceability added*
+*Last updated: 2026-04-14 — all requirements complete (v1.0 + v2.0 choreographic)*

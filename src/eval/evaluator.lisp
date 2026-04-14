@@ -8,6 +8,72 @@ keyed by (node-value decree-node). Does not evaluate anything."
     (when (eq (node-kind child) :decree)
       (setf (gethash (node-value child) (eval-env-decrees env)) child))))
 
+;;; eval-children-with-adjacency — evaluate a list of children handling commission adjacency
+(defun eval-children-with-adjacency (children env)
+  "Evaluate CHILDREN handling agent-bundle commission adjacency.
+Returns a list of results. Used by both `evaluate` (top-level) and `eval-concurrent-children`."
+  (let ((results nil)
+        (remaining children))
+    (loop while remaining
+          do (let* ((child (first remaining))
+                    (next (second remaining)))
+               (cond
+                 ;; Skip decree nodes
+                 ((eq (node-kind child) :decree)
+                  (setf remaining (rest remaining)))
+                 ;; Commission adjacency: :agent followed by :bundle
+                 ((and (eq (node-kind child) :agent)
+                       next
+                       (eq (node-kind next) :bundle))
+                  (let* ((agent-name (node-value child))
+                         (instruction (node-value next))
+                         (result (deliver-commission
+                                  (eval-env-resolver env)
+                                  agent-name instruction)))
+                    (push (innate-result-value result) results))
+                  (setf remaining (cddr remaining)))
+                 ;; Normal evaluation
+                 (t
+                  (let ((result (eval-node child env)))
+                    (push result results))
+                  (setf remaining (rest remaining))))))
+    (nreverse results)))
+
+;;; eval-concurrent-children — evaluate concurrent block with join barriers
+(defun eval-concurrent-children (children env)
+  "Evaluate concurrent CHILDREN, partitioning at join markers into waves.
+Each wave completes before the next begins. Returns flat list of all results."
+  (let ((waves (list nil))  ; list of lists, each is a wave
+        (current-wave nil))
+    ;; Partition children into waves at join markers
+    (dolist (child children)
+      (if (and (eq (node-kind child) :bare-word)
+               (getf (node-props child) :join-marker))
+          ;; Join marker — start a new wave
+          (progn
+            (push (nreverse current-wave) waves)
+            (setf current-wave nil))
+          ;; Regular child — add to current wave
+          (push child current-wave)))
+    ;; Don't forget the last wave
+    (push (nreverse current-wave) waves)
+    (setf waves (nreverse waves))
+    ;; Evaluate each wave sequentially, collect all results
+    (let ((all-results nil))
+      (dolist (wave waves)
+        (when wave
+          (let ((wave-results (eval-children-with-adjacency wave env)))
+            (setf all-results (append all-results wave-results)))))
+      all-results)))
+
+;;; eval-node-or-bracket — evaluate node, using adjacency if it's a bracket
+(defun eval-node-or-bracket (node env)
+  "If NODE is a bracket, evaluate its children with commission adjacency.
+Otherwise eval-node. Used by choreographic operators whose children may contain commissions."
+  (if (eq (node-kind node) :bracket)
+      (eval-children-with-adjacency (node-children node) env)
+      (eval-node node env)))
+
 ;;; eval-node — Pass 2: etypecase dispatch on (node-kind node)
 (defun eval-node (node env)
   "Evaluate a single AST node. Dispatches on (node-kind node) via etypecase.
@@ -168,6 +234,88 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
                    :source (resistance-source result))
            (innate-result-value result))))
 
+    ;; ── Choreographic evaluation (Milestone 11) ──────────────────────────
+
+    ;; Concurrent — evaluate all children, handling commission adjacency within
+    ;; Partitions children into waves at join markers; each wave completes before the next
+    ((eql :concurrent)
+     (let ((children (node-children node)))
+       (eval-concurrent-children children env)))
+
+    ;; Until — time-bounded obligation (postfix or block form)
+    ;; Evaluates wrapped expression(s), registers obligation with resolver
+    ((eql :until)
+     (let* ((props (node-props node))
+            (postfix-p (getf props :postfix))
+            (duration (getf props :duration))
+            (unit (getf props :unit))
+            (fulfillment-p (getf props :fulfillment))
+            (children (node-children node)))
+       (if postfix-p
+           ;; Postfix: first child is the bounded expression, optional second is fulfillment
+           (let ((expr (first children))
+                 (fallback (when fulfillment-p (second children))))
+             (handler-case
+                 (let ((result (eval-node expr env)))
+                   ;; Register obligation metadata (resolver can use duration/unit)
+                   (list :until-result result :duration duration :unit unit))
+               (innate-resistance (r)
+                 (if fallback
+                     (eval-node-or-bracket fallback env)
+                     (signal r)))))
+           ;; Block: children are body expressions, optional last is fulfillment
+           (let* ((body (if fulfillment-p (butlast children) children))
+                  (fallback (when fulfillment-p (car (last children)))))
+             (handler-case
+                 (let ((results (eval-children-with-adjacency body env)))
+                   (list :until-result results :duration duration :unit unit))
+               (innate-resistance (r)
+                 (if fallback
+                     (eval-node-or-bracket fallback env)
+                     (signal r))))))))
+
+    ;; Sync — fire-and-forget: evaluate child, swallow resistance, discard result
+    ((eql :sync)
+     (let ((child (first (node-children node))))
+       (handler-case
+           (eval-node-or-bracket child env)
+         (innate-resistance () nil))
+       ;; Return nil — sync does not contribute to parent results
+       nil))
+
+    ;; At — schedule expression for future evaluation via resolver
+    ;; Time is passed as-is (string value), NOT resolved through the resolver
+    ((eql :at)
+     (let* ((children (node-children node))
+            (time-node (first children))
+            (expr-node (second children))
+            ;; Extract time value directly — wikilink dates and durations pass through
+            (time-val (node-value time-node))
+            (result (schedule-at (eval-env-resolver env) time-val expr-node)))
+       (if (resistance-p result)
+           (signal 'innate-resistance
+                   :message (resistance-message result)
+                   :source (resistance-source result))
+           (innate-result-value result))))
+
+    ;; Verification — route prior output to verifying agent, return corrections
+    ((eql :verification)
+     (let* ((children (node-children node))
+            (left (first children))
+            (right (second children))
+            (prior-output (eval-node left env))
+            ;; Right side should be an agent — extract name
+            (agent-name (if (and right (eq (node-kind right) :agent))
+                            (node-value right)
+                            (eval-node right env)))
+            (result (deliver-verification (eval-env-resolver env)
+                                          agent-name prior-output)))
+       (if (resistance-p result)
+           (signal 'innate-resistance
+                   :message (resistance-message result)
+                   :source (resistance-source result))
+           (innate-result-value result))))
+
     ;; Program — should not be dispatched to eval-node directly
     ((eql :program)
      (error "BUG: :program node should not reach eval-node — use evaluate instead"))))
@@ -182,29 +330,5 @@ Returns a list of evaluation results in source order. Decree nodes produce no re
   (let ((children (node-children ast)))
     ;; Pass 1: collect decrees
     (collect-decrees children env)
-    ;; Pass 2: evaluate with direct list traversal for commission adjacency
-    (let ((results nil)
-          (remaining children))
-      (loop while remaining
-            do (let* ((child (first remaining))
-                      (next (second remaining)))
-                 (cond
-                   ;; Skip decree nodes
-                   ((eq (node-kind child) :decree)
-                    (setf remaining (rest remaining)))
-                   ;; Commission adjacency: :agent followed by :bundle
-                   ((and (eq (node-kind child) :agent)
-                         next
-                         (eq (node-kind next) :bundle))
-                    (let* ((agent-name (node-value child))
-                           (instruction (node-value next))
-                           (result (deliver-commission
-                                    (eval-env-resolver env)
-                                    agent-name instruction)))
-                      (push (innate-result-value result) results))
-                    (setf remaining (cddr remaining)))
-                   ;; Normal evaluation
-                   (t
-                    (push (eval-node child env) results)
-                    (setf remaining (rest remaining))))))
-      (nreverse results))))
+    ;; Pass 2: evaluate with commission adjacency detection
+    (eval-children-with-adjacency children env)))

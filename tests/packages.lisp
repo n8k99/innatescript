@@ -181,12 +181,19 @@
     #:stub-add-context
     #:stub-add-wikilink
     #:stub-add-bundle
-    #:stub-commissions)
+    #:stub-add-verification
+    #:stub-commissions
+    #:stub-verifications
+    #:stub-schedules)
+  (:import-from :innate.eval.resolver
+    #:deliver-verification
+    #:schedule-at)
   (:import-from :innate.types
     #:make-node
     #:node-kind
     #:node-value
     #:node-children
+    #:node-props
     #:innate-result-value
     #:resistance-p
     #:+node-program+
@@ -208,7 +215,12 @@
     #:+node-string-lit+
     #:+node-number-lit+
     #:+node-bare-word+
-    #:+node-emoji-slot+)
+    #:+node-emoji-slot+
+    #:+node-verification+
+    #:+node-concurrent+
+    #:+node-until+
+    #:+node-sync+
+    #:+node-at+)
   (:import-from :innate.conditions
     #:innate-resistance)
   (:import-from :innate.parser

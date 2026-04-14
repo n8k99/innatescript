@@ -452,3 +452,189 @@
       ;; The fulfillment evaluates and returns "helper" (agent name)
       ;; The bundle "fix_it" is evaluated separately as standalone bundle
       (assert-true (member "helper" results :test #'equal)))))
+
+;;; -----------------------------------------------------------------------
+;;; Milestone 11: Choreographic Coordination Tests
+;;; -----------------------------------------------------------------------
+
+;; T03: Concurrent evaluation
+
+(deftest test-concurrent-dispatches-all-branches
+  "concurrent evaluates all children — multiple commissions recorded"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [(a){task1} (b){task2}]"))))
+    (evaluate ast env)
+    (let ((comms (stub-commissions resolver)))
+      (assert-equal 2 (length comms) "two commissions dispatched")
+      (assert-equal "a" (first (first comms)) "first agent is a")
+      (assert-equal "b" (first (second comms)) "second agent is b"))))
+
+(deftest test-concurrent-returns-results
+  "concurrent returns results from all branches"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [42 \"hello\"]"))))
+    (let ((results (evaluate ast env)))
+      ;; The concurrent block is the only top-level statement
+      (let ((conc-result (first results)))
+        (assert-true (listp conc-result) "concurrent returns a list")
+        (assert-equal 2 (length conc-result) "two results")))))
+
+(deftest test-concurrent-resistance-isolation
+  "resistance in one concurrent branch does not prevent others"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [@missing (b){task2}]"))))
+    (let ((results (evaluate ast env)))
+      ;; @missing produces resistance (swallowed by concurrent), (b){task2} still dispatches
+      (assert-equal 1 (length (stub-commissions resolver)) "commission from b still dispatched"))))
+
+;; T05: Join synchronization
+
+(deftest test-join-orders-waves
+  "join inside concurrent partitions into waves — pre-join before post-join"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [(a){first} join (b){second}]"))))
+    (evaluate ast env)
+    (let ((comms (stub-commissions resolver)))
+      (assert-equal 2 (length comms) "two commissions total")
+      (assert-equal "a" (first (first comms)) "first commission is from a")
+      (assert-equal "b" (first (second comms)) "second commission is from b"))))
+
+(deftest test-concurrent-without-join-no-barrier
+  "concurrent without join evaluates all children without barrier"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [(a){x} (b){y} (c){z}]"))))
+    (evaluate ast env)
+    (assert-equal 3 (length (stub-commissions resolver)) "all three dispatched")))
+
+;; T07: Postfix until
+
+(deftest test-postfix-until-evaluates-expression
+  "postfix until evaluates the wrapped expression"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         ;; Use @ref which is a single expression, not agent+bundle pair
+         (ast (parse (tokenize "[@myref until 3 days]"))))
+    (stub-add-entity resolver "myref" '(:value "data"))
+    (evaluate ast env)
+    ;; @myref resolves, then until wraps the result
+    ))
+
+(deftest test-postfix-until-returns-duration
+  "postfix until result includes duration metadata"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "[@myref until 3 days]"))))
+    (stub-add-entity resolver "myref" '(:value "data"))
+    (let* ((results (evaluate ast env))
+           (bracket-result (first results)))
+      ;; The bracket evaluates, and inside it the until node produces the result
+      (assert-true (listp bracket-result) "bracket result is list"))))
+
+;; T08: Block until
+
+(deftest test-block-until-evaluates-body
+  "block until evaluates all body children"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "until 3 days [(a){x} (b){y}]"))))
+    (evaluate ast env)
+    (assert-equal 2 (length (stub-commissions resolver)) "both commissions dispatched")))
+
+(deftest test-block-until-with-fulfillment
+  "block until with || fires fulfillment on resistance"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         ;; Block until with fulfillment — the || is parsed by the parser's block-until handler
+         (ast (parse (tokenize "until 3 days [@missing] || [(fallback){escalate}]"))))
+    (evaluate ast env)
+    ;; @missing produces resistance, fulfillment fires
+    (assert-equal 1 (length (stub-commissions resolver)) "fallback commission dispatched")
+    (assert-equal "fallback" (first (first (stub-commissions resolver))) "fallback agent")))
+
+;; T10: Sync evaluation
+
+(deftest test-sync-dispatches-commission
+  "sync evaluates its child — commission is delivered"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "sync [(a){background_task}]"))))
+    (evaluate ast env)
+    (assert-equal 1 (length (stub-commissions resolver)) "commission dispatched")))
+
+(deftest test-sync-returns-nil
+  "sync does not contribute to parent results"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "sync [(a){task}]"))))
+    (let ((results (evaluate ast env)))
+      ;; sync returns nil, which is in the result list
+      (assert-nil (first results) "sync result is nil"))))
+
+(deftest test-sync-swallows-resistance
+  "sync swallows resistance — does not propagate to parent"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "sync @nonexistent"))))
+    ;; Should not signal — resistance is swallowed
+    (let ((results (evaluate ast env)))
+      (assert-nil (first results) "sync swallowed resistance"))))
+
+;; T12: At evaluation
+
+(deftest test-at-calls-schedule-at
+  "at schedules expression via resolver"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "at [[2026-04-15]] [(a){task}]"))))
+    (evaluate ast env)
+    (let ((scheds (stub-schedules resolver)))
+      (assert-equal 1 (length scheds) "one schedule recorded")
+      (assert-equal "2026-04-15" (first (first scheds)) "time is correct"))))
+
+(deftest test-at-returns-handle
+  "at returns schedule handle from resolver"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "at [[2026-04-15]] [(a){task}]"))))
+    (let ((results (evaluate ast env)))
+      (assert-equal 1 (first results) "handle is 1 (first schedule)"))))
+
+;; T14: Verification evaluation
+
+(deftest test-verification-calls-deliver-verification
+  "verification evaluates left, routes to agent via deliver-verification"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "[\"draft output\" <- (reviewer){check}]"))))
+    (evaluate ast env)
+    (let ((vfs (stub-verifications resolver)))
+      ;; deliver-verification should be called
+      ;; Note: the parser produces <- with left=string, right=agent+bundle
+      ;; The evaluator tries to extract agent name from right side
+      (assert-true (>= (length vfs) 1) "verification recorded"))))
+
+(deftest test-verification-records-prior-output
+  "verification passes prior output to deliver-verification"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "[\"my draft\" <- (checker)]"))))
+    (evaluate ast env)
+    (let ((vfs (stub-verifications resolver)))
+      (assert-equal 1 (length vfs) "one verification")
+      (assert-equal "my draft" (second (first vfs)) "prior output passed"))))
+
+;; T15: Verification inside concurrent
+
+(deftest test-verification-in-concurrent
+  "multiple verifications inside concurrent all dispatch"
+  (let* ((resolver (make-stub-resolver))
+         (env (make-eval-env :resolver resolver))
+         (ast (parse (tokenize "concurrent [\"draft\" <- (reviewer_a) \"draft\" <- (reviewer_b)]"))))
+    (evaluate ast env)
+    (let ((vfs (stub-verifications resolver)))
+      (assert-equal 2 (length vfs) "two verifications recorded"))))

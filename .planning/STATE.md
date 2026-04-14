@@ -128,6 +128,12 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260414-od2 | Reconcile ROADMAP.md and REQUIREMENTS.md against v1.0 shipped state | 2026-04-14 | 8c78a09 | [260414-od2-reconcile-roadmap-md-and-requirements-md](./quick/260414-od2-reconcile-roadmap-md-and-requirements-md/) |
+
 ### Blockers/Concerns
 
 - Phase 4 (multi-context evaluation): Innate's context-as-argument evaluation model has no prior art. A design spike is needed during Phase 7/8 planning to validate how context threading interacts with decree bodies and nested bracket evaluation.
@@ -136,6 +142,5 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-14T21:39:14Z
-Stopped at: Completed quick/260414-od2 (reconcile ROADMAP.md and REQUIREMENTS.md)
+Last activity: 2026-04-14 - Completed quick task 260414-od2: Reconcile ROADMAP.md and REQUIREMENTS.md against v1.0 shipped state
 Resume file: None

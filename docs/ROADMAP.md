@@ -12,7 +12,7 @@ description: "Roadmap for the Innate scripting language interpreter"
 visibility: private
 started: "[[2026-03-28]]"
 target_completion:
-completed: 10
+completed: 11
 created: "[[2026-03-28]]"
 updated: "[[2026-04-14]]"
 tags: []
@@ -40,7 +40,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
 - [x] **Milestone 8: Commission and Fulfillment Evaluation** - Agent commission, search, emission, wikilink, bundle, fulfillment operator (completed 2026-03-29; `<-` verification operator deferred to Milestone 10)
 - [x] **Milestone 9: REPL and Integration** - Interactive loop, file runner, shell scripts, burg_pipeline integration test (completed 2026-03-29)
 - [x] **Milestone 10: Choreographic Lexing and Parsing** - `<-` verification, choreographic tokens, resolver protocol extensions (completed 2026-04-14)
-- [ ] **Milestone 11: Choreographic Coordination** - `concurrent`, `join`, `until`, `sync`, `at` evaluation and projection
+- [x] **Milestone 11: Choreographic Coordination** - `concurrent`, `join`, `until`, `sync`, `at` evaluation and projection
 - [ ] **Milestone 12: Choreographic Integration** - Three-bracket enforcement, projection, decree migration, end-to-end choreographic tests
 
 ## Milestone Details
@@ -171,7 +171,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   5. `sync @agent{task}` dispatches alongside the main flow without blocking subsequent evaluation
   6. `at [[2026-04-15]] @agent{task}` calls `schedule-at` on the resolver with the correct time and expression
   7. `<-` verification operators nest correctly inside `concurrent` blocks for parallel verification
-**Tasks**: 15
+**Tasks**: 15 (completed)
 
 ### Milestone 12: Choreographic Integration
 **Objective**: Three-bracket enforcement, per-agent projection, decree-to-named-bracket migration, and end-to-end choreographic tests
@@ -201,5 +201,5 @@ v1.0 milestones (1-9) executed sequentially and are complete. Choreographic mile
 | 8. Commission and Fulfillment | 5/5 | Complete | 2026-03-29 |
 | 9. REPL and Integration | 5/5 | Complete | 2026-03-29 |
 | 10. Choreographic Lexing and Parsing | 5/5 | Complete | 2026-04-14 |
-| 11. Choreographic Coordination | 0/7 | Not started | - |
+| 11. Choreographic Coordination | 7/7 | Complete | 2026-04-14 |
 | 12. Choreographic Integration | 0/4 | Not started | - |

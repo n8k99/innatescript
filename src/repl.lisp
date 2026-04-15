@@ -68,7 +68,7 @@ values, strings, and arbitrary Lisp objects."
 
 (defun repl (&optional env)
   "Start an interactive Innate REPL.
-If ENV is nil, creates a fresh eval-env with a stub resolver.
+If ENV is nil, creates a fresh eval-env with the default resolver.
 The same ENV persists across all input lines so decrees accumulate.
 Exits on EOF, (quit), (exit), or :quit."
   (let ((env (or env (make-eval-env :resolver (make-default-resolver)))))

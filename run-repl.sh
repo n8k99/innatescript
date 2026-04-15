@@ -9,6 +9,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CACHE_DIR="${TMPDIR:-/tmp}/innatescript-cache-$$/"
+mkdir -p "${CACHE_DIR}"
+trap 'rm -rf "${CACHE_DIR}"' EXIT
 
 if [ -n "$1" ]; then
   # File mode: resolve path relative to current working directory if not absolute
@@ -21,6 +24,7 @@ if [ -n "$1" ]; then
   sbcl --noinform \
     --non-interactive \
     --eval "(require :asdf)" \
+    --eval "(setf uiop/configuration:*user-cache* #p\"${CACHE_DIR}\")" \
     --eval "(push #p\"${SCRIPT_DIR}/\" asdf:*central-registry*)" \
     --eval "(let ((*standard-output* (make-broadcast-stream)) (*error-output* (make-broadcast-stream))) (asdf:load-system :innatescript))" \
     --eval "(let* ((env (innate.eval.resolver:make-eval-env :resolver (innate.eval.default-resolver:make-default-resolver :search-path (list (directory-namestring (truename \"${FILE_PATH}\")))))) (results (innate.repl:run-file \"${FILE_PATH}\" env))) (dolist (r results) (innate.repl:print-result r)) (sb-ext:exit :code 0))" \
@@ -30,6 +34,7 @@ else
   # Do NOT use --non-interactive — that disables stdin read-line
   sbcl --noinform \
     --eval "(require :asdf)" \
+    --eval "(setf uiop/configuration:*user-cache* #p\"${CACHE_DIR}\")" \
     --eval "(push #p\"${SCRIPT_DIR}/\" asdf:*central-registry*)" \
     --eval "(let ((*standard-output* (make-broadcast-stream)) (*error-output* (make-broadcast-stream))) (asdf:load-system :innatescript))" \
     --eval "(innate.repl:repl)" \

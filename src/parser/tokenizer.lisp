@@ -123,7 +123,6 @@
          (%keyword-token-type (word)
            "Return keyword token type for WORD, or nil if not a keyword."
            (cond
-             ((string= word "decree")     :decree)
              ((string= word "concurrent") :concurrent)
              ((string= word "join")       :join)
              ((string= word "until")      :until)

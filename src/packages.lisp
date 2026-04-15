@@ -17,7 +17,6 @@
    #:+node-search+
    #:+node-fulfillment+
    #:+node-emission+
-   #:+node-decree+
    #:+node-wikilink+
    #:+node-combinator+
    #:+node-lens+
@@ -76,7 +75,7 @@
     #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
     #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
     #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
-    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+
+    #:+node-combinator+ #:+node-lens+ #:+node-modifier+
     #:+node-verification+ #:+node-concurrent+ #:+node-until+ #:+node-sync+ #:+node-at+)
   (:import-from :innate.conditions
     #:innate-parse-error)
@@ -140,7 +139,6 @@
     #:+node-search+
     #:+node-fulfillment+
     #:+node-emission+
-    #:+node-decree+
     #:+node-wikilink+
     #:+node-combinator+
     #:+node-lens+
@@ -213,6 +211,37 @@
    #:stub-commissions
    #:stub-verifications
    #:stub-schedules))
+
+(defpackage :innate.eval.default-resolver
+  (:use :cl)
+  (:import-from :innate.eval.resolver
+    #:resolver
+    #:resolve-reference
+    #:resolve-search
+    #:deliver-commission
+    #:resolve-wikilink
+    #:resolve-context
+    #:load-bundle
+    #:deliver-verification
+    #:schedule-at)
+  (:import-from :innate.types
+    #:make-node
+    #:node-kind
+    #:node-value
+    #:node-children
+    #:make-innate-result
+    #:innate-result-value
+    #:make-resistance
+    #:resistance-p)
+  (:import-from :innate.parser.tokenizer #:tokenize)
+  (:import-from :innate.parser #:parse)
+  (:export
+   #:default-resolver
+   #:make-default-resolver
+   #:default-commissions
+   #:default-verifications
+   #:default-schedules
+   #:default-registry))
 
 (defpackage :innate.repl
   (:use :cl)

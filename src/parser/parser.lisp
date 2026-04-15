@@ -112,8 +112,6 @@
          (make-node :kind +node-prose+ :value (token-value tok)))
         (:hash
          (parse-heading cursor))
-        (:decree
-         (parse-decree cursor))
         (:concurrent
          (parse-concurrent-block cursor))
         (:sync
@@ -645,23 +643,7 @@
          (name (token-value name-tok)))
     (make-node :kind +node-modifier+ :value name)))
 
-;;; -----------------------------------------------------------------------
-;;; Decree parsing — decree name [body]
-;;; -----------------------------------------------------------------------
-
-(defun parse-decree (cursor)
-  "Parse a decree declaration: decree name or decree name [body].
-   Returns a :decree node with value = name and optional children from body."
-  (cursor-expect cursor :decree)
-  (let* ((name-tok (cursor-expect cursor :bare-word))
-         (name (token-value name-tok)))
-    (let ((tok (cursor-peek cursor)))
-      (if (and tok (eq (token-type tok) :lbracket))
-          (let ((body-bracket (parse-bracket cursor)))
-            (make-node :kind +node-decree+
-                       :value name
-                       :children (node-children body-bracket)))
-          (make-node :kind +node-decree+ :value name)))))
+;;; Decree keyword removed — named brackets (name[body]) are the only registration mechanism
 
 ;;; -----------------------------------------------------------------------
 ;;; Choreographic parsing (Milestone 10)

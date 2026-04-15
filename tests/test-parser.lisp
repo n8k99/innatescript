@@ -301,28 +301,21 @@
       (assert-equal "wrapLeft" (node-value mod-node) "modifier value is wrapLeft"))))
 
 ;;; -----------------------------------------------------------------------
-;;; Plan 02 Task 2: Decree parsing and heading refinement tests
+;;; Plan 02 Task 2: Named bracket parsing and heading refinement tests
 ;;; -----------------------------------------------------------------------
 
-(deftest test-decree-with-body
-  "PAR-14: decree routing_rules [key: value] parses as :decree with body children"
-  (let* ((result (parse (tokenize "decree routing_rules [key: value]")))
-         (decree (first (node-children result))))
-    (assert-equal :decree (node-kind decree) "node kind is :decree")
-    (assert-equal "routing_rules" (node-value decree) "decree value is routing_rules")
-    (let ((children (node-children decree)))
-      (assert-true (consp children) "decree has children")
+(deftest test-named-bracket-with-body
+  "PAR-14: routing_rules[key: value] parses as :bracket with value and body children"
+  (let* ((result (parse (tokenize "routing_rules[key: value]")))
+         (bracket (first (node-children result))))
+    (assert-equal :bracket (node-kind bracket) "node kind is :bracket")
+    (assert-equal "routing_rules" (node-value bracket) "bracket value is routing_rules")
+    (let ((children (node-children bracket)))
+      (assert-true (consp children) "named bracket has children")
       (let ((kv (first children)))
-        (assert-equal :kv-pair (node-kind kv) "decree child is kv-pair")
+        (assert-equal :kv-pair (node-kind kv) "named bracket child is kv-pair")
         (assert-equal "key" (node-value kv) "kv-pair key is key")))))
 
-(deftest test-decree-no-body
-  "PAR-14: decree name alone parses as :decree with nil children"
-  (let* ((result (parse (tokenize "decree my_decree")))
-         (decree (first (node-children result))))
-    (assert-equal :decree (node-kind decree) "node kind is :decree")
-    (assert-equal "my_decree" (node-value decree) "decree value is my_decree")
-    (assert-nil (node-children decree) "decree with no body has nil children")))
 
 (deftest test-heading-with-bracket
   "PAR-19: #header[name] parses as :heading with bracket child"

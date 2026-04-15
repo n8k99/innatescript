@@ -1,17 +1,13 @@
 (in-package :innate.eval)
 
-;;; collect-decrees — Pass 1: walk top-level children, store :decree nodes
+;;; collect-named-brackets — Pass 1: walk top-level children, store named brackets
 (defun collect-decrees (children env)
-  "Walk CHILDREN list. For each :decree node or named :bracket node (non-nil value),
+  "Walk CHILDREN list. For each named :bracket node (non-nil value),
 store it in (eval-env-decrees env) keyed by name. Does not evaluate anything."
   (dolist (child children)
-    (cond
-      ((eq (node-kind child) :decree)
-       (setf (gethash (node-value child) (eval-env-decrees env)) child))
-      ;; Named brackets (CHR-08 migration): bracket with non-nil value = named
-      ((and (eq (node-kind child) :bracket)
-            (node-value child))
-       (setf (gethash (node-value child) (eval-env-decrees env)) child)))))
+    (when (and (eq (node-kind child) :bracket)
+               (node-value child))
+      (setf (gethash (node-value child) (eval-env-decrees env)) child))))
 
 ;;; eval-children-with-adjacency — evaluate a list of children handling commission adjacency
 (defun eval-children-with-adjacency (children env)
@@ -23,8 +19,9 @@ Returns a list of results. Used by both `evaluate` (top-level) and `eval-concurr
           do (let* ((child (first remaining))
                     (next (second remaining)))
                (cond
-                 ;; Skip decree nodes
-                 ((eq (node-kind child) :decree)
+                 ;; Skip named brackets — already collected in pass 1
+                 ((and (eq (node-kind child) :bracket)
+                       (node-value child))
                   (setf remaining (rest remaining)))
                  ;; Commission adjacency: :agent followed by :bundle
                  ((and (eq (node-kind child) :agent)
@@ -94,9 +91,6 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
     ;; Number literal — parse string to integer
     ((eql :number-lit) (parse-integer (node-value node)))
 
-    ;; Decree — skip in pass 2 (already collected in pass 1)
-    ((eql :decree) nil)
-
     ;; KV-pair — evaluate value child, return (key . value) cons
     ((eql :kv-pair)
      (let ((key (node-value node))
@@ -114,17 +108,17 @@ Returns the evaluation result value (not wrapped in innate-result for passthroug
     ;; Modifier — return modifier value string
     ((eql :modifier) (node-value node))
 
-    ;; Reference — resolve against decrees first, then resolver (EVL-02)
+    ;; Reference — resolve against named brackets first, then resolver (EVL-02)
     ((eql :reference)
      (let* ((name (node-value node))
-            (decree (gethash name (eval-env-decrees env))))
-       (if decree
-           ;; Decree found — evaluate first child of decree body
-           (let ((body (node-children decree)))
+            (named-bracket (gethash name (eval-env-decrees env))))
+       (if named-bracket
+           ;; Named bracket found — evaluate first child of body
+           (let ((body (node-children named-bracket)))
              (if body
                  (eval-node (first body) env)
                  nil))
-           ;; No decree — fall through to resolver
+           ;; No named bracket — fall through to resolver
            (let* ((qualifiers (getf (node-props node) :qualifiers))
                   (result (resolve-reference (eval-env-resolver env) name qualifiers)))
              (if (resistance-p result)

@@ -53,7 +53,6 @@
     #:+node-search+
     #:+node-fulfillment+
     #:+node-emission+
-    #:+node-decree+
     #:+node-wikilink+
     #:+node-combinator+
     #:+node-lens+
@@ -106,7 +105,7 @@
     #:+node-heading+ #:+node-string-lit+ #:+node-number-lit+ #:+node-bare-word+
     #:+node-wikilink+ #:+node-emoji-slot+ #:+node-agent+ #:+node-bundle+
     #:+node-reference+ #:+node-search+ #:+node-fulfillment+ #:+node-emission+
-    #:+node-decree+ #:+node-combinator+ #:+node-lens+ #:+node-modifier+
+    #:+node-combinator+ #:+node-lens+ #:+node-modifier+
     #:+node-verification+ #:+node-concurrent+ #:+node-until+ #:+node-sync+ #:+node-at+)
   (:import-from :innate.conditions #:innate-parse-error)
   (:export))
@@ -204,7 +203,6 @@
     #:+node-search+
     #:+node-fulfillment+
     #:+node-emission+
-    #:+node-decree+
     #:+node-wikilink+
     #:+node-combinator+
     #:+node-lens+
@@ -240,6 +238,22 @@
   (:import-from :innate.types
     #:make-node #:node-kind #:node-value #:node-children #:node-props
     #:+node-program+)
+  (:export))
+
+(defpackage :innate.tests.default-resolver
+  (:use :cl)
+  (:import-from :innate.tests
+    #:deftest #:assert-equal #:assert-true #:assert-nil #:assert-signals #:run-tests)
+  (:import-from :innate.eval.default-resolver
+    #:default-resolver #:make-default-resolver
+    #:default-commissions #:default-verifications #:default-schedules)
+  (:import-from :innate.eval.resolver
+    #:resolve-reference #:resolve-search #:deliver-commission
+    #:resolve-wikilink #:resolve-context #:load-bundle
+    #:deliver-verification #:schedule-at)
+  (:import-from :innate.types
+    #:make-node #:node-kind #:node-value #:node-children
+    #:innate-result-value #:resistance-p)
   (:export))
 
 (defpackage :innate.tests.repl

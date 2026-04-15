@@ -20,6 +20,7 @@
     ((:file "resolver")
      (:file "evaluator"       :depends-on ("resolver"))
      (:file "stub-resolver"   :depends-on ("resolver"))
+     (:file "default-resolver" :depends-on ("resolver"))
      (:file "projection"      :depends-on ("resolver"))))
    (:file "repl"              :depends-on ("packages" "eval"))
    (:file "innate"            :depends-on ("packages" "types" "conditions"
@@ -41,4 +42,5 @@
    (:file "test-stub-resolver" :depends-on ("packages" "test-framework"))
    (:file "test-evaluator"    :depends-on ("packages" "test-framework"))
    (:file "test-projection"   :depends-on ("packages" "test-framework"))
+   (:file "test-default-resolver" :depends-on ("packages" "test-framework"))
    (:file "test-repl"         :depends-on ("packages" "test-framework"))))

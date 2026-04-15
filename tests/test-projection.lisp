@@ -71,3 +71,21 @@
     (let ((bracket (find :bracket children :key #'node-kind)))
       (assert-true bracket "named bracket preserved")
       (assert-equal "pipeline" (node-value bracket) "name preserved"))))
+
+;;; Transparent composition — projection resolves @references
+
+(deftest test-project-resolves-reference-into-named-bracket
+  "projection resolves @pipeline and walks into its body for agent visibility"
+  (let* ((ast (parse (tokenize (format nil "pipeline[(a){step1} (b){step2}]~%concurrent [@pipeline]"))))
+         (projected (project ast "a")))
+    ;; The concurrent block should contain a's operations from the resolved @pipeline
+    (let ((conc (find :concurrent (node-children projected) :key #'node-kind)))
+      (assert-true conc "concurrent present in projection for agent a"))))
+
+(deftest test-project-reference-filters-irrelevant-agent
+  "projection of @pipeline for uninvolved agent returns nothing from the reference"
+  (let* ((ast (parse (tokenize (format nil "pipeline[(a){step1}]~%concurrent [@pipeline]"))))
+         (projected (project ast "c"))
+         (children (node-children projected)))
+    (assert-nil (find :concurrent children :key #'node-kind)
+                "no concurrent for uninvolved agent")))

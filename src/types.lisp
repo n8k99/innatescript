@@ -12,7 +12,6 @@
 (defconstant +node-search+      :search)
 (defconstant +node-fulfillment+ :fulfillment)
 (defconstant +node-emission+    :emission)
-(defconstant +node-decree+      :decree)
 (defconstant +node-wikilink+    :wikilink)
 (defconstant +node-combinator+  :combinator)
 (defconstant +node-lens+        :lens)

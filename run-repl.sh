@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# run-repl.sh — start the Innate REPL or evaluate a .dpn file
+# run-repl.sh — start the Innate REPL or evaluate a .dpn/.md file
 # Usage:
 #   ./run-repl.sh              — start interactive REPL
-#   ./run-repl.sh file.dpn     — evaluate file and exit
+#   ./run-repl.sh file.dpn     — evaluate .dpn file and exit
+#   ./run-repl.sh file.md      — evaluate .md file and exit
 #   rlwrap ./run-repl.sh       — REPL with line editing
 
 set -e

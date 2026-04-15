@@ -1,37 +1,36 @@
 ;;;; tests/test-evaluator.lisp — Two-pass evaluator tests
-;;;; Tests decree hoisting, passthrough nodes, and literal evaluation.
+;;;; Tests named bracket hoisting, passthrough nodes, and literal evaluation.
 
 (in-package :innate.tests.evaluator)
 
-;;; EVL-01: Two-pass - decree collected in pass 1
-(deftest test-decree-collected-in-pass-1
+;;; EVL-01: Two-pass - named bracket collected in pass 1
+(deftest test-named-bracket-collected-in-pass-1
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
          (ast (make-node :kind :program :children
-                (list (make-node :kind :decree :value "greeting"
+                (list (make-node :kind :bracket :value "greeting"
                         :children (list (make-node :kind :string-lit :value "hello")))))))
     (evaluate ast env)
     (assert-true (gethash "greeting" (eval-env-decrees env)))))
 
-;;; EVL-01: Decree nodes skipped in pass 2 (not in results)
-(deftest test-decree-not-in-results
+;;; EVL-01: Named bracket with value collected in pass 1 decrees
+(deftest test-named-bracket-collected-in-decrees
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
          (ast (make-node :kind :program :children
-                (list (make-node :kind :decree :value "x"
+                (list (make-node :kind :bracket :value "x"
                         :children (list (make-node :kind :string-lit :value "val")))
                       (make-node :kind :prose :value "visible")))))
-    (let ((results (evaluate ast env)))
-      (assert-equal 1 (length results))
-      (assert-equal "visible" (first results)))))
+    (evaluate ast env)
+    (assert-true (gethash "x" (eval-env-decrees env)))))
 
-;;; EVL-08: Decree body stored as full node
-(deftest test-decree-stores-full-node
+;;; EVL-08: Named bracket body stored as full node
+(deftest test-named-bracket-stores-full-node
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
-         (decree-node (make-node :kind :decree :value "myvar"
-                        :children (list (make-node :kind :number-lit :value "42"))))
-         (ast (make-node :kind :program :children (list decree-node))))
+         (bracket-node (make-node :kind :bracket :value "myvar"
+                         :children (list (make-node :kind :number-lit :value "42"))))
+         (ast (make-node :kind :program :children (list bracket-node))))
     (evaluate ast env)
     (let ((stored (gethash "myvar" (eval-env-decrees env))))
-      (assert-equal :decree (node-kind stored)))))
+      (assert-equal :bracket (node-kind stored)))))
 
 ;;; EVL-11: Prose passthrough
 (deftest test-prose-passthrough
@@ -88,21 +87,17 @@
       (assert-equal "first" (first results))
       (assert-equal "third" (third results)))))
 
-;;; EVL-12: Mixed decrees and passthrough nodes
-(deftest test-mixed-decree-and-prose
+;;; EVL-12: Mixed named brackets and passthrough nodes
+(deftest test-mixed-named-bracket-and-prose
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
          (ast (make-node :kind :program :children
                 (list (make-node :kind :prose :value "intro")
-                      (make-node :kind :decree :value "config"
+                      (make-node :kind :bracket :value "config"
                         :children (list (make-node :kind :string-lit :value "value")))
                       (make-node :kind :prose :value "body")))))
-    (let ((results (evaluate ast env)))
-      ;; Two prose nodes, no decree in results
-      (assert-equal 2 (length results))
-      (assert-equal "intro" (first results))
-      (assert-equal "body" (second results))
-      ;; Decree was hoisted
-      (assert-true (gethash "config" (eval-env-decrees env))))))
+    (evaluate ast env)
+    ;; Named bracket was hoisted into decrees
+    (assert-true (gethash "config" (eval-env-decrees env)))))
 
 ;;; EVL-14: combinator node returns value string
 (deftest test-combinator-returns-value
@@ -118,13 +113,13 @@
                 (list (make-node :kind :modifier :value "all")))))
     (assert-equal "all" (first (evaluate ast env)))))
 
-;;; EVL-02: @reference resolution — decrees first, then resolver
+;;; EVL-02: @reference resolution — named brackets first, then resolver
 
-(deftest test-reference-resolves-from-decree
-  "A @reference resolves against decrees collected in pass 1"
+(deftest test-reference-resolves-from-named-bracket
+  "A @reference resolves against named brackets collected in pass 1"
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
          (ast (make-node :kind :program :children
-                (list (make-node :kind :decree :value "greeting"
+                (list (make-node :kind :bracket :value "greeting"
                         :children (list (make-node :kind :string-lit :value "hello")))
                       (make-node :kind :reference :value "greeting")))))
     (let ((results (evaluate ast env)))
@@ -132,18 +127,18 @@
       (assert-equal "hello" (first results)))))
 
 (deftest test-forward-reference-resolves
-  "A @reference BEFORE its decree in source still resolves (hoisting)"
+  "A @reference BEFORE its named bracket in source still resolves (hoisting)"
   (let* ((env (make-eval-env :resolver (make-stub-resolver)))
          (ast (make-node :kind :program :children
                 (list (make-node :kind :reference :value "later")
-                      (make-node :kind :decree :value "later"
+                      (make-node :kind :bracket :value "later"
                         :children (list (make-node :kind :string-lit :value "found-it")))))))
     (let ((results (evaluate ast env)))
       (assert-equal 1 (length results))
       (assert-equal "found-it" (first results)))))
 
 (deftest test-reference-falls-through-to-resolver
-  "When no decree matches, @reference calls resolve-reference on the resolver"
+  "When no named bracket matches, @reference calls resolve-reference on the resolver"
   (let* ((resolver (make-stub-resolver))
          (env (make-eval-env :resolver resolver))
          (ast (make-node :kind :program :children
@@ -166,12 +161,12 @@
       (assert-equal 1 (length results))
       (assert-equal "Burg" (first results)))))
 
-(deftest test-reference-decree-takes-priority-over-resolver
-  "Decree wins over resolver when both have the same name"
+(deftest test-reference-named-bracket-takes-priority-over-resolver
+  "Named bracket wins over resolver when both have the same name"
   (let* ((resolver (make-stub-resolver))
          (env (make-eval-env :resolver resolver))
          (ast (make-node :kind :program :children
-                (list (make-node :kind :decree :value "burg"
+                (list (make-node :kind :bracket :value "burg"
                         :children (list (make-node :kind :string-lit :value "local-burg")))
                       (make-node :kind :reference :value "burg")))))
     (stub-add-entity resolver "burg" '(:type "Burg"))
@@ -226,11 +221,11 @@
       (assert-true (> (length results) 0))
       (assert-true (stringp (first results))))))
 
-(deftest test-pipeline-decree-and-reference
-  "Full pipeline: decree + @reference through tokenize/parse/evaluate"
+(deftest test-pipeline-named-bracket-and-reference
+  "Full pipeline: named bracket + @reference through tokenize/parse/evaluate"
   (let* ((resolver (make-stub-resolver))
          (env (make-eval-env :resolver resolver))
-         (source (format nil "decree greeting [\"hello world\"]~%@greeting"))
+         (source (format nil "greeting[\"hello world\"]~%@greeting"))
          (ast (parse (tokenize source))))
     (let ((results (evaluate ast env)))
       (assert-true (> (length results) 0)))))

@@ -28,16 +28,15 @@
       (assert-true (search "prose" (first results)) "REPL-01: result contains 'prose'"))
     (ignore-errors (delete-file path))))
 
-;;; REPL-02: run-file evaluates a decree and a reference
-(deftest test-repl-02-run-file-decree-and-reference
-  (let ((path "/tmp/innate-test-decree.dpn"))
+;;; REPL-02: run-file evaluates a named bracket and a reference
+(deftest test-repl-02-run-file-named-bracket-and-reference
+  (let ((path "/tmp/innate-test-named-bracket.dpn"))
     (write-temp-file path
-      (format nil "decree greeting [Hello]~%@greeting"))
+      (format nil "greeting[Hello]~%@greeting"))
     (let ((results (run-file path (make-eval-env :resolver (make-stub-resolver)))))
       ;; Results should be non-nil — the file has content
       (assert-true results "REPL-02: result list is non-nil")
-      ;; The second result (from @greeting evaluation) should be the decree body value
-      ;; Decree body: [Hello] — a bracket node; resolved via stub resolver which may produce resistance
+      ;; The named bracket greeting[Hello] is hoisted; @greeting resolves to its body
       ;; Assert at least one result was produced
       (assert-true (>= (length results) 1) "REPL-02: at least one result produced"))
     (ignore-errors (delete-file path))))
@@ -101,3 +100,21 @@
           (assert-true t "REPL-07: no unhandled error from choreographic_pipeline.dpn"))
       (error (e)
         (assert-true nil (format nil "REPL-07: unexpected error: ~a" e))))))
+
+;;; Milestone 13: .md extension support
+
+(deftest test-repl-08-run-file-md-extension
+  "REPL-08: .md files evaluate identically to .dpn files"
+  (let ((dpn-path "/tmp/innate-test-ext.dpn")
+        (md-path "/tmp/innate-test-ext.md")
+        (content "\"hello from markdown\""))
+    (write-temp-file dpn-path content)
+    (write-temp-file md-path content)
+    (let* ((env1 (make-eval-env :resolver (make-stub-resolver)))
+           (env2 (make-eval-env :resolver (make-stub-resolver)))
+           (dpn-results (run-file dpn-path env1))
+           (md-results (run-file md-path env2)))
+      (assert-equal (length dpn-results) (length md-results) "REPL-08: same result count")
+      (assert-equal (first dpn-results) (first md-results) "REPL-08: same result value"))
+    (ignore-errors (delete-file dpn-path))
+    (ignore-errors (delete-file md-path))))

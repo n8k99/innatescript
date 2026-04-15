@@ -155,7 +155,7 @@
 
 (deftest test-bare-word
   ;; TOK-13: bare words tokenize as :bare-word inside expressions
-  ;; At line start a bare word (not "decree") is emitted as :prose per TOK-17.
+  ;; At line start a bare word not followed by [ is emitted as :prose per TOK-17.
   ;; Inside brackets it is :bare-word. Test inside brackets:
   (let ((toks (tokenize "[entry]")))
     (assert-equal 3 (length toks) "[entry]: three tokens")
@@ -169,21 +169,6 @@
     (assert-equal :prose (token-type (first toks)) "entry at line start is :prose")
     (assert-equal "entry" (token-value (first toks)) "prose value is entry")))
 
-(deftest test-decree-keyword
-  ;; TOK-15: "decree" at line start tokenizes as :decree (not prose)
-  (let ((toks (tokenize "decree")))
-    (assert-equal 1 (length toks) "decree: one token")
-    (assert-equal :decree (token-type (first toks)) "decree type"))
-  ;; "decrement" at line start tokenizes as :prose (not :decree, not :bare-word)
-  ;; because it is not the exact "decree" keyword, so the whole line is prose (TOK-17)
-  (let ((toks (tokenize "decrement")))
-    (assert-equal 1 (length toks) "decrement at line start: one prose token")
-    (assert-equal :prose (token-type (first toks)) "decrement at line start is :prose")
-    (assert-equal "decrement" (token-value (first toks)) "prose value is decrement"))
-  ;; "decree" inside brackets tokenizes as :decree
-  (let ((toks (tokenize "[decree foo]")))
-    (assert-equal 4 (length toks) "[decree foo]: four tokens")
-    (assert-equal :decree (token-type (second toks)) "decree inside brackets is :decree")))
 
 (deftest test-emoji-slot
   ;; TOK-14: <emoji> tokenizes as :emoji-slot
@@ -240,14 +225,12 @@
     (assert-equal :prose (token-type (first toks)) "type is :prose")
     (assert-equal "This is plain text" (token-value (first toks)) "prose value is full line")))
 
-(deftest test-prose-not-decree
-  ;; TOK-17: "decree foo" at line start is NOT prose — emits :decree then :bare-word
-  (let* ((toks (tokenize "decree foo"))
-         (types (mapcar #'token-type toks)))
-    (assert-equal 2 (length toks) "decree foo: two tokens")
-    (assert-equal :decree (first types) "first token is :decree")
-    (assert-equal :bare-word (second types) "second token is :bare-word")
-    (assert-equal "foo" (token-value (second toks)) "bare-word value is foo")))
+(deftest test-bare-word-without-bracket-is-prose
+  ;; TOK-17: a bare word at line start NOT followed by [ is prose
+  (let* ((toks (tokenize "decree foo")))
+    (assert-equal 1 (length toks) "decree foo: one prose token")
+    (assert-equal :prose (token-type (first toks)) "decree foo at line start is :prose")
+    (assert-equal "decree foo" (token-value (first toks)) "prose value is decree foo")))
 
 (deftest test-prose-not-lbracket
   ;; TOK-17: "[foo]" at line start is NOT prose — starts with executable sigil
@@ -413,11 +396,6 @@
          (kw (find :at-keyword toks :key #'token-type)))
     (assert-true kw "at tokenizes as :at-keyword")))
 
-(deftest test-decree-keyword-regression
-  "decree still tokenizes as :decree after adding choreographic keywords"
-  (let* ((toks (tokenize "[decree]"))
-         (kw (find :decree toks :key #'token-type)))
-    (assert-true kw "decree still works")))
 
 (deftest test-keyword-inside-string-not-promoted
   "Keywords inside string literals are not promoted"

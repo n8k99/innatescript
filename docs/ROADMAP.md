@@ -12,7 +12,7 @@ description: "Roadmap for the Innate scripting language interpreter"
 visibility: private
 started: "[[2026-03-28]]"
 target_completion:
-completed: 12
+completed: 13
 created: "[[2026-03-28]]"
 updated: "[[2026-04-14]]"
 tags: []
@@ -42,7 +42,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
 - [x] **Milestone 10: Choreographic Lexing and Parsing** - `<-` verification, choreographic tokens, resolver protocol extensions (completed 2026-04-14)
 - [x] **Milestone 11: Choreographic Coordination** - `concurrent`, `join`, `until`, `sync`, `at` evaluation and projection
 - [x] **Milestone 12: Choreographic Integration** - Three-bracket enforcement, projection, decree migration, end-to-end choreographic tests
-- [ ] **Milestone 13: Default Resolver and Choreography Composition** - File-based resolver, .md extension, transparent composition, decree removal, plugin contract
+- [x] **Milestone 13: Default Resolver and Choreography Composition** - File-based resolver, .md extension, transparent composition, decree removal, plugin contract
 
 ## Milestone Details
 
@@ -195,7 +195,7 @@ v1.0 shipped 2026-03-29 with 9 milestones, 19 task sets, and 97+ passing tests. 
   3. Projection resolves `@name` references and walks through named bracket bodies and cross-file bundle loads transparently
   4. `decree` keyword removed entirely — named brackets only
   5. Resolver plugin contract documented with skeleton for external projects
-**Tasks**: 18
+**Tasks**: 18 (completed)
 
 ## Progress
 
@@ -216,4 +216,4 @@ v1.0 milestones (1-9) executed sequentially and are complete. Choreographic mile
 | 10. Choreographic Lexing and Parsing | 5/5 | Complete | 2026-04-14 |
 | 11. Choreographic Coordination | 7/7 | Complete | 2026-04-14 |
 | 12. Choreographic Integration | 4/4 | Complete | 2026-04-14 |
-| 13. Default Resolver and Composition | 0/5 | Not started | - |
+| 13. Default Resolver and Composition | 5/5 | Complete | 2026-04-14 |

@@ -252,6 +252,8 @@
     #:make-eval-env
     #:eval-env-resolver
     #:eval-env-decrees)
+  (:import-from :innate.eval.default-resolver
+    #:make-default-resolver)
   (:import-from :innate.eval.stub-resolver
     #:make-stub-resolver
     #:stub-commissions)

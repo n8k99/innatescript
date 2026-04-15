@@ -22,7 +22,7 @@
      (:file "stub-resolver"   :depends-on ("resolver"))
      (:file "default-resolver" :depends-on ("resolver"))
      (:file "projection"      :depends-on ("resolver"))))
-   (:file "repl"              :depends-on ("packages" "eval"))
+   (:file "repl"              :depends-on ("packages" "eval" "parser"))
    (:file "innate"            :depends-on ("packages" "types" "conditions"
                                            "parser" "eval" "repl"))))
 

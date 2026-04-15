@@ -23,7 +23,7 @@ if [ -n "$1" ]; then
     --eval "(require :asdf)" \
     --eval "(push #p\"${SCRIPT_DIR}/\" asdf:*central-registry*)" \
     --eval "(let ((*standard-output* (make-broadcast-stream)) (*error-output* (make-broadcast-stream))) (asdf:load-system :innatescript))" \
-    --eval "(let* ((env (innate.eval.resolver:make-eval-env :resolver (innate.eval.stub-resolver:make-stub-resolver))) (results (innate.repl:run-file \"${FILE_PATH}\" env))) (dolist (r results) (innate.repl:print-result r)) (sb-ext:exit :code 0))" \
+    --eval "(let* ((env (innate.eval.resolver:make-eval-env :resolver (innate.eval.default-resolver:make-default-resolver :search-path (list (directory-namestring (truename \"${FILE_PATH}\")))))) (results (innate.repl:run-file \"${FILE_PATH}\" env))) (dolist (r results) (innate.repl:print-result r)) (sb-ext:exit :code 0))" \
     2>&1
 else
   # Interactive mode: keep SBCL alive so read-line works from stdin

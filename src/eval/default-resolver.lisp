@@ -76,13 +76,17 @@ Returns the first matching pathname, or nil."
                          :source title))))
 
 (defmethod resolve-reference ((r default-resolver) name qualifiers)
-  "Resolve a @reference against the internal registry."
+  "Resolve a @reference: check internal registry first, then try loading name.dpn/.md from search path."
   (declare (ignore qualifiers))
   (let ((entry (gethash name (default-registry r))))
     (if entry
         (make-innate-result :value entry :context :query)
-        (make-resistance :message (format nil "Reference not found: ~a" name)
-                         :source name))))
+        ;; Fall through: try loading as a file (same as load-bundle)
+        (let ((nodes (load-bundle r name)))
+          (if nodes
+              (make-innate-result :value nodes :context :query)
+              (make-resistance :message (format nil "Reference not found: ~a" name)
+                               :source name))))))
 
 (defmethod resolve-search ((r default-resolver) search-type terms)
   "Search vault-path for files matching terms."

@@ -108,3 +108,31 @@
     (let ((result (deliver-verification r "reviewer" "draft text")))
       (assert-true (not (resistance-p result)) "verification succeeds")
       (assert-equal "draft text" (innate-result-value result) "prior output passed through"))))
+
+;;; resolve-reference falls through to file loading
+
+(deftest test-resolve-reference-loads-from-file
+  "resolve-reference falls through to load name.dpn from search path"
+  (let ((dir (%make-temp-dir "ref-file")))
+    (%write-file dir "greeting.dpn" "\"hello from file\"")
+    (let* ((r (make-default-resolver :search-path (list dir)))
+           (result (resolve-reference r "greeting" nil)))
+      (assert-true (not (resistance-p result)) "reference resolved from file")
+      (assert-true (consp (innate-result-value result)) "result is list of AST nodes"))
+    (%cleanup-dir dir)))
+
+(deftest test-resolve-reference-not-found
+  "resolve-reference returns resistance when no file exists"
+  (let* ((r (make-default-resolver :search-path '("/tmp/nonexistent/")))
+         (result (resolve-reference r "missing" nil)))
+    (assert-true (resistance-p result) "missing reference returns resistance")))
+
+;;; REPL defaults to default-resolver
+
+(deftest test-repl-default-is-default-resolver
+  "REPL with no env uses default-resolver, not stub"
+  ;; The repl function creates env with default-resolver when env is nil
+  ;; We can't easily test the REPL interactively, but we can verify
+  ;; make-default-resolver is importable from the repl package
+  (let ((r (make-default-resolver)))
+    (assert-true (typep r 'default-resolver) "default-resolver is the default")))

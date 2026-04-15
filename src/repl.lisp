@@ -71,7 +71,7 @@ values, strings, and arbitrary Lisp objects."
 If ENV is nil, creates a fresh eval-env with a stub resolver.
 The same ENV persists across all input lines so decrees accumulate.
 Exits on EOF, (quit), (exit), or :quit."
-  (let ((env (or env (make-eval-env :resolver (make-stub-resolver)))))
+  (let ((env (or env (make-eval-env :resolver (make-default-resolver)))))
     (format t "Innate v0.1.0~%")
     (loop
       ;; Print prompt

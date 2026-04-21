@@ -209,14 +209,14 @@ Schedule an expression for future evaluation via the `at` operator.
 
 ### 9. resolve-tick (resolver context delta-ms state) -> result | resistance  **[NEW]**
 
-Advance a stateful module by a time delta. 20+ of the 130 corpus entries are tick-driven; this generic formalises what was previously wired through `resolve-context` with `verb="tick"`.
+**Narrow scope: simulation tick only.** This generic advances an in-memory stateful module by a millisecond delta. It is NOT the noosphere-ghosts agent-tick cycle — see "Two Tick Concepts" below for the distinction.
 
 - **context**: string — the state-bearing module (`"mp3"`, `"saver"`, `"mgr"`, `"tl"`, ...)
 - **delta-ms**: integer — milliseconds to advance
 - **state**: the module's mutable state (typically held in a CLOS slot on the resolver)
 - **Returns**: `(make-innate-result :value (events-fired) :context :query)` — the list of boundary events produced during the tick
 
-The corpus's tick implementations all return events on boundaries, not every tick (see web/media-player.dpn, graphics/screen-saver.dpn, graphics/traffic-light.dpn). Events are data the choreography can dispatch on.
+The corpus's tick implementations return events on boundaries, not every tick (see web/media-player.dpn, graphics/screen-saver.dpn, graphics/traffic-light.dpn). Events are data the choreography can dispatch on. Calls are synchronous, pure on inputs, and don't invoke LLMs or cross network boundaries — the tick of a traffic light takes nanoseconds, not minutes.
 
 **Open design question (deferred):** whether `every Nms [...]` as a choreographic operator should automatically dispatch tick to every tick-registered resolver (ambient), or only to explicitly-targeted ones (explicit). The corpus uses explicit form; ambient is easier on authors but harder on the evaluator.
 
@@ -269,6 +269,107 @@ Scope keywords on `eval-env`:
 - `:commission` — agent-directed. Used by `deliver-commission` dispatch.
 
 `:scope` is the one most of the corpus uses implicitly. The next spec revision should codify what it means beyond "mutations are OK."
+
+---
+
+## Two Tick Concepts
+
+InnateScript and noosphere-ghosts both talk about "tick." They are not the same primitive. Conflating them is the mistake the first-pass contract almost made.
+
+| Dimension | Simulation tick (`resolve-tick`) | Agent tick (noosphere-ghosts) |
+|---|---|---|
+| Cadence | 1 ms–1 s (driven by `every Nms`) | 10 min (driven by `TICK_INTERVAL_SECONDS`) |
+| Granularity | One in-memory module advances by delta-ms | Every active ghost runs a perceive→rank→cognize→act→update cycle |
+| Side effects | None beyond module state | DB writes, LLM calls, message sends, energy/tier PATCHes |
+| Purity | Synchronous, bounded, no network | Async cognition broker, LLM provider dispatch, minutes of wall-clock |
+| Corpus | 20+ Rosetta Stone entries (mp3, traffic light, saver, …) | Runs live on the droplet via `lisp/runtime/tick-engine.lisp` |
+| Who drives it | InnateScript evaluator via `every Nms [...]` | External cron or sleep loop inside the ghosts runtime |
+
+### How InnateScript composes with the agent tick
+
+The agent tick is the outer driver. A choreography does NOT drive the agent tick; it runs *as part of* an agent's cognition output when the tick engine selects the agent and the broker resolves its cognition job.
+
+Inside one agent-tick cycle:
+
+```
+perceive → rank → classify → cognize (via broker)
+                                │
+                                ▼
+                           LLM produces action
+                                │
+                                ▼
+                     action may be a .dpn choreography
+                                │
+                                ▼
+                Innatescript evaluates it against the resolver
+                (which IS the ghosts' substrate-facing layer)
+                                │
+                                ▼
+                  action output returned to the broker
+                                │
+                                ▼
+                           update state → report
+```
+
+So choreographies are the shape of an agent's cognition output, not the driver of the cycle. `resolve-tick` remains available for simulations an agent might run *during* its cognition (e.g. an agent that models traffic-light timing as part of its own reasoning), but the outer 10-minute tick is not touched by the InnateScript evaluator at all.
+
+### What the two ticks share
+
+Both produce **events on boundaries** rather than streaming continuous state:
+
+- Simulation tick emits `TrackStarted`, `PlaylistEnded`, `PhaseChanged`.
+- Agent tick emits `log-entry`, `request-entry`, `resolution-entry`, eventually a batched tick report.
+
+A future generic (`emit-events` or similar) might unify how both kinds surface their output to observers. Deferred — first resolve the subscribing question: who consumes these events, and through what interface?
+
+---
+
+## Substrate Abstraction: The Noosphere-Ghosts Case
+
+The resolver protocol is a substrate-abstraction pattern. The noosphere-ghosts runtime currently has exactly one substrate: the droplet API (Postgres via `dpn-api-client`). Every runtime module imports `af64.runtime.api` (`api-get`/`api-post`/`api-patch`/`api-put`) and calls `/api/agents`, `/api/perception/~a`, `/api/conversations`, `/api/af64/tasks`, etc.
+
+**This is the same seam a resolver covers.** Reframing the ghosts to work against either a stack of markdown files OR the database is the resolver pattern applied to the ghosts' substrate boundary. The four API verbs become the four resolver verbs; the concrete choice (markdown walker, Postgres client, in-memory stub) becomes a swappable class specialization.
+
+### The minimal ghost-substrate protocol
+
+```lisp
+(defgeneric ghost-read   (substrate resource filter)
+  (:documentation "GET /api/<resource>?<filter> — returns hash-table or vector."))
+
+(defgeneric ghost-write  (substrate resource data)
+  (:documentation "POST /api/<resource> — returns the created resource."))
+
+(defgeneric ghost-update (substrate resource id data)
+  (:documentation "PATCH /api/<resource>/<id> — returns the updated resource."))
+
+(defgeneric ghost-upsert (substrate resource data)
+  (:documentation "PUT /api/<resource> — create-or-update by natural key."))
+```
+
+Concrete substrates:
+
+| Substrate | ghost-read / write / update / upsert |
+|---|---|
+| `postgres-substrate` | Wrap existing `api-get`/`api-post`/`api-patch`/`api-put`. One-to-one. |
+| `markdown-substrate` | Read: scan `~/Documents/Droplet-Org/` for frontmatter + content. Write: create `.md` with YAML frontmatter. Update: in-place edit of frontmatter fields. Upsert: resolve by wikilink or path. |
+| `stub-substrate` | In-memory hash-of-hashes. For tests and offline work. |
+
+### Field mapping is already halfway there
+
+`config/em-field-mapping.lisp` exists and defines how agents' domain vocabulary maps to API payload keys. That file is the substrate's schema descriptor — it's the contract a markdown-substrate also has to satisfy, just with YAML frontmatter keys instead of JSON field names.
+
+### What this lets the ghosts do
+
+- Run against the droplet for production (today).
+- Run against a local markdown stack for development, travel, offline — the laptop becomes fully self-contained.
+- Run against the stub for tests.
+- Swap substrates mid-session in principle (though no corpus choreography demands this yet).
+
+### Where this meets InnateScript
+
+When an InnateScript choreography delivered as an agent's cognition output needs to read or write ghost-state (tasks, conversations, drives, decisions), it goes through the *same* resolver that the agent tick uses for its own substrate calls. One class of resolver. Two callers: the outer tick engine and the InnateScript evaluator during cognition. Both see the same markdown-or-DB choice and neither cares which was picked.
+
+This is why "reframing the ghosts for markdown OR database" is not a separate project from "wiring InnateScript into the ghosts." They are the same seam, addressed by the same protocol.
 
 ---
 
@@ -441,7 +542,9 @@ For reviewers of the pre-corpus contract, the concrete deltas:
 1. **Argument conventions documented** — keyword plists, structured resistance, `where` predicates, `IN ORDER TO` purpose blocks. Previously unmentioned.
 2. **`deliver-commission` supports sync return values** — previous contract forbade resistance from commissions; the corpus requires synchronous replies.
 3. **Two new generics** — `resolve-tick` (20+ corpus entries are tick-driven) and `snapshot-state`/`restore-state` (preemption, retry-resume).
-4. **Stateful resolvers made explicit** — was implicit in "concrete resolvers add their own state"; now a named pattern with scope semantics.
-5. **`where` as a first-class input to three generics** — reference, search, context.
-6. **Choreographic-operator integration** — `concurrent`, `every`, `until`, `at`, `||`, `<-` now documented at the resolver boundary even though most live in the evaluator.
-7. **Corpus anchors** — three specific `.dpn` files named as the smallest set that exercises the full surface.
+4. **Simulation tick distinguished from agent tick** — `resolve-tick` is the former; the noosphere-ghosts 10-minute cycle is the latter; they are not the same primitive and InnateScript never drives the outer agent tick.
+5. **Substrate abstraction section added** — the noosphere-ghosts `af64.runtime.api` seam is the same shape as the resolver protocol; reframing the ghosts to work against markdown OR Postgres is the resolver pattern applied to the ghost substrate.
+6. **Stateful resolvers made explicit** — was implicit in "concrete resolvers add their own state"; now a named pattern with scope semantics.
+7. **`where` as a first-class input to three generics** — reference, search, context.
+8. **Choreographic-operator integration** — `concurrent`, `every`, `until`, `at`, `||`, `<-` now documented at the resolver boundary even though most live in the evaluator.
+9. **Corpus anchors** — three specific `.dpn` files named as the smallest set that exercises the full surface.
